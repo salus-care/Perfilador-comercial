@@ -477,9 +477,12 @@ let marca=null,producto=null,variante=null,memb=null,turno=null,step=1;
 function isSCS(){ return marca==='scs'; }
 
 function goStep(n){
-  // Validate going forward
+  // Validate going forward — skip step 3 for white label brands
   if(n>step){
-    for(let s=step;s<n;s++) if(!canLeave(s)) return;
+    for(let s=step;s<n;s++){
+      if(s===3 && !isSCS()) continue; // white label skips product step
+      if(!canLeave(s)) return;
+    }
   }
   step=n;
   [1,2,3,4,5].forEach(i=>{
