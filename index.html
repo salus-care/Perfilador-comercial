@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salus Care — Perfilador & Cotizador</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#007B8A;--teal-l:#00A9BB;--teal-d:#005A65;
+  --red:#D94F3D;--bg:#F0F5F6;--surface:#fff;--border:#D4E2E4;
+  --text:#1A2D30;--muted:#6B8A8E;--tag-bg:#E8F4F6;
+  --c:#4E9467;--p:#8259B3;--a:#B8780F;--e:#C0392B;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 14px rgba(0,70,80,.4);}
+.logo{width:36px;height:36px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:var(--teal-d);}
+header h1{font-family:'DM Serif Display',serif;font-size:1.15rem;}
+header span{font-size:.72rem;opacity:.6;display:block;margin-top:1px;}
+.badge{margin-left:auto;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:4px 12px;font-size:.7rem;letter-spacing:.06em;}
+
+/* WIZARD */
+.wizard{display:flex;gap:0;padding:18px 28px 0;max-width:1180px;margin:0 auto;}
+.wstep{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px 10px;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:none;font-size:.8rem;font-weight:500;color:var(--muted);transition:all .15s;background:transparent;}
+.wstep.active{background:var(--surface);border-color:var(--border);color:var(--teal-d);font-weight:600;}
+.wstep.done{color:var(--teal);}
+.wstep.hidden{display:none;}
+.wn{width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--muted);font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.wstep.active .wn{background:var(--teal);color:#fff;}
+.wstep.done .wn{background:var(--teal);color:#fff;}
+
+.main{max-width:1180px;margin:0 auto;padding:0 18px 60px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:28px 28px 32px;}
+
+/* STEP 1 */
+.s1-layout{display:grid;grid-template-columns:1fr 360px;gap:28px;}
+.section-label{font-size:.67rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:18px;}
+.section-label:first-child{margin-top:0;}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.check-grid.c1{grid-template-columns:1fr;}
+.ci{display:flex;align-items:flex-start;gap:9px;padding:7px 9px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;transition:all .13s;user-select:none;background:#FAFCFD;position:relative;}
+.ci:hover{border-color:var(--teal-l);background:var(--tag-bg);}
+.ci.on{border-color:var(--teal);background:#E6F5F7;}
+.chk{width:17px;height:17px;min-width:17px;border:2px solid #C8D8DA;border-radius:4px;margin-top:1px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#fff;transition:all .13s;}
+.ci.on .chk{background:var(--teal);border-color:var(--teal);}
+.ci.on .chk::after{content:'';width:4px;height:8px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg) translate(-1px,-1px);display:block;}
+.cl{font-size:.79rem;line-height:1.35;padding-right:42px;}
+.lv{position:absolute;right:7px;top:6px;font-size:.59rem;font-weight:700;padding:2px 6px;border-radius:10px;letter-spacing:.04em;}
+.lv-c{background:#E3F5E8;color:var(--c);}
+.lv-p{background:#EFE8FA;color:var(--p);}
+.lv-a{background:#FDF3E0;color:var(--a);}
+.lv-e{background:#FDECEA;color:var(--e);}
+
+/* PERFIL STICKY */
+.perfil-sticky{position:sticky;top:16px;}
+.pcard{border-radius:12px;border:2px solid var(--border);overflow:hidden;transition:border-color .2s;}
+.pcard.ac{border-color:var(--c);}.pcard.ap{border-color:var(--p);}
+.pcard.aa{border-color:var(--a);}.pcard.ae{border-color:var(--e);}
+.ptop{padding:14px 16px;display:flex;align-items:center;gap:11px;}
+.picon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.ic-c{background:#E3F5E8;}.ic-p{background:#EFE8FA;}.ic-a{background:#FDF3E0;}.ic-e{background:#FDECEA;}
+.pname{font-family:'DM Serif Display',serif;font-size:1rem;}
+.pname small{display:block;font-family:'DM Sans',sans-serif;font-size:.68rem;color:var(--muted);font-weight:400;margin-top:1px;}
+.ppills{display:flex;gap:5px;flex-wrap:wrap;padding:0 16px 12px;}
+.lp{font-size:.62rem;font-weight:600;padding:2px 8px;border-radius:20px;opacity:.28;border:1.5px solid currentColor;transition:opacity .2s;}
+.lp.on{opacity:1;}
+.lp-c{color:var(--c);}.lp-p{color:var(--p);}.lp-a{color:var(--a);}.lp-e{color:var(--e);}
+.preasons{padding:10px 16px 14px;border-top:1px solid var(--border);background:#FAFCFD;}
+.preasons h4{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.rtag{display:inline-flex;align-items:center;font-size:.7rem;background:var(--tag-bg);color:var(--teal-d);border-radius:20px;padding:2px 9px;margin:2px 2px 2px 0;}
+.nosel{padding:32px 16px;text-align:center;color:var(--muted);font-size:.82rem;line-height:1.5;}
+.nbar{display:flex;flex-wrap:wrap;gap:5px;padding:10px 0 16px;align-items:center;}
+.npill{font-size:.66rem;padding:2px 9px;border-radius:20px;font-weight:600;}
+.np-c{background:#E3F5E8;color:var(--c);}
+.np-p{background:#EFE8FA;color:var(--p);}
+.np-a{background:#FDF3E0;color:var(--a);}
+.np-e{background:#FDECEA;color:var(--e);}
+.ntotal{margin-left:auto;font-size:.68rem;color:var(--muted);}
+
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:all .14s;border:none;}
+.btn-primary{background:var(--teal);color:#fff;}
+.btn-primary:hover{background:var(--teal-d);}
+.btn-primary:disabled{opacity:.38;pointer-events:none;}
+.btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--red);color:var(--red);}
+.step-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border);}
+
+/* STEP 2 — MARCA */
+.marca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.mcard{border:2px solid var(--border);border-radius:12px;padding:22px 20px;cursor:pointer;transition:all .15s;background:#FAFCFD;position:relative;}
+.mcard:hover{border-color:var(--teal-l);}
+.mcard.on{border-color:var(--teal);background:#E6F5F7;}
+.mcard-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:12px;transition:all .14s;}
+.mcard.on .mcard-radio{background:var(--teal);border-color:var(--teal);}
+.mcard.on .mcard-radio::after{content:'';width:6px;height:6px;background:#fff;border-radius:50%;display:block;}
+.mcard-name{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--teal-d);margin-bottom:3px;}
+.mcard-sub{font-size:.75rem;color:var(--muted);margin-bottom:10px;line-height:1.4;}
+.mcard-tag{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:20px;background:var(--tag-bg);color:var(--teal);}
+.wl-tag{background:#FDF3E0;color:var(--a);}
+
+/* STEP 3 — PRODUCTO (SCS only) */
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.prod-card{border:2px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .15s;background:#FAFCFD;}
+.prod-card:hover{border-color:var(--teal-l);}
+.prod-card.on{border-color:var(--teal);background:#E6F5F7;}
+.prod-card.on .prod-radio{background:var(--teal);border-color:var(--teal);}
+.prod-card.on .prod-radio::after{content:'';width:6px;height:6px;background:#fff;border-radius:50%;display:block;}
+.prod-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:12px;transition:all .14px;}
+.prod-title{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--teal-d);margin-bottom:4px;}
+.prod-sub{font-size:.75rem;color:var(--muted);margin-bottom:10px;line-height:1.4;}
+.prod-tag{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:20px;background:var(--tag-bg);color:var(--teal);}
+.prod-features{margin-top:12px;border-top:1px solid var(--border);padding-top:12px;}
+.pf-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px;font-size:.75rem;line-height:1.35;}
+.pf-y{color:var(--teal);flex-shrink:0;}
+.pf-n{color:#CCC;flex-shrink:0;}
+.variant-row{display:flex;gap:10px;margin-bottom:16px;}
+.var-btn{flex:1;padding:10px 12px;border:2px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .14s;text-align:left;}
+.var-btn:hover{border-color:var(--teal-l);}
+.var-btn.on{border-color:var(--teal);background:#E6F5F7;}
+.var-btn .vt{font-size:.82rem;font-weight:600;color:var(--teal-d);}
+.var-btn .vs{font-size:.7rem;color:var(--muted);margin-top:3px;line-height:1.35;}
+.memb-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px;}
+.memb-btn{padding:11px 10px;border:2px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .14s;text-align:center;}
+.memb-btn:hover{border-color:var(--teal-l);}
+.memb-btn.on{border-color:var(--teal);background:#E6F5F7;}
+.memb-btn .mt{font-size:.8rem;font-weight:600;color:var(--teal-d);}
+.memb-btn .ms2{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.memb-btn .md{font-size:.68rem;color:var(--teal);font-weight:700;margin-top:3px;}
+
+/* STEP 4 — TURNO */
+.turno-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.tcard{padding:12px 10px;border:2px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .14s;text-align:center;}
+.tcard:hover{border-color:var(--teal-l);}
+.tcard.on{border-color:var(--teal);background:#E6F5F7;}
+.tcard.disabled{opacity:.3;pointer-events:none;}
+.tcard .tn{font-size:.82rem;font-weight:600;color:var(--teal-d);}
+.tcard .th{font-size:.68rem;color:var(--muted);margin-top:3px;}
+
+/* STEP 5 — COTIZ */
+.cotiz-layout{display:grid;grid-template-columns:1fr 370px;gap:28px;}
+.summary-box{background:#F8FBFC;border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:18px;}
+.sb-title{font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.sb-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid #E8EDEF;gap:8px;}
+.sb-row:last-child{border-bottom:none;}
+.sb-l{font-size:.78rem;color:var(--muted);}
+.sb-v{font-size:.82rem;font-weight:600;text-align:right;}
+.price-hero{background:var(--teal-d);color:#fff;border-radius:12px;padding:20px 22px;margin-bottom:16px;text-align:center;}
+.ph-label{font-size:.72rem;opacity:.7;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.ph-price{font-family:'DM Serif Display',serif;font-size:2.2rem;}
+.ph-sub{font-size:.72rem;opacity:.65;margin-top:4px;}
+.price-breakdown{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.pb-head{background:var(--tag-bg);padding:10px 14px;font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-d);}
+.pb-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-top:1px solid var(--border);}
+.pb-l{font-size:.78rem;color:var(--muted);}
+.pb-v{font-size:.82rem;font-weight:600;}
+.pb-v.hi{color:var(--teal);font-family:'DM Serif Display',serif;font-size:1rem;}
+.match-note{border-radius:9px;padding:12px 14px;font-size:.75rem;line-height:1.5;margin-bottom:14px;}
+.note-green{background:#E3F5E8;border:1px solid #A8D9B4;color:#2D6B3F;}
+.note-purple{background:#EFE8FA;border:1px solid #C8A8E8;color:#4B2880;}
+.note-blue{background:#E6F5F7;border:1px solid #99D0D8;color:#00475A;}
+.memb-breakdown{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.mb-head{background:var(--tag-bg);padding:10px 14px;font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-d);display:flex;justify-content:space-between;}
+.mb-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-top:1px solid var(--border);}
+.mb-l{font-size:.78rem;color:var(--text);}
+.mb-v{font-size:.82rem;font-weight:600;text-align:right;}
+.disc{font-size:.65rem;color:var(--teal);background:var(--tag-bg);padding:1px 5px;border-radius:10px;margin-left:4px;}
+.guardias-box{background:#FDF3E0;border:1px solid #F0CC8A;border-radius:9px;padding:12px 14px;font-size:.75rem;color:#7A5010;line-height:1.6;}
+.note{font-size:.65rem;color:var(--muted);line-height:1.5;margin-top:8px;}
+
+@media(max-width:900px){
+  .s1-layout,.cotiz-layout{grid-template-columns:1fr;}
+  .perfil-sticky{position:static;}
+  .check-grid,.marca-grid,.product-grid,.turno-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">+S</div>
+  <div>
+    <h1>Salus Care Solutions</h1>
+    <span>Perfilador & Cotizador — Asesor Comercial</span>
+  </div>
+  <div class="badge">USO INTERNO</div>
+</header>
+
+<div class="wizard" id="wizard">
+  <div class="wstep active" id="ws1" onclick="goStep(1)"><div class="wn" id="wn1">1</div>Necesidades</div>
+  <div class="wstep" id="ws2" onclick="goStep(2)"><div class="wn" id="wn2">2</div>Marca</div>
+  <div class="wstep hidden" id="ws3" onclick="goStep(3)"><div class="wn" id="wn3">3</div>Producto Salus</div>
+  <div class="wstep" id="ws4" onclick="goStep(4)"><div class="wn" id="wn4">4</div>Turno</div>
+  <div class="wstep" id="ws5" onclick="goStep(5)"><div class="wn" id="wn5">5</div>Cotización</div>
+</div>
+
+<div class="main">
+<div class="panel" id="panel">
+
+<!-- ══ STEP 1: NECESIDADES ══ -->
+<div id="step1">
+<div class="s1-layout">
+  <div>
+    <div id="nbar" class="nbar" style="display:none"></div>
+
+    <div class="section-label">📍 Sitio del servicio</div>
+    <div class="check-grid">
+      <label class="ci" onclick="tog(this,'sitio_dom','c','Cuidados en domicilio')"><div class="chk"></div><span class="cl">Cuidados en domicilio</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'sitio_hosp','a','Cuidados en hospital')"><div class="chk"></div><span class="cl">Cuidados en hospital</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'sitio_hotel','c','Cuidados en hotel')"><div class="chk"></div><span class="cl">Cuidados en hotel</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'sitio_seguro','e','Contratado por aseguradora')"><div class="chk"></div><span class="cl">Contratado por aseguradora</span><span class="lv lv-e">Enf.</span></label>
+    </div>
+
+    <div class="section-label">🛁 Higiene personal</div>
+    <div class="check-grid">
+      <label class="ci" onclick="tog(this,'banio','c','Baño / aseo personal')"><div class="chk"></div><span class="cl">Baño y/o aseo (oral y corporal)</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'vestido','c','Asistencia en vestido')"><div class="chk"></div><span class="cl">Asistencia en vestido y arreglo</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'wc','c','Asistencia en WC')"><div class="chk"></div><span class="cl">Asistencia durante uso del WC</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'cama','c','Tendido de cama')"><div class="chk"></div><span class="cl">Tendido de cama y habitación</span><span class="lv lv-c">Cuid.</span></label>
+    </div>
+
+    <div class="section-label">🍼 Alimentación</div>
+    <div class="check-grid">
+      <label class="ci" onclick="tog(this,'formula','c','Fórmula láctea / dieta oral')"><div class="chk"></div><span class="cl">Fórmula láctea / dieta oral</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'sonda_g','e','Alimentación por sonda gástrica')"><div class="chk"></div><span class="cl">Sonda gástrica (NGT / PEG)</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'npt','e','Nutrición parenteral IV')"><div class="chk"></div><span class="cl">Nutrición parenteral (catéter venoso)</span><span class="lv lv-e">Enf.</span></label>
+    </div>
+
+    <div class="section-label">🚶 Movilización y acompañamiento</div>
+    <div class="check-grid">
+      <label class="ci" onclick="tog(this,'moviliz','c','Movilización y transferencia')"><div class="chk"></div><span class="cl">Movilización y transferencia</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'acomp','c','Acompañamiento a lugares públicos')"><div class="chk"></div><span class="cl">Acompañamiento a lugares públicos</span><span class="lv lv-c">Cuid.</span></label>
+    </div>
+
+    <div class="section-label">💊 Medicamentos y procedimientos</div>
+    <div class="check-grid">
+      <label class="ci" onclick="tog(this,'signos','c','Toma de signos vitales')"><div class="chk"></div><span class="cl">Toma de signos vitales (FC, FR, TA, Temp.)</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'glucosa','a','Glucosa capilar')"><div class="chk"></div><span class="cl">Glucosa capilar</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'topico','c','Medicamentos tópicos')"><div class="chk"></div><span class="cl">Medicamentos tópicos (ungüentos)</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'otico','c','Gotas en oídos')"><div class="chk"></div><span class="cl">Gotas en oídos (vía ótica)</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'oftalm','c','Gotas en ojos')"><div class="chk"></div><span class="cl">Gotas en ojos (vía oftálmica)</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'oral','c','Medicamentos vía oral')"><div class="chk"></div><span class="cl">Medicamentos vía oral</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'im','a','Inyección intramuscular')"><div class="chk"></div><span class="cl">Inyección intramuscular (IM)</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'sc','a','Medicamentos subcutáneos')"><div class="chk"></div><span class="cl">Medicamentos subcutáneos (SC)</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'iv','e','Medicamentos intravenosos IV')"><div class="chk"></div><span class="cl">Medicamentos intravenosos (IV)</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'venoclisis','e','Venoclisis')"><div class="chk"></div><span class="cl">Infusiones por gravedad (venoclisis)</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'bomba','e','Bomba de infusión')"><div class="chk"></div><span class="cl">Bomba de infusión</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'enema','a','Enemas evacuantes')"><div class="chk"></div><span class="cl">Enemas evacuantes</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'heridas','a','Curación de heridas / vendajes')"><div class="chk"></div><span class="cl">Curación de heridas / vendajes</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'oxigeno','a','Oxígeno suplementario')"><div class="chk"></div><span class="cl">Manejo de oxígeno suplementario</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'nebuliz','a','Nebulizaciones')"><div class="chk"></div><span class="cl">Nebulizaciones</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'fisio','a','Fisioterapia pulmonar')"><div class="chk"></div><span class="cl">Fisioterapia pulmonar / drenaje postural</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'traqueost','e','Traqueostomía')"><div class="chk"></div><span class="cl">Cánula / traqueostomía</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'endotraq','e','Tubo endotraqueal')"><div class="chk"></div><span class="cl">Tubo endotraqueal</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'sg_oro','e','Sondas gástricas / orogástricas')"><div class="chk"></div><span class="cl">Sondas gástricas / orogástricas</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'postqx','a','Heridas / drenajes post-quirúrgicos')"><div class="chk"></div><span class="cl">Heridas / drenajes post-quirúrgicos</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'dolor','e','Control del dolor')"><div class="chk"></div><span class="cl">Control del dolor</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'paliat','e','Cuidados paliativos')"><div class="chk"></div><span class="cl">Cuidados paliativos</span><span class="lv lv-e">Enf.</span></label>
+    </div>
+
+    <div class="section-label">🧠 Terapia ocupacional / estimulación</div>
+    <div class="check-grid">
+      <label class="ci" onclick="tog(this,'to_b','c','T. Ocupacional básica')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva básica</span><span class="lv lv-c">Cuid.</span></label>
+      <label class="ci" onclick="tog(this,'to_i','p','T. Ocupacional intermedia')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva intermedia</span><span class="lv lv-p">Pueric.</span></label>
+      <label class="ci" onclick="tog(this,'demencia','a','Actividades avanzadas demencia')"><div class="chk"></div><span class="cl">Actividades avanzadas para demencia</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'to_a','e','T. Ocupacional avanzada')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva avanzada</span><span class="lv lv-e">Enf.</span></label>
+    </div>
+
+    <div class="section-label">👶 Cuidado pediátrico / neonatal</div>
+    <div class="check-grid c1">
+      <label class="ci" onclick="tog(this,'neonatal','p','Paciente neonatal o lactante')"><div class="chk"></div><span class="cl">Paciente recién nacido o lactante (requiere Puericulturista)</span><span class="lv lv-p">Pueric.</span></label>
+    </div>
+  </div>
+
+  <div class="perfil-sticky">
+    <div class="pcard" id="pcard">
+      <div id="pcard-content"><div class="nosel">Selecciona las necesidades del paciente para ver el perfil recomendado.</div></div>
+    </div>
+  </div>
+</div>
+<div class="step-nav">
+  <button class="btn btn-ghost" onclick="resetAll()">🔄 Reiniciar</button>
+  <button class="btn btn-primary" id="btn1" onclick="goStep(2)" disabled>Siguiente: Marca →</button>
+</div>
+</div>
+
+<!-- ══ STEP 2: MARCA ══ -->
+<div id="step2" style="display:none">
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px;">Selecciona la marca bajo la que se prestará el servicio. Los productos Salus Match, Select y Premium son exclusivos de <strong>Salus Care Solutions</strong>.</p>
+  <div class="marca-grid">
+
+    <div class="mcard" id="mc-scs" onclick="setMarca('scs')">
+      <div class="mcard-radio" id="mr-scs"></div>
+      <div class="mcard-name">+Salus Care Solutions</div>
+      <div class="mcard-sub">Marca central. Incluye Match, Select y Premium además de precios estándar y membresía.</div>
+      <span class="mcard-tag">Match · Select · Premium</span>
+    </div>
+
+    <div class="mcard" id="mc-ms" onclick="setMarca('ms')">
+      <div class="mcard-radio" id="mr-ms"></div>
+      <div class="mcard-name">Médica Sur en tu casa</div>
+      <div class="mcard-sub">White label. Precios estándar por servicio y membresía. Sin Match / Select / Premium.</div>
+      <span class="mcard-tag wl-tag">White label</span>
+    </div>
+
+    <div class="mcard" id="mc-polar" onclick="setMarca('polar')">
+      <div class="mcard-radio" id="mr-polar"></div>
+      <div class="mcard-name">Polar Salud Contigo</div>
+      <div class="mcard-sub">White label. Precios estándar por servicio y membresía. Sin Match / Select / Premium.</div>
+      <span class="mcard-tag wl-tag">White label</span>
+    </div>
+
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-ghost" onclick="goStep(1)">← Atrás</button>
+    <button class="btn btn-primary" id="btn2" onclick="marcaNext()" disabled>Siguiente →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 3: PRODUCTO (SCS only) ══ -->
+<div id="step3" style="display:none">
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px;">Elige el producto Salus Care Solutions que mejor se adapta a la situación del cliente.</p>
+  <div class="product-grid">
+
+    <div class="prod-card" id="pc-match" onclick="setProd('match')">
+      <div class="prod-radio" id="pr-match"></div>
+      <div class="prod-title">Salus Match</div>
+      <div class="prod-sub">Reclutamiento + Plan de Cuidados. <strong>Pago único</strong>, sin mensualidad.</div>
+      <div class="prod-tag">Pago único · Garantía 30 días</div>
+      <div class="prod-features">
+        <div class="pf-row"><span class="pf-y">✓</span>Reclutamiento y selección profesional</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Expediente completo (psicométrico, toxicológico, antecedentes)</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Valoración clínica + Plan de cuidados + Seguridad del hogar</div>
+        <div class="pf-row"><span class="pf-n">—</span>Membresía mensual</div>
+        <div class="pf-row"><span class="pf-n">—</span>Guardias de respaldo incluidas</div>
+        <div class="pf-row"><span class="pf-n">—</span>Capacitación Serenity</div>
+      </div>
+    </div>
+
+    <div class="prod-card" id="pc-select" onclick="setProd('select')">
+      <div class="prod-radio" id="pr-select"></div>
+      <div class="prod-title">Salus Select</div>
+      <div class="prod-sub">Pago único + <strong>membresía mensual</strong> con soporte continuo.</div>
+      <div class="prod-tag">Pago único + Membresía</div>
+      <div class="prod-features">
+        <div class="pf-row"><span class="pf-y">✓</span>Todo lo de Match (o solo valoración si ya tiene cuidador)</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Plataforma Serenity (capacitación continua)</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Pláticas SOFIA (Soporte Familiar)</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Guardias de respaldo incluidas por paquete</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Descuento en re-reclutamiento</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Precio preferente en guardias adicionales</div>
+      </div>
+    </div>
+
+    <div class="prod-card" id="pc-premium" onclick="setProd('premium')">
+      <div class="prod-radio" id="pr-premium"></div>
+      <div class="prod-title">Salus Premium</div>
+      <div class="prod-sub">Servicio todo incluido. Salus <strong>emplea, supervisa y gestiona</strong> al personal.</div>
+      <div class="prod-tag">Mensual · Todo incluido</div>
+      <div class="prod-features">
+        <div class="pf-row"><span class="pf-y">✓</span>Reclutamiento profesional</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Valoración clínica completa</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Personal empleado por Salus (con prestaciones)</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Gestión clínica: visitas y reportes</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Cobertura completa si falta el personal</div>
+        <div class="pf-row"><span class="pf-y">✓</span>Riesgo laboral 100% a cargo de Salus</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select sub-options -->
+  <div id="select-options" style="display:none">
+    <div class="section-label" style="margin-top:0;margin-bottom:10px;">¿El cliente ya tiene cuidador contratado?</div>
+    <div class="variant-row">
+      <button class="var-btn" id="vb-basico" onclick="setVariant('basico')">
+        <div class="vt">Select Básico — Solo valoración</div>
+        <div class="vs">Ya tiene cuidador. Solo valoración clínica + plan de cuidados. Sin reclutamiento. <strong>Pago único $4,466</strong></div>
+      </button>
+      <button class="var-btn" id="vb-plus" onclick="setVariant('plus')">
+        <div class="vt">Select Plus — Con reclutamiento</div>
+        <div class="vs">Busca cuidador nuevo. Reclutamiento completo + valoración + membresía. <strong>Pago único igual que Match</strong></div>
+      </button>
+    </div>
+    <div class="section-label" style="margin-top:16px;margin-bottom:10px;">Paquete de membresía</div>
+    <div class="memb-row">
+      <button class="memb-btn" id="mb-trim" onclick="setMemb('trim')"><div class="mt">Trimestral</div><div class="ms2">3 meses</div><div class="md">sin descuento</div></button>
+      <button class="memb-btn" id="mb-sem"  onclick="setMemb('sem')"><div class="mt">Semestral</div><div class="ms2">6 meses</div><div class="md">10% dto.</div></button>
+      <button class="memb-btn" id="mb-anual" onclick="setMemb('anual')"><div class="mt">Anual</div><div class="ms2">12 meses</div><div class="md">20% dto.</div></button>
+    </div>
+  </div>
+
+  <div class="step-nav">
+    <button class="btn btn-ghost" onclick="goStep(2)">← Atrás</button>
+    <button class="btn btn-primary" id="btn3" onclick="goStep(4)" disabled>Siguiente: Turno →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 4: TURNO ══ -->
+<div id="step4" style="display:none">
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px;" id="turno-hint"></p>
+  <div class="turno-grid">
+    <div class="tcard" id="tc8"  onclick="setTurno(8)"><div class="tn">☀️ 8 horas</div><div class="th">—</div></div>
+    <div class="tcard" id="tc12" onclick="setTurno(12)"><div class="tn">🔄 12 horas</div><div class="th">—</div></div>
+    <div class="tcard" id="tc18" onclick="setTurno(18)"><div class="tn">🌙 18 horas</div><div class="th">—</div></div>
+    <div class="tcard" id="tc24" onclick="setTurno(24)"><div class="tn">⏰ 24 horas</div><div class="th">—</div></div>
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-ghost" id="btn4-back" onclick="turnoBack()">← Atrás</button>
+    <button class="btn btn-primary" id="btn4" onclick="goStep(5)" disabled>Ver cotización →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 5: COTIZACIÓN ══ -->
+<div id="step5" style="display:none">
+<div class="cotiz-layout">
+  <div id="cotiz-main"></div>
+  <div id="cotiz-aside"></div>
+</div>
+<div class="step-nav">
+  <button class="btn btn-ghost" onclick="goStep(4)">← Editar turno</button>
+  <button class="btn btn-ghost" onclick="resetAll()">🔄 Nueva cotización</button>
+</div>
+</div>
+
+</div></div><!-- /panel /main -->
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const ESTANDAR = {
+  scs:  {c:{8:1017,12:1285,18:1652,24:null},  a:{8:1285,12:1541,18:1815,24:null},  e:{8:1553,12:1815,18:2415,24:null}},
+  ms:   {c:{8:1366.48,12:1780.60,18:2325.80,24:null}, a:{8:1741.16,12:2121.64,18:2542.09,24:null}, e:{8:2140.20,12:2720.20,18:3525.75,24:null}},
+  polar:{c:{8:1170,12:1478,18:1899,24:null},   a:{8:1478,12:1773,18:2088,24:null},  e:{8:1786,12:2088,18:2777,24:null}},
+};
+const MEMB = {
+  scs:{
+    c:{8:{sd:[4420,8840,22100,26520,30940],cd:[4420,8840,20995,23338,26299]},12:{sd:[5587,11173,27934,33520,39107],cd:[5587,11173,25699,29498,33241]},18:{sd:[7176,14353,35882,43059,50235],cd:[7176,14353,31577,36600,40188]},24:{sd:[11173,22347,55867,67041,78214],cd:[11173,22347,49163,56984,62571]}},
+    a:{8:{sd:[5587,11173,27934,33520,39107],cd:[5587,11173,26537,29498,33241]},12:{sd:[6696,13393,33482,40178,46874],cd:[6696,13393,30803,35357,39843]},18:{sd:[7890,15779,39449,47338,55228],cd:[7890,15779,34715,40238,44182]},24:{sd:[13393,26785,66963,80356,93749],cd:[13393,26785,58928,68303,74999]}},
+    e:{8:{sd:[6750,13500,33751,40501,47251],cd:[6750,13500,32063,35641,40163]},12:{sd:[7890,15780,39450,45933,55230],cd:[7890,15780,36294,40421,46945]},18:{sd:[10493,20987,52467,62961,73454],cd:[10493,20987,46171,53517,58763]},24:{sd:[15780,31560,78899,91866,110459],cd:[15780,31560,69432,78086,88367]}},
+  },
+  ms:{
+    c:{8:{sd:[5934.56,11869.12,29672.80,35607.36,41543.08],cd:[5935,11869,27299,32047,36558]},12:{sd:[7698.92,15397.84,38494.60,46193.52,53892.44],cd:[7699,15398,35415,41574,47425]},18:{sd:[10104.76,20209.52,50524.96,60629.72,70734.48],cd:[10105,20210,46483,54567,62246]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
+    a:{8:{sd:[7566.68,15132.20,37831.08,45396.60,52964.44],cd:[7567,15132,34805,40857,46609]},12:{sd:[9220.84,18441.68,46106.52,55327.36,64550.52],cd:[9221,18442,42418,49795,56804]},18:{sd:[10994.48,21990.12,54973.56,65968.04,76963.68],cd:[10994,21990,50576,59371,67728]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
+    e:{8:{sd:[9300.88,18600.60,46500.92,55800.64,65101.52],cd:[9301,18601,42781,50221,57289]},12:{sd:[11822.72,23644.28,59111.28,68096.64,82755.56],cd:[11823,23644,54382,61287,72825]},18:{sd:[15251.68,30501.04,76253.76,91504.28,106754.80],cd:[15252,30501,70153,82354,93944]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
+  },
+  polar:{
+    c:{8:{sd:[5083,10166,25415,30498,35581],cd:[5083,10166,24144,28058,32023]},12:{sd:[6425,12849,32124,38548,44973],cd:[6425,12849,30517,35464,40476]},18:{sd:[8253,16506,41265,49518,57771],cd:[8253,16506,39202,45556,51994]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
+    a:{8:{sd:[6425,12849,32124,38548,44973],cd:[6425,12849,30517,35464,40476]},12:{sd:[7701,15402,38504,46205,53906],cd:[7701,15402,36579,42508,48515]},18:{sd:[9073,18146,45366,54439,63512],cd:[9073,18146,43098,50084,57161]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
+    e:{8:{sd:[7763,15525,38813,46576,54339],cd:[7763,15525,36873,42850,48905]},12:{sd:[9073,18147,45367,52823,63514],cd:[9073,18147,43099,48597,57163]},18:{sd:[12067,24135,60337,72405,84472],cd:[12067,24135,57321,66613,76025]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
+  },
+};
+const COL_L=['1 mes','2 meses','5 meses','6 meses','7 meses'];
+const MATCH_PRICES={c:8352,a:9164,e:10904};
+const SELECT_BASICO=4466;
+const MEMB_MENSUAL={c:{trim:599,sem:539,anual:479},a:{trim:799,sem:719,anual:639},e:{trim:899,sem:809,anual:719}};
+const MEMB_DISC={trim:0,sem:.10,anual:.20};
+const MEMB_MES={trim:3,sem:6,anual:12};
+const GUARDIAS_INC={trim:1,sem:3,anual:7};
+const HIERARCHY=['c','p','a','e'];
+const PM={
+  c:{icon:'🤝',name:'Cuidadora',       sub:'Cuidado básico y acompañamiento',          cls:'ic-c',acls:'ac',pcls:'lp-c'},
+  p:{icon:'👶',name:'Puericulturista', sub:'Especialista pediátrica',                  cls:'ic-p',acls:'ap',pcls:'lp-p'},
+  a:{icon:'🩺',name:'Auxiliar de Enfermería',sub:'Procedimientos técnicos nivel medio', cls:'ic-a',acls:'aa',pcls:'lp-a'},
+  e:{icon:'👩‍⚕️',name:'Enfermera Titulada', sub:'Procedimientos clínicos avanzados',  cls:'ic-e',acls:'ae',pcls:'lp-e'},
+};
+const MARCA_L={scs:'Salus Care Solutions',ms:'Médica Sur en tu casa',polar:'Polar Salud Contigo'};
+
+// ─── STATE ──────────────────────────────────────────────
+const sel={};
+let marca=null,producto=null,variante=null,memb=null,turno=null,step=1;
+
+// ─── STEP LOGIC ─────────────────────────────────────────
+// For white-label: steps are 1,2,4,5 (skip 3)
+// For SCS: steps are 1,2,3,4,5
+
+function isSCS(){ return marca==='scs'; }
+
+function goStep(n){
+  // Validate going forward
+  if(n>step){
+    for(let s=step;s<n;s++) if(!canLeave(s)) return;
+  }
+  step=n;
+  [1,2,3,4,5].forEach(i=>{
+    document.getElementById('step'+i).style.display=(i===n)?'block':'none';
+  });
+  updateWizardTabs();
+  if(n===4) prepTurnoStep();
+  if(n===5) renderCotiz();
+}
+
+function marcaNext(){
+  if(!marca) return;
+  // SCS → go to step 3 (product), white label → go to step 4 (turno)
+  goStep(isSCS() ? 3 : 4);
+}
+
+function turnoBack(){
+  // go back to step 3 if SCS, else step 2
+  goStep(isSCS() ? 3 : 2);
+}
+
+function canLeave(s){
+  if(s===1) return getProfile()!==null;
+  if(s===2) return marca!==null;
+  if(s===3){
+    if(!producto) return false;
+    if(producto==='select') return variante!==null && memb!==null;
+    return true;
+  }
+  if(s===4) return turno!==null;
+  return true;
+}
+
+function updateWizardTabs(){
+  const steps = isSCS() ? [1,2,3,4,5] : [1,2,4,5];
+  // show/hide step 3 tab
+  document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');
+
+  // renumber visible tabs
+  const visible = isSCS()?[1,2,3,4,5]:[1,2,4,5];
+  visible.forEach((s,idx)=>{
+    const ws=document.getElementById('ws'+s);
+    if(!ws) return;
+    const isDone = s < step || (s===step && false);
+    const isActive = s===step;
+    ws.className='wstep'+(isActive?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');
+  });
+}
+
+function updateBtns(){
+  const b1=document.getElementById('btn1');
+  const b2=document.getElementById('btn2');
+  const b3=document.getElementById('btn3');
+  const b4=document.getElementById('btn4');
+  if(b1) b1.disabled=!canLeave(1);
+  if(b2) b2.disabled=!canLeave(2);
+  if(b3) b3.disabled=!canLeave(3);
+  if(b4) b4.disabled=!canLeave(4);
+}
+
+// ─── STEP 1 ─────────────────────────────────────────────
+function tog(el,id,lv,label){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')) sel[id]={lv,label};
+  else delete sel[id];
+  renderPerfil();
+  updateBtns();
+}
+
+function getProfile(){
+  const lvs=Object.values(sel).map(v=>v.lv);
+  let max=-1;
+  for(const l of lvs){const i=HIERARCHY.indexOf(l);if(i>max)max=i;}
+  return max>=0?HIERARCHY[max]:null;
+}
+
+function renderPerfil(){
+  const profile=getProfile();
+  const nc=Object.keys(sel).length;
+  const nb=document.getElementById('nbar');
+  if(!nc){nb.style.display='none';}
+  else{
+    nb.style.display='flex';
+    const cnt={};
+    Object.values(sel).forEach(v=>cnt[v.lv]=(cnt[v.lv]||0)+1);
+    const cm={c:'np-c',p:'np-p',a:'np-a',e:'np-e'};
+    nb.innerHTML=HIERARCHY.filter(l=>cnt[l]).map(l=>`<span class="npill ${cm[l]}">${PM[l].name}: ${cnt[l]}</span>`).join('')
+      +`<span class="ntotal">${nc} necesidades</span>`;
+  }
+  const pc=document.getElementById('pcard');
+  const pcc=document.getElementById('pcard-content');
+  pc.className='pcard'+(profile?' '+PM[profile].acls:'');
+  if(!profile){pcc.innerHTML='<div class="nosel">Selecciona las necesidades del paciente para ver el perfil recomendado.</div>';return;}
+  const m=PM[profile];
+  const reasons=Object.values(sel).filter(v=>HIERARCHY.indexOf(v.lv)>=HIERARCHY.indexOf(profile)).map(v=>`<span class="rtag">✓ ${v.label}</span>`).join('');
+  const pills=HIERARCHY.map(l=>`<span class="lp ${PM[l].pcls} ${l===profile?'on':''}">${PM[l].name}</span>`).join('');
+  pcc.innerHTML=`<div class="ptop"><div class="picon ${m.cls}">${m.icon}</div><div class="pname">${m.name}<small>${m.sub}</small></div></div>
+    <div class="ppills">${pills}</div>
+    <div class="preasons"><h4>Necesidades que justifican este perfil</h4>${reasons||'—'}</div>`;
+}
+
+// ─── STEP 2 ─────────────────────────────────────────────
+function setMarca(m){
+  marca=m;
+  ['scs','ms','polar'].forEach(x=>{
+    document.getElementById('mc-'+x).classList.toggle('on',x===m);
+    document.getElementById('mr-'+x).classList.toggle('on',x===m);
+  });
+  // if switching away from scs, clear product state
+  if(m!=='scs'){producto=null;variante=null;memb=null;}
+  updateBtns();
+}
+
+// ─── STEP 3 ─────────────────────────────────────────────
+function setProd(p){
+  producto=p; variante=null; memb=null;
+  ['match','select','premium'].forEach(x=>{
+    document.getElementById('pc-'+x).classList.toggle('on',x===p);
+    document.getElementById('pr-'+x).classList.toggle('on',x===p);
+  });
+  document.getElementById('select-options').style.display=(p==='select')?'block':'none';
+  if(p==='select') document.querySelectorAll('.var-btn,.memb-btn').forEach(b=>b.classList.remove('on'));
+  updateBtns();
+}
+function setVariant(v){
+  variante=v;
+  document.getElementById('vb-basico').classList.toggle('on',v==='basico');
+  document.getElementById('vb-plus').classList.toggle('on',v==='plus');
+  updateBtns();
+}
+function setMemb(m){
+  memb=m;
+  ['trim','sem','anual'].forEach(x=>document.getElementById('mb-'+x).classList.toggle('on',x===m));
+  updateBtns();
+}
+
+// ─── STEP 4 ─────────────────────────────────────────────
+function prepTurnoStep(){
+  const t24=document.getElementById('tc24');
+  if(!isSCS()){
+    t24.classList.add('disabled');
+    if(turno===24){turno=null;t24.classList.remove('on');}
+  } else {
+    t24.classList.remove('disabled');
+  }
+  renderTurnoCards();
+}
+
+function renderTurnoCards(){
+  const profile=getProfile();
+  const pk=(profile==='p')?'a':profile;
+  const hint=document.getElementById('turno-hint');
+
+  // Build price preview table for all 3 profiles × turno
+  const perfiles=[
+    {k:'c',label:'Cuidadora'},
+    {k:'a',label:'Auxiliar Enf.'},
+    {k:'e',label:'Enfermera'},
+  ];
+  const turnos=[8,12,18,24];
+
+  let tabla=`<div style="overflow-x:auto;margin-bottom:20px;">
+    <table style="width:100%;border-collapse:collapse;font-size:.78rem;">
+      <thead>
+        <tr style="background:var(--tag-bg);">
+          <th style="padding:8px 12px;text-align:left;border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:.67rem;letter-spacing:.08em;text-transform:uppercase;">Perfil</th>
+          ${turnos.map(h=>{
+            const avail=isSCS()||(h!==24);
+            return `<th style="padding:8px 12px;text-align:center;border:1px solid var(--border);color:${avail?'var(--teal-d)':'var(--muted)'};font-weight:600;font-size:.67rem;letter-spacing:.08em;text-transform:uppercase;">${h}h${!avail?' *':''}</th>`;
+          }).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${perfiles.map(p=>`
+          <tr style="${p.k===pk?'background:#E6F5F7;font-weight:600;':''}">
+            <td style="padding:8px 12px;border:1px solid var(--border);">
+              ${p.k===pk?'<span style="color:var(--teal);margin-right:4px;">★</span>':''}${p.label}
+              ${p.k===pk?'<span style="font-size:.62rem;color:var(--teal);display:block;font-weight:400;">Perfil recomendado</span>':''}
+            </td>
+            ${turnos.map(h=>{
+              const avail=isSCS()||(h!==24);
+              const price=avail?(ESTANDAR[marca]?.[p.k]?.[h]??null):null;
+              return `<td style="padding:8px 12px;text-align:center;border:1px solid var(--border);color:${!avail?'var(--muted)':p.k===pk?'var(--teal-d)':'var(--text)'};">
+                ${price!=null?'$'+fmt(price):'—'}
+              </td>`;
+            }).join('')}
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    ${!isSCS()?'<p style="font-size:.65rem;color:var(--muted);margin-top:4px;">* Turno 24h no disponible en esta marca.</p>':''}
+  </div>`;
+
+  if(!isSCS()) hint.innerHTML='<strong>'+MARCA_L[marca]+'</strong> · Precios estándar por servicio c/IVA. Selecciona el turno:'+tabla;
+  else hint.innerHTML='<strong>Salus Care Solutions</strong> · Producto: <strong>'+prodLabel()+'</strong> · Precios estándar por servicio c/IVA. Selecciona el turno:'+tabla;
+
+  // update card prices
+  [8,12,18,24].forEach(h=>{
+    const avail=isSCS()||(h!==24);
+    const price=avail?(ESTANDAR[marca]?.[pk]?.[h]??null):null;
+    const card=document.getElementById('tc'+h);
+    const sub=card.querySelector('.th');
+    if(price!=null) sub.innerHTML='$'+fmt(price)+' MXN';
+    else sub.innerHTML=h===24?'Solo SCS':'N/D';
+  });
+}
+
+function setTurno(h){
+  turno=h;
+  [8,12,18,24].forEach(x=>document.getElementById('tc'+x).classList.toggle('on',x===h));
+  updateBtns();
+}
+
+// ─── STEP 5 ─────────────────────────────────────────────
+function fmt(n){return n!=null?Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2}):'N/D';}
+
+function renderCotiz(){
+  const profile=getProfile();
+  const pk=(profile==='p')?'a':profile;
+  const main=document.getElementById('cotiz-main');
+  const aside=document.getElementById('cotiz-aside');
+
+  // ASIDE summary
+  aside.innerHTML=`
+    <div class="summary-box">
+      <div class="sb-title">Resumen de la cotización</div>
+      <div class="sb-row"><span class="sb-l">Perfil clínico</span><span class="sb-v">${PM[profile].icon} ${PM[profile].name}</span></div>
+      <div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">${MARCA_L[marca]}</span></div>
+      ${isSCS()?`<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">${prodLabel()}</span></div>`:''}
+      <div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">${turno} horas</span></div>
+      ${isSCS()&&producto==='select'&&memb?`<div class="sb-row"><span class="sb-l">Membresía</span><span class="sb-v">${membLabel()}</span></div>`:''}
+    </div>
+    <div class="guardias-box">
+      <strong>Guardias programadas adicionales c/IVA</strong><br>
+      Cuidadora: $928 (8-12h) · $1,392 (18-24h)<br>
+      Auxiliar: $1,160 (8-12h) · $1,624 (18-24h)<br>
+      Enfermería: $1,392 (8-12h) · $2,088 (18-24h)
+      ${isSCS()&&producto==='select'&&memb?`<br><br><strong>Guardias incluidas (${membLabel()}):</strong> ${GUARDIAS_INC[memb]} día(s)<br>Desc. adicionales: ${memb==='trim'?'10%':memb==='sem'?'15%':'20%'} dto.`:''}
+      ${isSCS()&&producto==='match'?'<br><br>Con Match: guardias a precio de lista.':''}
+      ${isSCS()&&producto==='premium'?'<br><br>Con Premium: cobertura incluida en el servicio.':''}
+    </div>`;
+
+  let html='';
+
+  if(!isSCS()){
+    // WHITE LABEL — solo precio por servicio + membresía
+    const esp=ESTANDAR[marca]?.[pk]?.[turno];
+    const data=MEMB[marca]?.[pk]?.[turno];
+    html+=`
+      <div class="match-note note-blue">
+        <strong>${MARCA_L[marca]} · ${PM[profile].name} · ${turno} horas</strong><br>
+        Precio estándar por servicio (sin membresía) y precios de membresía por periodo IVA.
+      </div>
+      <div class="price-hero">
+        <div class="ph-label">Precio por servicio c/IVA</div>
+        <div class="ph-price">$${fmt(esp)} MXN</div>
+        <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
+      </div>`;
+    if(data){
+      html+=`<div class="memb-breakdown">
+        <div class="mb-head"><span>Precios membresía por periodo IVA</span><span>Sin dto. / Con dto.</span></div>
+        ${COL_L.map((l,i)=>data.sd[i]!=null?`
+          <div class="mb-row"><span class="mb-l">${l}</span>
+          <span class="mb-v">$${fmt(data.sd[i])} <span class="disc">↓ $${fmt(data.cd[i])}</span></span></div>`:'').join('')}
+      </div>`;
+    }
+
+  } else if(producto==='match'){
+    const recl=MATCH_PRICES[pk], plan=2900, total=recl+plan;
+    const esp=ESTANDAR.scs[pk][turno];
+    const data=MEMB.scs[pk][turno];
+    html+=`
+      <div class="match-note note-green">
+        <strong>Salus Match — Pago único · Garantía 30 días</strong><br>
+        Reclutamiento profesional + Valoración clínica + Plan de cuidados + Seguridad del hogar. El cliente emplea directamente al personal.
+      </div>
+      <div class="price-breakdown">
+        <div class="pb-head">Desglose pago único</div>
+        <div class="pb-row"><span class="pb-l">Reclutamiento y selección (${PM[profile].name})</span><span class="pb-v">$${fmt(recl)} MXN</span></div>
+        <div class="pb-row"><span class="pb-l">Valoración clínica + Plan de cuidados + Seguridad del hogar</span><span class="pb-v">$${fmt(plan)} MXN</span></div>
+        <div class="pb-row"><span class="pb-l"><strong>Total con IVA</strong></span><span class="pb-v hi">$${fmt(total)} MXN</span></div>
+      </div>
+      <div class="price-hero">
+        <div class="ph-label">Precio por servicio · referencia SCS (el cliente paga directo al personal)</div>
+        <div class="ph-price">$${fmt(esp)} MXN</div>
+        <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
+      </div>`;
+
+  } else if(producto==='select'){
+    const isBasico=variante==='basico';
+    const unicoPago=isBasico?SELECT_BASICO:MATCH_PRICES[pk];
+    const disc=MEMB_DISC[memb];
+    const mMensLista=MEMB_MENSUAL[pk]['trim'];   // precio lista (sin desc)
+    const mMensDesc=MEMB_MENSUAL[pk][memb];       // precio con desc del paquete
+    const meses=MEMB_MES[memb];
+    const totalMemb=mMensDesc*meses;
+    const totalComb=unicoPago+totalMemb;
+    const esp=ESTANDAR.scs[pk][turno];
+    const data=MEMB.scs[pk][turno];
+    html+=`
+      <div class="match-note note-green">
+        <strong>Salus Select ${isBasico?'Básico':'Plus'} · ${membLabel()}</strong><br>
+        ${isBasico?'El cliente ya tiene cuidador. Solo valoración clínica + membresía de soporte.':'Reclutamiento completo + valoración + membresía de soporte continuo.'}
+        ${disc>0?` La membresía ${membLabel()} incluye <strong>${disc*100}% de descuento</strong> sobre el precio mensual de lista.`:''}
+      </div>
+      <div class="price-breakdown">
+        <div class="pb-head">Desglose Salus Select</div>
+        <div class="pb-row"><span class="pb-l">${isBasico?'Valoración + Plan de cuidados (sin reclutamiento)':'Reclutamiento + Valoración + Plan de cuidados'}</span>
+          <span class="pb-v">$${fmt(unicoPago)} MXN</span></div>
+        <div class="pb-row"><span class="pb-l">Membresía mensual${disc>0?` <span style="color:var(--muted);font-weight:400;font-size:.72rem">$${fmt(mMensLista)}/mes lista → $${fmt(mMensDesc)}/mes (${disc*100}% dto.)</span>`:''} × ${meses} meses</span><span class="pb-v">$${fmt(totalMemb)} MXN</span></div>
+        <div class="pb-row"><span class="pb-l"><strong>Total ${meses} meses c/IVA</strong></span><span class="pb-v hi">$${fmt(totalComb)} MXN</span></div>
+      </div>
+      <div class="memb-breakdown">
+        <div class="mb-head"><span>Beneficios del paquete ${membLabel()}</span></div>
+        <div class="mb-row"><span class="mb-l">Guardias de respaldo incluidas</span><span class="mb-v">${GUARDIAS_INC[memb]} día(s)</span></div>
+        <div class="mb-row"><span class="mb-l">Plataforma Serenity (capacitación)</span><span class="mb-v">✓ incluida</span></div>
+        <div class="mb-row"><span class="mb-l">Pláticas SOFIA (soporte familiar)</span><span class="mb-v">✓ incluidas</span></div>
+        <div class="mb-row"><span class="mb-l">Llamadas seguimiento al plan</span><span class="mb-v">${memb==='trim'?'1':memb==='sem'?'4':'incluidas'}</span></div>
+        <div class="mb-row"><span class="mb-l">Supervisiones clínicas presenciales</span><span class="mb-v">${memb==='trim'?'—':memb==='sem'?'1':'3'}</span></div>
+        <div class="mb-row"><span class="mb-l">Revaloración del plan de cuidados</span><span class="mb-v">${memb==='anual'?'1 incluida':'—'}</span></div>
+        <div class="mb-row"><span class="mb-l">Descuento en re-reclutamiento</span><span class="mb-v">${memb==='trim'?'15%':memb==='sem'?'25%':'50%'}</span></div>
+        <div class="mb-row"><span class="mb-l">Desc. precio preferente guardias</span><span class="mb-v">${memb==='trim'?'10%':memb==='sem'?'15%':'20%'}</span></div>
+        <div class="mb-row"><span class="mb-l">Certificación BLS Instituto Salus</span><span class="mb-v">$${memb==='trim'?'2,100':memb==='sem'?'1,890':'1,680'} MXN</span></div>
+      </div>`;
+
+  } else if(producto==='premium'){
+    html+=`
+      <div class="match-note note-purple">
+        <strong>Salus Premium — Todo incluido</strong><br>
+        Salus emplea, supervisa y gestiona al personal. Riesgo laboral 100% a cargo de Salus. Reclutamiento + Valoración + Serenity + Gestión clínica + Cobertura de incidencias incluidos.
+      </div>`;
+    const esp=ESTANDAR.scs[pk][turno];
+    const data=MEMB.scs[pk][turno];
+    html+=`
+      <div class="price-hero">
+        <div class="ph-label">Precio por servicio c/IVA — Lista SCS</div>
+        <div class="ph-price">$${fmt(esp)} MXN</div>
+        <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
+      </div>`;
+    if(data) html+=membTabla(data);
+  }
+
+  main.innerHTML=html;
+}
+
+function membTabla(data){
+  return `<div class="memb-breakdown">
+    <div class="mb-head"><span>Precios membresía por periodo IVA</span><span>Sin dto. / Con dto.</span></div>
+    ${COL_L.map((l,i)=>data.sd[i]!=null?`
+      <div class="mb-row"><span class="mb-l">${l}</span>
+      <span class="mb-v">$${fmt(data.sd[i])} <span class="disc">↓ $${fmt(data.cd[i])}</span></span></div>`:'').join('')}
+  </div>`;
+}
+
+function prodLabel(){
+  if(producto==='match') return 'Salus Match';
+  if(producto==='select') return `Salus Select ${variante==='basico'?'Básico':'Plus'}${memb?' · '+membLabel():''}`;
+  if(producto==='premium') return 'Salus Premium';
+  return '—';
+}
+function membLabel(){
+  return {trim:'Trimestral',sem:'Semestral',anual:'Anual'}[memb]||'—';
+}
+
+function resetAll(){
+  document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));
+  for(const k in sel) delete sel[k];
+  marca=null;producto=null;variante=null;memb=null;turno=null;
+  document.querySelectorAll('.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));
+  document.getElementById('select-options').style.display='none';
+  document.getElementById('tc24').classList.remove('disabled');
+  renderPerfil();
+  updateBtns();
+  step=1;
+  goStep(1);
+}
+
+// init
+renderPerfil();
+updateBtns();
+</script>
+</body>
+</html>
