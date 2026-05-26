@@ -180,10 +180,9 @@ header span{font-size:.72rem;opacity:.6;display:block;margin-top:1px;}
 <body>
 
 <header>
-  <div class="logo">+S</div>
+  <img src="LOGO_SALUS_CARE_SOLUTIONS-01.png" style="height:44px;width:auto;mix-blend-mode:screen;" alt="Salus Care Solutions">
   <div>
-    <h1>Salus Care Solutions</h1>
-    <span>Perfilador & Cotizador — Asesor Comercial</span>
+    <span style="font-size:.72rem;opacity:.6;display:block;margin-top:1px;">Perfilador & Cotizador — Asesor Comercial</span>
   </div>
   <div class="badge">USO INTERNO</div>
 </header>
@@ -208,7 +207,7 @@ header span{font-size:.72rem;opacity:.6;display:block;margin-top:1px;}
     <div class="section-label">📍 Sitio del servicio</div>
     <div class="check-grid">
       <label class="ci" onclick="tog(this,'sitio_dom','c','Cuidados en domicilio')"><div class="chk"></div><span class="cl">Cuidados en domicilio</span><span class="lv lv-c">Cuid.</span></label>
-      <label class="ci" onclick="tog(this,'sitio_hosp','a','Cuidados en hospital')"><div class="chk"></div><span class="cl">Cuidados en hospital</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'sitio_hosp','c','Cuidados en hospital')"><div class="chk"></div><span class="cl">Cuidados en hospital</span><span class="lv lv-c">Cuid.</span></label>
       <label class="ci" onclick="tog(this,'sitio_hotel','c','Cuidados en hotel')"><div class="chk"></div><span class="cl">Cuidados en hotel</span><span class="lv lv-c">Cuid.</span></label>
       <label class="ci" onclick="tog(this,'sitio_seguro','e','Contratado por aseguradora')"><div class="chk"></div><span class="cl">Contratado por aseguradora</span><span class="lv lv-e">Enf.</span></label>
     </div>
@@ -243,12 +242,13 @@ header span{font-size:.72rem;opacity:.6;display:block;margin-top:1px;}
       <label class="ci" onclick="tog(this,'oftalm','c','Gotas en ojos')"><div class="chk"></div><span class="cl">Gotas en ojos (vía oftálmica)</span><span class="lv lv-c">Cuid.</span></label>
       <label class="ci" onclick="tog(this,'oral','c','Medicamentos vía oral')"><div class="chk"></div><span class="cl">Medicamentos vía oral</span><span class="lv lv-c">Cuid.</span></label>
       <label class="ci" onclick="tog(this,'im','a','Inyección intramuscular')"><div class="chk"></div><span class="cl">Inyección intramuscular (IM)</span><span class="lv lv-a">Aux.</span></label>
-      <label class="ci" onclick="tog(this,'sc','a','Medicamentos subcutáneos')"><div class="chk"></div><span class="cl">Medicamentos subcutáneos (SC)</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'sc','e','Medicamentos subcutáneos')"><div class="chk"></div><span class="cl">Medicamentos subcutáneos (SC)</span><span class="lv lv-e">Enf.</span></label>
       <label class="ci" onclick="tog(this,'iv','e','Medicamentos intravenosos IV')"><div class="chk"></div><span class="cl">Medicamentos intravenosos (IV)</span><span class="lv lv-e">Enf.</span></label>
       <label class="ci" onclick="tog(this,'venoclisis','e','Venoclisis')"><div class="chk"></div><span class="cl">Infusiones por gravedad (venoclisis)</span><span class="lv lv-e">Enf.</span></label>
       <label class="ci" onclick="tog(this,'bomba','e','Bomba de infusión')"><div class="chk"></div><span class="cl">Bomba de infusión</span><span class="lv lv-e">Enf.</span></label>
       <label class="ci" onclick="tog(this,'enema','a','Enemas evacuantes')"><div class="chk"></div><span class="cl">Enemas evacuantes</span><span class="lv lv-a">Aux.</span></label>
       <label class="ci" onclick="tog(this,'heridas','a','Curación de heridas / vendajes')"><div class="chk"></div><span class="cl">Curación de heridas / vendajes</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'estomas','e','Curación de estomas')"><div class="chk"></div><span class="cl">Curación de estomas</span><span class="lv lv-e">Enf.</span></label>
       <label class="ci" onclick="tog(this,'oxigeno','a','Oxígeno suplementario')"><div class="chk"></div><span class="cl">Manejo de oxígeno suplementario</span><span class="lv lv-a">Aux.</span></label>
       <label class="ci" onclick="tog(this,'nebuliz','a','Nebulizaciones')"><div class="chk"></div><span class="cl">Nebulizaciones</span><span class="lv lv-a">Aux.</span></label>
       <label class="ci" onclick="tog(this,'fisio','a','Fisioterapia pulmonar')"><div class="chk"></div><span class="cl">Fisioterapia pulmonar / drenaje postural</span><span class="lv lv-a">Aux.</span></label>
@@ -263,14 +263,15 @@ header span{font-size:.72rem;opacity:.6;display:block;margin-top:1px;}
     <div class="section-label">🧠 Terapia ocupacional / estimulación</div>
     <div class="check-grid">
       <label class="ci" onclick="tog(this,'to_b','c','T. Ocupacional básica')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva básica</span><span class="lv lv-c">Cuid.</span></label>
-      <label class="ci" onclick="tog(this,'to_i','p','T. Ocupacional intermedia')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva intermedia</span><span class="lv lv-p">Pueric.</span></label>
-      <label class="ci" onclick="tog(this,'demencia','a','Actividades avanzadas demencia')"><div class="chk"></div><span class="cl">Actividades avanzadas para demencia</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'to_i','a','T. Ocupacional intermedia')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva intermedia</span><span class="lv lv-a">Aux.</span></label>
+      <label class="ci" onclick="tog(this,'demencia','e','Actividades avanzadas demencia')"><div class="chk"></div><span class="cl">Actividades avanzadas para demencia</span><span class="lv lv-e">Enf.</span></label>
       <label class="ci" onclick="tog(this,'to_a','e','T. Ocupacional avanzada')"><div class="chk"></div><span class="cl">T. Ocupacional / Estim. Cognitiva avanzada</span><span class="lv lv-e">Enf.</span></label>
     </div>
 
     <div class="section-label">👶 Cuidado pediátrico / neonatal</div>
     <div class="check-grid c1">
-      <label class="ci" onclick="tog(this,'neonatal','p','Paciente neonatal o lactante')"><div class="chk"></div><span class="cl">Paciente recién nacido o lactante (requiere Puericulturista)</span><span class="lv lv-p">Pueric.</span></label>
+      <label class="ci" onclick="tog(this,'neonatal','e','Paciente neonatal o lactante')"><div class="chk"></div><span class="cl">Paciente recién nacido o lactante</span><span class="lv lv-e">Enf.</span></label>
+      <label class="ci" onclick="tog(this,'estimulacion_temprana','p','Estimulación temprana')"><div class="chk"></div><span class="cl">Estimulación temprana</span><span class="lv lv-p">Pueric.</span></label>
     </div>
   </div>
 
