@@ -406,6 +406,20 @@ header span{font-size:.72rem;opacity:.6;display:block;margin-top:1px;}
     <div class="tcard" id="tc18" onclick="setTurno(18)"><div class="tn">🌙 18 horas</div><div class="th">—</div></div>
     <div class="tcard" id="tc24" onclick="setTurno(24)"><div class="tn">⏰ 24 horas</div><div class="th">—</div></div>
   </div>
+
+  <div style="margin-top:24px;">
+    <div class="section-label" style="margin-bottom:10px;">📅 Días de servicio por semana</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px;" id="dias-grid">
+      <div class="tcard" id="d1" onclick="setDias(1)"><div class="tn">1</div><div class="th">día</div></div>
+      <div class="tcard" id="d2" onclick="setDias(2)"><div class="tn">2</div><div class="th">días</div></div>
+      <div class="tcard" id="d3" onclick="setDias(3)"><div class="tn">3</div><div class="th">días</div></div>
+      <div class="tcard" id="d4" onclick="setDias(4)"><div class="tn">4</div><div class="th">días</div></div>
+      <div class="tcard" id="d5" onclick="setDias(5)"><div class="tn">5</div><div class="th">días</div></div>
+      <div class="tcard" id="d6" onclick="setDias(6)"><div class="tn">6</div><div class="th">días</div></div>
+      <div class="tcard" id="d7" onclick="setDias(7)"><div class="tn">7</div><div class="th">días</div></div>
+    </div>
+  </div>
+
   <div class="step-nav">
     <button class="btn btn-ghost" id="btn4-back" onclick="turnoBack()">← Atrás</button>
     <button class="btn btn-primary" id="btn4" onclick="goStep(5)" disabled>Ver cotización →</button>
@@ -466,9 +480,20 @@ const PM={
 };
 const MARCA_L={scs:'Salus Care Solutions',ms:'Médica Sur en tu casa',polar:'Polar Salud Contigo'};
 
+// Mapeo de días/semana → índice de columna en las tablas MEMB
+// Las tablas tienen 5 columnas: [1d, 2d, 5d, 6d, 7d]
+// Días 3 y 4 no tienen columna exacta → se usa la columna de 2d (más cercana sin superar)
+const DIAS_COL = {1:0, 2:1, 3:1, 4:1, 5:2, 6:3, 7:4};
+// Etiqueta real de cada columna
+const COL_DIAS_LABEL = ['1 día/sem','2 días/sem','5 días/sem','6 días/sem','7 días/sem'];
+// Días reales que corresponden a cada columna (para calcular mensual)
+const COL_DIAS_VAL   = [1, 2, 5, 6, 7];
+// Semanas IVA por mes = días/sem × (365/12/7)
+function semanasIVA(d){ return Math.round(d * (365/12/7) * 10)/10; }
+
 // ─── STATE ──────────────────────────────────────────────
 const sel={};
-let marca=null,producto=null,variante=null,memb=null,turno=null,step=1;
+let marca=null,producto=null,variante=null,memb=null,turno=null,dias=null,step=1;
 
 // ─── STEP LOGIC ─────────────────────────────────────────
 // For white-label: steps are 1,2,4,5 (skip 3)
@@ -512,7 +537,7 @@ function canLeave(s){
     if(producto==='select') return variante!==null && memb!==null;
     return true;
   }
-  if(s===4) return turno!==null;
+  if(s===4) return turno!==null && dias!==null;
   return true;
 }
 
@@ -694,6 +719,11 @@ function setTurno(h){
   [8,12,18,24].forEach(x=>document.getElementById('tc'+x).classList.toggle('on',x===h));
   updateBtns();
 }
+function setDias(d){
+  dias=d;
+  [1,2,3,4,5,6,7].forEach(x=>document.getElementById('d'+x).classList.toggle('on',x===d));
+  updateBtns();
+}
 
 // ─── STEP 5 ─────────────────────────────────────────────
 function fmt(n){return n!=null?Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2}):'N/D';}
@@ -712,6 +742,7 @@ function renderCotiz(){
       <div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">${MARCA_L[marca]}</span></div>
       ${isSCS()?`<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">${prodLabel()}</span></div>`:''}
       <div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">${turno} horas</span></div>
+      <div class="sb-row"><span class="sb-l">Días / semana</span><span class="sb-v">${dias} día${dias>1?'s':''}</span></div>
       ${isSCS()&&producto==='select'&&memb?`<div class="sb-row"><span class="sb-l">Membresía</span><span class="sb-v">${membLabel()}</span></div>`:''}
     </div>
     <div class="guardias-box">
@@ -727,27 +758,7 @@ function renderCotiz(){
   let html='';
 
   if(!isSCS()){
-    // WHITE LABEL — solo precio por servicio + membresía
-    const esp=ESTANDAR[marca]?.[pk]?.[turno];
-    const data=MEMB[marca]?.[pk]?.[turno];
-    html+=`
-      <div class="match-note note-blue">
-        <strong>${MARCA_L[marca]} · ${PM[profile].name} · ${turno} horas</strong><br>
-        Precio estándar por servicio (sin membresía) y precios de membresía por periodo IVA.
-      </div>
-      <div class="price-hero">
-        <div class="ph-label">Precio por servicio c/IVA</div>
-        <div class="ph-price">$${fmt(esp)} MXN</div>
-        <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
-      </div>`;
-    if(data){
-      html+=`<div class="memb-breakdown">
-        <div class="mb-head"><span>Precios membresía por periodo IVA</span><span>Sin dto. / Con dto.</span></div>
-        ${COL_L.map((l,i)=>data.sd[i]!=null?`
-          <div class="mb-row"><span class="mb-l">${l}</span>
-          <span class="mb-v">$${fmt(data.sd[i])} <span class="disc">↓ $${fmt(data.cd[i])}</span></span></div>`:'').join('')}
-      </div>`;
-    }
+    html += precioServicioBlock(pk, PM[profile].name);
 
   } else if(producto==='match'){
     const recl=MATCH_PRICES[pk], plan=2900, total=recl+plan;
@@ -769,6 +780,7 @@ function renderCotiz(){
         <div class="ph-price">$${fmt(esp)} MXN</div>
         <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
       </div>`;
+    html += precioServicioBlock(pk, PM[profile].name, true);
 
   } else if(producto==='select'){
     const isBasico=variante==='basico';
@@ -821,10 +833,88 @@ function renderCotiz(){
         <div class="ph-price">$${fmt(esp)} MXN</div>
         <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
       </div>`;
+    html += precioServicioBlock(pk, PM[profile].name);
     if(data) html+=membTabla(data);
   }
 
   main.innerHTML=html;
+}
+
+function precioServicioBlock(pk, perfilLabel, skipHero=false){
+  const esp = ESTANDAR[marca]?.[pk]?.[turno];
+  if(!esp) return `<p class="note">⚠️ Combinación no disponible para esta marca/turno.</p>`;
+
+  const colIdx   = DIAS_COL[dias];                        // índice en la tabla
+  const colDias  = COL_DIAS_VAL[colIdx];                  // días reales de esa columna
+  const colLabel = COL_DIAS_LABEL[colIdx];
+  const data     = MEMB[marca]?.[pk]?.[turno];
+  const precioSD = data?.sd?.[colIdx] ?? null;
+  const precioCD = data?.cd?.[colIdx] ?? null;
+
+  // semanas IVA para el desglose mensual
+  const semSD = semanasIVA(colDias);
+
+  // aviso si días seleccionados (3 o 4) no tienen columna exacta
+  const diasWarning = (dias !== colDias)
+    ? `<p style="font-size:.68rem;color:var(--a);margin-bottom:10px;">⚠️ Para ${dias} días/sem se usa la referencia de <strong>${colDias} días/sem</strong> (columna más cercana disponible en la lista de precios).</p>`
+    : '';
+
+  // precio unitario con/sin descuento derivado de la tabla
+  const descPct  = (precioSD && precioCD && precioSD !== precioCD)
+    ? Math.round((1 - precioCD/precioSD)*100) : 0;
+
+  let html = diasWarning;
+
+  if(!skipHero){
+    html += `
+      <div class="match-note note-blue">
+        <strong>${MARCA_L[marca]} · ${perfilLabel} · ${turno}h · ${dias} día${dias>1?'s':''}/sem</strong>
+      </div>
+      <div class="price-hero">
+        <div class="ph-label">Precio por servicio c/IVA</div>
+        <div class="ph-price">$${fmt(esp)} MXN</div>
+        <div class="ph-sub">${turno} horas · ${perfilLabel}</div>
+      </div>`;
+  }
+
+  if(precioSD != null){
+    html += `
+      <div class="price-breakdown">
+        <div class="pb-head">Precio mensual por membresía · ${colLabel}${dias!==colDias?' (ref.)':''}</div>
+        <div class="pb-row">
+          <span class="pb-l">Precio mensual sin descuento</span>
+          <span class="pb-v">$${fmt(precioSD)} MXN</span>
+        </div>`;
+
+    if(precioCD != null && precioCD !== precioSD){
+      html += `
+        <div class="pb-row">
+          <span class="pb-l">Descuento aplicado (${descPct}%)</span>
+          <span class="pb-v" style="color:var(--teal)">−$${fmt(precioSD - precioCD)} MXN</span>
+        </div>
+        <div class="pb-row">
+          <span class="pb-l"><strong>Precio mensual con descuento</strong></span>
+          <span class="pb-v hi">$${fmt(precioCD)} MXN</span>
+        </div>`;
+    } else {
+      html += `
+        <div class="pb-row">
+          <span class="pb-l">Descuento por frecuencia</span>
+          <span class="pb-v" style="color:var(--muted)">No aplica (${colLabel})</span>
+        </div>
+        <div class="pb-row">
+          <span class="pb-l"><strong>Precio mensual</strong></span>
+          <span class="pb-v hi">$${fmt(precioSD)} MXN</span>
+        </div>`;
+    }
+    html += `
+        <div class="pb-row">
+          <span class="pb-l">Precio unitario por servicio</span>
+          <span class="pb-v">$${fmt(esp)} MXN</span>
+        </div>
+      </div>`;
+  }
+  return html;
 }
 
 function membTabla(data){
@@ -849,7 +939,7 @@ function membLabel(){
 function resetAll(){
   document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));
   for(const k in sel) delete sel[k];
-  marca=null;producto=null;variante=null;memb=null;turno=null;
+  marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;
   document.querySelectorAll('.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));
   document.getElementById('select-options').style.display='none';
