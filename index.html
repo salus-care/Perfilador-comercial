@@ -464,7 +464,7 @@ const MEMB = {
     e:{8:{sd:[7763,15525,38813,46576,54339],cd:[7763,15525,36873,42850,48905]},12:{sd:[9073,18147,45367,52823,63514],cd:[9073,18147,43099,48597,57163]},18:{sd:[12067,24135,60337,72405,84472],cd:[12067,24135,57321,66613,76025]},24:{sd:[null,null,null,null,null],cd:[null,null,null,null,null]}},
   },
 };
-const COL_L=['1 mes','2 meses','5 meses','6 meses','7 meses'];
+const COL_L=['4.3 días/mes','8.7 días/mes','21.7 días/mes','26.1 días/mes','30.4 días/mes'];
 const MATCH_PRICES={c:8352,a:9164,e:10904};
 const SELECT_BASICO=4466;
 const MEMB_MENSUAL={c:{trim:599,sem:539,anual:479},a:{trim:799,sem:719,anual:639},e:{trim:899,sem:809,anual:719}};
@@ -488,7 +488,7 @@ const MARCA_L={scs:'Salus Care Solutions',ms:'Médica Sur en tu casa',polar:'Pol
 const DIAS_A_COL = {1:0, 2:1, 3:null, 4:null, 5:2, 6:3, 7:4};
 const COL_DIAS_MES   = [4.3, 8.7, 21.7, 26.1, 30.4];   // días/mes de cada columna
 const COL_DIAS_SEM   = [1,   2,   5,    6,    7   ];    // días/sem equivalente
-const COL_LABEL      = ['4.3 días/mes (~1×sem)','8.7 días/mes (~2×sem)','21.7 días/mes (~5×sem)','26.1 días/mes (~6×sem)','30.4 días/mes (~7×sem)'];
+const COL_LABEL      = ['4.3 días/mes','8.7 días/mes','21.7 días/mes','26.1 días/mes','30.4 días/mes'];
 
 // ─── STATE ──────────────────────────────────────────────
 const sel={};
@@ -761,8 +761,6 @@ function renderCotiz(){
 
   } else if(producto==='match'){
     const recl=MATCH_PRICES[pk], plan=2900, total=recl+plan;
-    const esp=ESTANDAR.scs[pk][turno];
-    const data=MEMB.scs[pk][turno];
     html+=`
       <div class="match-note note-green">
         <strong>Salus Match — Pago único · Garantía 30 días</strong><br>
@@ -773,25 +771,18 @@ function renderCotiz(){
         <div class="pb-row"><span class="pb-l">Reclutamiento y selección (${PM[profile].name})</span><span class="pb-v">$${fmt(recl)} MXN</span></div>
         <div class="pb-row"><span class="pb-l">Valoración clínica + Plan de cuidados + Seguridad del hogar</span><span class="pb-v">$${fmt(plan)} MXN</span></div>
         <div class="pb-row"><span class="pb-l"><strong>Total con IVA</strong></span><span class="pb-v hi">$${fmt(total)} MXN</span></div>
-      </div>
-      <div class="price-hero">
-        <div class="ph-label">Precio por servicio · referencia SCS (el cliente paga directo al personal)</div>
-        <div class="ph-price">$${fmt(esp)} MXN</div>
-        <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
       </div>`;
-    html += precioServicioBlock(pk, PM[profile].name, true);
+    html += precioServicioBlock(pk, PM[profile].name);
 
   } else if(producto==='select'){
     const isBasico=variante==='basico';
     const unicoPago=isBasico?SELECT_BASICO:MATCH_PRICES[pk];
     const disc=MEMB_DISC[memb];
-    const mMensLista=MEMB_MENSUAL[pk]['trim'];   // precio lista (sin desc)
-    const mMensDesc=MEMB_MENSUAL[pk][memb];       // precio con desc del paquete
+    const mMensLista=MEMB_MENSUAL[pk]['trim'];
+    const mMensDesc=MEMB_MENSUAL[pk][memb];
     const meses=MEMB_MES[memb];
     const totalMemb=mMensDesc*meses;
     const totalComb=unicoPago+totalMemb;
-    const esp=ESTANDAR.scs[pk][turno];
-    const data=MEMB.scs[pk][turno];
     html+=`
       <div class="match-note note-green">
         <strong>Salus Select ${isBasico?'Básico':'Plus'} · ${membLabel()}</strong><br>
@@ -817,6 +808,7 @@ function renderCotiz(){
         <div class="mb-row"><span class="mb-l">Desc. precio preferente guardias</span><span class="mb-v">${memb==='trim'?'10%':memb==='sem'?'15%':'20%'}</span></div>
         <div class="mb-row"><span class="mb-l">Certificación BLS Instituto Salus</span><span class="mb-v">$${memb==='trim'?'2,100':memb==='sem'?'1,890':'1,680'} MXN</span></div>
       </div>`;
+    html += precioServicioBlock(pk, PM[profile].name);
 
   } else if(producto==='premium'){
     html+=`
@@ -824,16 +816,7 @@ function renderCotiz(){
         <strong>Salus Premium — Todo incluido</strong><br>
         Salus emplea, supervisa y gestiona al personal. Riesgo laboral 100% a cargo de Salus. Reclutamiento + Valoración + Serenity + Gestión clínica + Cobertura de incidencias incluidos.
       </div>`;
-    const esp=ESTANDAR.scs[pk][turno];
-    const data=MEMB.scs[pk][turno];
-    html+=`
-      <div class="price-hero">
-        <div class="ph-label">Precio por servicio c/IVA — Lista SCS</div>
-        <div class="ph-price">$${fmt(esp)} MXN</div>
-        <div class="ph-sub">${turno} horas · ${PM[profile].name}</div>
-      </div>`;
     html += precioServicioBlock(pk, PM[profile].name);
-    if(data) html+=membTabla(data);
   }
 
   main.innerHTML=html;
@@ -893,7 +876,7 @@ function precioServicioBlock(pk, perfilLabel, skipHero=false){
     <div class="price-breakdown">
       <div class="pb-head">Precio mensual · ${colLabel}</div>
       <div class="pb-row">
-        <span class="pb-l">Días al mes (periodo IVA)</span>
+        <span class="pb-l">Días al mes</span>
         <span class="pb-v">${diasMes} días</span>
       </div>
       <div class="pb-row">
@@ -932,7 +915,7 @@ function precioServicioBlock(pk, perfilLabel, skipHero=false){
 
 function membTabla(data){
   return `<div class="memb-breakdown">
-    <div class="mb-head"><span>Precios membresía por periodo IVA</span><span>Sin dto. / Con dto.</span></div>
+    <div class="mb-head"><span>Precios por días al mes c/IVA</span><span>Sin dto. / Con dto.</span></div>
     ${COL_L.map((l,i)=>data.sd[i]!=null?`
       <div class="mb-row"><span class="mb-l">${l}</span>
       <span class="mb-v">$${fmt(data.sd[i])} <span class="disc">↓ $${fmt(data.cd[i])}</span></span></div>`:'').join('')}
