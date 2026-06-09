@@ -1190,64 +1190,86 @@ async function clEnviarDrive(){
   await enviarADrive(sn,'cl-drive-btn','cl-toast');
 }
 
-// ── DRIVE REAL (Google Sheets vía Anthropic API) ─────────
-async function enviarADrive(p, btnId, toastId){
-  const btn=document.getElementById(btnId);
-  const toast_fn=id=>{const t=document.getElementById(id);if(!t)return;t.style.display='block';};
-  const toast_msg=(id,msg,ok)=>{const t=document.getElementById(id);if(!t)return;t.textContent=msg;t.style.background=ok?'#E3F5E8':'#FDECEA';t.style.color=ok?'#2D6B3F':'#7A1010';t.style.display='block';setTimeout(()=>t.style.display='none',4000);};
-  if(btn){btn.textContent='☁️ Guardando…';btn.disabled=true;}
-  const row=buildRow(p);
-  const HEADERS='Fecha\tAsesor\tMarca\tPaciente\tF.Nac\tEdad\tPeso(kg)\tTalla(cm)\tDiagnóstico\tPerfil\tTurno\tJornada\tDías/sem\tMédico\tTel.Médico\tEntrada\tSalida\tInicio\tTérmino\tDías/mes\tTotal Mensual\tContacto\tTel.Contacto\tCorreo\tCalle\tNúmero\tColonia\tDelegación\tC.P.';
-  const prompt=`Eres un asistente que escribe en Google Sheets. Usa la herramienta de Google Sheets para hacer lo siguiente en el archivo con ID "${SHEET_ID}":
-1. Si no existe una hoja llamada "Pacientes", créala.
-2. Si la fila 1 de la hoja "Pacientes" está vacía, escribe estos encabezados en A1: ${HEADERS}
-3. Agrega una nueva fila al final con estos valores (separados por tabulador): ${row}
-Responde solo con: "OK: fila agregada" si tuvo éxito, o "ERROR: [motivo]" si falló.`;
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:512,
-        mcp_servers:[{type:'url',url:'https://sheets.googleapis.com/mcp/v1',name:'google-sheets'}],
-        messages:[{role:'user',content:prompt}]
-      })
+// ── DRIVE REAL (Google Apps Script Web App) ──────────────
+// ⚠️ Reemplaza esta URL con la tuya después de publicar el Apps Script
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwY-rShZYtWsDSO3uLjaI7zI-5zgZrfhTkwKu4pl5f8c7GMv3ttqKdOyF5DgqgBU1jr/exec';
+
+async function enviarADrive(p, btnId, toastId) {
+  const btn = document.getElementById(btnId);
+  const showToast = (msg, ok) => {
+    const t = document.getElementById(toastId);
+    if (!t) return;
+    t.textContent = msg;
+    t.style.background = ok ? '#E3F5E8' : '#FDECEA';
+    t.style.color = ok ? '#2D6B3F' : '#7A1010';
+    t.style.border = ok ? '1px solid #A8D9B4' : '1px solid #F0A0A0';
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 4000);
+  };
+
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'PEGAR_URL_DEL_WEB_APP_AQUI') {
+    showToast('⚠️ Configura la URL del Apps Script en el código (variable APPS_SCRIPT_URL).', false);
+    return;
+  }
+
+  if (btn) { btn.textContent = '☁️ Guardando…'; btn.disabled = true; }
+
+  try {
+    const payload = {
+      asesor: p.asesor || '', brandLabel: p.brandLabel || '',
+      nombre: p.nombre || '', fnac: p.fnac || '', edad: p.edad || '',
+      peso: p.peso || '', talla: p.talla || '', dx: p.dx || '',
+      perfil: p.perfil || '', turno: p.turno || '', jornada: p.turno || '',
+      diasSemana: p.diasSemana || '',
+      medico: p.medico || '', telMedico: p.telMedico || '',
+      entrada: p.entrada || '', salida: p.salida || '',
+      inicio: p.inicio || '', termino: p.termino || '', diasMes: p.diasMes || '',
+      totalMensual: p.totalMensual || '',
+      contacto: p.contacto || '', tel: p.tel || '', correo: p.correo || '',
+      calle: p.calle || '', numero: p.numero || '', colonia: p.colonia || '',
+      delegacion: p.delegacion || '', cp: p.cp || ''
+    };
+
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
     });
-    const data=await resp.json();
-    const txt=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'';
-    if(txt.startsWith('OK')){
-      toast_msg(toastId,'✅ Guardado en Drive correctamente.',true);
+    const data = await resp.json();
+
+    if (data.ok) {
+      showToast('✅ Guardado en Drive — fila ' + data.row, true);
     } else {
-      throw new Error(txt||'Respuesta inesperada');
+      throw new Error(data.error || 'Error desconocido');
     }
-  } catch(e){
-    toast_msg(toastId,'⚠️ No se pudo guardar en Drive automáticamente. Intenta de nuevo o contacta al administrador.',false);
-    console.error('Drive error:',e);
+  } catch (err) {
+    showToast('❌ Error al guardar en Drive: ' + err.message, false);
+    console.error('Drive error:', err);
   } finally {
-    if(btn){btn.textContent='☁️ Guardar en Drive';btn.disabled=false;}
+    if (btn) { btn.textContent = '☁️ Guardar en Drive'; btn.disabled = false; }
   }
 }
 
-function buildRow(p){
-  return[
-    p.ts?new Date(p.ts).toLocaleDateString('es-MX'):'',
-    p.asesor,p.brandLabel,p.nombre,s6fmtD(p.fnac),p.edad,
-    p.peso,p.talla,p.dx,p.perfil,p.turno,p.turno,p.diasSemana,
-    p.medico,p.telMedico,p.entrada,p.salida,
-    s6fmtD(p.inicio),s6fmtD(p.termino),p.diasMes,p.totalMensual,
-    p.contacto,p.tel,p.correo,
-    p.calle,p.numero,p.colonia,p.delegacion,p.cp
-  ].map(x=>x||'').join('\t');
+function buildRow(p) {
+  return [
+    p.ts ? new Date(p.ts).toLocaleDateString('es-MX') : '',
+    p.asesor, p.brandLabel, p.nombre, s6fmtD(p.fnac), p.edad,
+    p.peso, p.talla, p.dx, p.perfil, p.turno, p.turno, p.diasSemana,
+    p.medico, p.telMedico, p.entrada, p.salida,
+    s6fmtD(p.inicio), s6fmtD(p.termino), p.diasMes, p.totalMensual,
+    p.contacto, p.tel, p.correo,
+    p.calle, p.numero, p.colonia, p.delegacion, p.cp
+  ].map(x => x || '').join('\t');
 }
 
-function s6enviarDrive(){
-  const asesor=document.getElementById('asesor-sel')?.value;
-  if(!asesor){s6toast('⚠️ Selecciona un asesor primero.');return;}
-  if(!s6gv('s6-nombre')){s6toast('⚠️ Ingresa el nombre del paciente.');return;}
+function s6enviarDrive() {
+  const asesor = document.getElementById('asesor-sel')?.value;
+  if (!asesor) { s6toast('⚠️ Selecciona un asesor primero.'); return; }
+  if (!s6gv('s6-nombre')) { s6toast('⚠️ Ingresa el nombre del paciente.'); return; }
   s6guardar();
-  enviarADrive(s6snap(),'s6-drive-btn','s6-toast');
+  enviarADrive(s6snap(), 's6-drive-btn', 's6-toast');
 }
+
 
 
 // ── BASE DE PACIENTES ────────────────────────────────────
