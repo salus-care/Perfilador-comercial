@@ -1192,7 +1192,7 @@ async function clEnviarDrive(){
 
 // ── DRIVE REAL (Google Apps Script Web App) ──────────────
 // ⚠️ Reemplaza esta URL con la tuya después de publicar el Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTnPWrOhEjDPWuKqQN_WDuSBx9zEF5D92vvDzuXAFF8eSXkD-7cRS_v-WDyQHyCk5Y/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-8eSlQUpbqWlQq4HFNACG_5YqyDUFR2H3kQnWAfDBP0W5_vRyqt2jE-rHKCwtGnBa/exec';
 
 async function enviarADrive(p, btnId, toastId) {
   const btn = document.getElementById(btnId);
@@ -1215,7 +1215,7 @@ async function enviarADrive(p, btnId, toastId) {
   if (btn) { btn.textContent = '☁️ Guardando…'; btn.disabled = true; }
 
   try {
-    const payload = {
+    const payload = JSON.stringify({
       asesor: p.asesor || '', brandLabel: p.brandLabel || '',
       nombre: p.nombre || '', fnac: p.fnac || '', edad: p.edad || '',
       peso: p.peso || '', talla: p.talla || '', dx: p.dx || '',
@@ -1228,22 +1228,38 @@ async function enviarADrive(p, btnId, toastId) {
       contacto: p.contacto || '', tel: p.tel || '', correo: p.correo || '',
       calle: p.calle || '', numero: p.numero || '', colonia: p.colonia || '',
       delegacion: p.delegacion || '', cp: p.cp || ''
-    };
-
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
     });
 
-    // Con no-cors no podemos leer la respuesta, pero si llega aquí es que se envió
-    showToast('✅ Enviado a Drive correctamente.', true);
+    // Usamos un iframe oculto + form para evitar restricciones CORS de Apps Script
+    const iframe = document.createElement('iframe');
+    iframe.name = 'scs_drive_frame';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = APPS_SCRIPT_URL;
+    form.target = 'scs_drive_frame';
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'data';
+    input.value = payload;
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    iframe.onload = () => {
+      showToast('✅ Guardado en Drive correctamente.', true);
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+      if (btn) { btn.textContent = '☁️ Guardar en Drive'; btn.disabled = false; }
+    };
+
+    form.submit();
 
   } catch (err) {
-    showToast('❌ Error de red al guardar en Drive: ' + err.message, false);
-    console.error('Drive error:', err);
-  } finally {
+    showToast('❌ Error al guardar en Drive: ' + err.message, false);
     if (btn) { btn.textContent = '☁️ Guardar en Drive'; btn.disabled = false; }
   }
 }
