@@ -1192,7 +1192,7 @@ async function clEnviarDrive(){
 
 // ── DRIVE REAL (Google Apps Script Web App) ──────────────
 // ⚠️ Reemplaza esta URL con la tuya después de publicar el Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwY-rShZYtWsDSO3uLjaI7zI-5zgZrfhTkwKu4pl5f8c7GMv3ttqKdOyF5DgqgBU1jr/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTnPWrOhEjDPWuKqQN_WDuSBx9zEF5D92vvDzuXAFF8eSXkD-7cRS_v-WDyQHyCk5Y/exec';
 
 async function enviarADrive(p, btnId, toastId) {
   const btn = document.getElementById(btnId);
@@ -1230,20 +1230,18 @@ async function enviarADrive(p, btnId, toastId) {
       delegacion: p.delegacion || '', cp: p.cp || ''
     };
 
-    const resp = await fetch(APPS_SCRIPT_URL, {
+    await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
-    const data = await resp.json();
 
-    if (data.ok) {
-      showToast('✅ Guardado en Drive — fila ' + data.row, true);
-    } else {
-      throw new Error(data.error || 'Error desconocido');
-    }
+    // Con no-cors no podemos leer la respuesta, pero si llega aquí es que se envió
+    showToast('✅ Enviado a Drive correctamente.', true);
+
   } catch (err) {
-    showToast('❌ Error al guardar en Drive: ' + err.message, false);
+    showToast('❌ Error de red al guardar en Drive: ' + err.message, false);
     console.error('Drive error:', err);
   } finally {
     if (btn) { btn.textContent = '☁️ Guardar en Drive'; btn.disabled = false; }
