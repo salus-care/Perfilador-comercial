@@ -1025,12 +1025,64 @@ function s6calcEdad(){
   if(t<new Date(t.getFullYear(),d.getMonth(),d.getDate()))a--;
   const el=document.getElementById('s6-edad');if(el)el.value=a>=0?a:'';
   s6renderFicha();
+  sincronizarFicha();
 }
 
 function s6calcPeriodo(){
   const ini=s6gv('s6-inicio'),ter=s6gv('s6-termino');
   if(ini&&ter){const d=Math.round((new Date(ter)-new Date(ini))/86400000)+1;if(d>0){const el=document.getElementById('s6-dias-mes');if(el)el.value=d;}}
   s6renderFicha();
+  sincronizarFicha();
+}
+
+// ── SINCRONIZACIÓN PASO 6 → FICHA CHECKLIST ─────────────
+function sincronizarFicha(){
+  // Mapeo directo s6-* → fi-*
+  const MAPA=[
+    ['s6-nombre',  'fi-nombre'],
+    ['s6-fnac',    'fi-fnac'],
+    ['s6-edad',    'fi-edad'],
+    ['s6-peso',    'fi-peso'],
+    ['s6-talla',   'fi-talla'],
+    ['s6-dx',      'fi-diag'],
+    ['s6-medico',  'fi-medico'],
+    ['s6-tel-medico','fi-tel-medico'],
+    ['s6-contacto','fi-contacto'],
+    ['s6-tel',     'fi-tel'],
+    ['s6-correo',  'fi-correo'],
+    ['s6-calle',   'fi-calle'],
+    ['s6-numero',  'fi-numero'],
+    ['s6-colonia', 'fi-colonia'],
+    ['s6-delegacion','fi-delegacion'],
+    ['s6-cp',      'fi-cp'],
+    ['s6-ciudad',  'fi-ciudad'],
+    ['s6-entrada', 'fi-entrada'],
+    ['s6-salida',  'fi-salida'],
+    ['s6-inicio',  'fi-inicio'],
+    ['s6-termino', 'fi-termino'],
+    ['s6-dias-mes','fi-dias-mes'],
+  ];
+  MAPA.forEach(([src,dst])=>{
+    const s=document.getElementById(src);
+    const d=document.getElementById(dst);
+    if(s&&d&&s.value!==d.value){
+      d.value=s.value;
+    }
+  });
+  // Asesor comercial
+  const asesorSel=document.getElementById('asesor-sel');
+  const fiAsesor=document.getElementById('fi-asesor');
+  if(asesorSel&&fiAsesor&&!fiAsesor.value){
+    fiAsesor.value=asesorSel.value;
+  }
+  // Total desde cotizador
+  const fiTotal=document.getElementById('fi-total');
+  if(fiTotal&&!fiTotal.value){
+    const tot=document.getElementById('pc-total');
+    if(tot)fiTotal.value=tot.textContent.replace('$','').trim();
+  }
+  // Actualizar vista previa de la ficha
+  updF();
 }
 
 function s6getTotal(){
@@ -1192,7 +1244,7 @@ async function clEnviarDrive(){
 
 // ── DRIVE REAL (Google Apps Script Web App) ──────────────
 // ⚠️ Reemplaza esta URL con la tuya después de publicar el Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-8eSlQUpbqWlQq4HFNACG_5YqyDUFR2H3kQnWAfDBP0W5_vRyqt2jE-rHKCwtGnBa/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrSuhsPIG_RJ6Jw1gXlAEsZ_0pg6CszxiirpS0t0lxFYvxaJmgNmWW7uVmBl22bkBg/exec';
 
 async function enviarADrive(p, btnId, toastId) {
   const btn = document.getElementById(btnId);
@@ -1393,6 +1445,20 @@ updateBtns();
 clBuildObj();
 clUpdAll();
 updF();
+
+// Auto-sync: cada campo del paso 6 actualiza la ficha del checklist en tiempo real
+document.addEventListener('input', function(e){
+  if(e.target.id && e.target.id.startsWith('s6-')){
+    s6renderFicha();
+    sincronizarFicha();
+  }
+});
+
+// Sync también cuando cambia el asesor
+document.getElementById('asesor-sel').addEventListener('change', function(){
+  onAsesorChange();
+  sincronizarFicha();
+});
 </script>
 </body>
 </html>
