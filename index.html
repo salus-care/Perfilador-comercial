@@ -999,7 +999,7 @@ function cpFicha(){var gv=function(id){var el=document.getElementById(id);return
     '🤝 *Asesor:* '+asesor+'\n'+
     '📝 *Especificaciones:* '+coments+'\n'+
     '━━━━━━━━━━━━━━━━━━━━━━\n'+
-    'Salus Care Solutions · salus.mx · 55 5211 8000';
+    'Salus Care Solutions · salus.mx · 55 5211 9000';
   var box=document.getElementById('fi-cbox');if(box){box.style.display='block';box.textContent=txt;}
   if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(function(){});}
 function cpScore(){var tot=0;clEC.forEach(function(cfg){tot+=cfg.c.filter(function(c){return!!CL[c];}).length;});var nivel=tot<10?'Básico con huecos':tot<20?'Aceptable':tot<28?'Sólido':'Cinta Negra ⭐';var mL=clM?clMD[clM].label:'Sin seleccionar';var txt='📊 *REPORTE DE CALIDAD — SALUS CARE SOLUTIONS*\nManual Cinta Negra en Ventas Homecare\n━━━━━━━━━━━━━━━━━━━━━━\n🏷 *Marca / Fuente:* '+mL+'\n🎯 *Score:* '+tot+' / 31\n📈 *Nivel:* '+nivel+'\n';if(clObj){var ob=clOBJ.find(function(o){return o.k===clObj;});if(ob)txt+='⚠️ *Objeción detectada:* '+ob.t+'\n';}txt+='━━━━━━━━━━━━━━━━━━━━━━\n*Desglose por etapa:*\n';clEC.forEach(function(cfg){var done=cfg.c.filter(function(c){return!!CL[c];}).length;var ico=done===cfg.m?'✅':done>0?'🔶':'❌';txt+=ico+' '+cfg.l+': '+done+'/'+cfg.m+'\n';});var vOk=function(arr){return arr.filter(function(k){return!!CL[k];}).length;};txt+='━━━━━━━━━━━━━━━━━━━━━━\n*Técnicas Voss:*\n🗣 Etiquetas: '+vOk(clVM.et)+'/3\n❓ Calibradas: '+vOk(clVM.cal)+'/5\n🔄 Hacia el NO: '+vOk(clVM.no)+'/2\n✓ "¿Es correcto?": '+vOk(clVM.ec)+'/1\n━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx';var box=document.getElementById('sc-cbox');if(box){box.style.display='block';box.textContent=txt;}if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(function(){});}
@@ -1319,33 +1319,65 @@ function s6enviarDrive() {
 
 
 
-// ── BASE DE PACIENTES ────────────────────────────────────
-function getPacs(){try{return JSON.parse(localStorage.getItem('scs_pacs')||'[]');}catch{return[];}}
-function savePacs(l){localStorage.setItem('scs_pacs',JSON.stringify(l));}
+// ── BASE DE PACIENTES (Google Sheets como base de datos) ─
+let pacsCache = [];   // cache local para no recargar en cada modal
+let pacModalIdx = null;
 
-let pacModalIdx=null;
+// Lee pacientes de Sheets
+async function fetchPacs(asesor, soloSuyos) {
+  const url = APPS_SCRIPT_URL + '?action=read' + (soloSuyos && asesor ? '&asesor=' + encodeURIComponent(asesor) : '');
+  try {
+    const resp = await fetch(url, { mode: 'no-cors' });
+    // no-cors no deja leer la respuesta — usamos JSONP trick via script tag
+    return await fetchPacsJSONP(asesor, soloSuyos);
+  } catch(e) {
+    return await fetchPacsJSONP(asesor, soloSuyos);
+  }
+}
 
-function renderPacs(){
-  const asesor=document.getElementById('asesor-sel')?.value||'';
-  const sup=document.getElementById('sup-toggle')?.checked;
-  const all=getPacs();
-  const list=sup?all:all.filter(p=>p.asesor===asesor);
-  const c=document.getElementById('pac-container');if(!c)return;
-  if(!list.length){
-    c.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:.85rem;">${asesor?asesor+' no tiene pacientes guardados aún.':'Selecciona un asesor para ver sus pacientes.'}</div>`;
+// JSONP — única forma de leer respuesta de Apps Script desde sitio externo
+function fetchPacsJSONP(asesor, soloSuyos) {
+  return new Promise((resolve) => {
+    const cbName = 'scs_cb_' + Date.now();
+    const url = APPS_SCRIPT_URL
+      + '?action=read'
+      + (soloSuyos && asesor ? '&asesor=' + encodeURIComponent(asesor) : '')
+      + '&callback=' + cbName;
+    window[cbName] = (data) => {
+      delete window[cbName];
+      document.getElementById('scs-jsonp')?.remove();
+      resolve(data?.data || []);
+    };
+    const s = document.createElement('script');
+    s.id = 'scs-jsonp';
+    s.src = url;
+    s.onerror = () => { delete window[cbName]; resolve([]); };
+    document.head.appendChild(s);
+    setTimeout(() => { delete window[cbName]; document.getElementById('scs-jsonp')?.remove(); resolve([]); }, 8000);
+  });
+}
+
+async function renderPacs() {
+  const asesor = document.getElementById('asesor-sel')?.value || '';
+  const sup = document.getElementById('sup-toggle')?.checked;
+  const c = document.getElementById('pac-container'); if (!c) return;
+  c.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted);font-size:.85rem;">⏳ Cargando pacientes…</div>`;
+  const list = await fetchPacsJSONP(asesor, !sup);
+  pacsCache = list;
+  if (!list.length) {
+    c.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:.85rem;">${asesor ? asesor + ' no tiene pacientes guardados aún.' : 'Selecciona un asesor para ver sus pacientes.'}</div>`;
     return;
   }
-  const nivelCls={c:'np-c',p:'np-p',a:'np-a',e:'np-e'};
-  c.innerHTML=list.map(p=>{
-    const ri=all.indexOf(p);
-    const ini=(p.nombre||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-    const pk=p.perfil?Object.entries(PM).find(([k,v])=>v.name===p.perfil)?.[0]||'c':'c';
-    return`<div onclick="openPacModal(${ri})" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:#FAFCFD;cursor:pointer;margin-bottom:7px;transition:all .13s;" onmouseover="this.style.borderColor='var(--teal-l)'" onmouseout="this.style.borderColor='var(--border)'">
+  const nivelCls = {c:'np-c',p:'np-p',a:'np-a',e:'np-e'};
+  c.innerHTML = list.map((p, i) => {
+    const ini = (p.nombre||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const pk = p.perfil ? Object.entries(PM).find(([k,v])=>v.name===p.perfil)?.[0]||'c' : 'c';
+    return `<div onclick="openPacModal(${i})" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:#FAFCFD;cursor:pointer;margin-bottom:7px;transition:all .13s;" onmouseover="this.style.borderColor='var(--teal-l)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="width:38px;height:38px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--teal-d);flex-shrink:0;">${ini}</div>
         <div>
           <div style="font-size:.85rem;font-weight:600;">${p.nombre||'—'}</div>
-          <div style="font-size:.72rem;color:var(--muted);">${p.brandLabel||'—'} · ${p.asesor||'—'} · ${s6fmtD(p.inicio)}</div>
+          <div style="font-size:.72rem;color:var(--muted);">${p.brandLabel||'—'} · ${p.asesor||'—'} · ${p.inicio||'—'}</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -1356,69 +1388,99 @@ function renderPacs(){
   }).join('');
 }
 
-function openPacModal(idx){
-  pacModalIdx=idx;
-  const p=getPacs()[idx];if(!p)return;
-  document.getElementById('pac-modal-title').textContent=p.nombre||'Paciente';
-  const rows=[
+function openPacModal(idx) {
+  pacModalIdx = idx;
+  const p = pacsCache[idx]; if (!p) return;
+  document.getElementById('pac-modal-title').textContent = p.nombre || 'Paciente';
+  const rows = [
     ['Marca',p.brandLabel],['Asesor',p.asesor],
-    ['F. nacimiento',s6fmtD(p.fnac)],['Edad',p.edad?p.edad+' años':'—'],
+    ['F. nacimiento',p.fnac],['Edad',p.edad?p.edad+' años':'—'],
     ['Peso',p.peso?p.peso+' kg':'—'],['Talla',p.talla?p.talla+' cm':'—'],
     ['Diagnóstico',p.dx],['Perfil',p.perfil],
     ['Médico',p.medico],['Tel. médico',p.telMedico],
     ['Turno',p.turno],['Días/semana',p.diasSemana],
     ['Entrada',p.entrada||'—'],['Salida',p.salida||'—'],
-    ['Periodo',s6fmtD(p.inicio)+' — '+s6fmtD(p.termino)],['Días/mes',p.diasMes],
+    ['Periodo',(p.inicio||'—')+' — '+(p.termino||'—')],['Días/mes',p.diasMes],
     ['Total mensual',p.totalMensual],['Contacto',p.contacto],
     ['Tel. contacto',p.tel],['Correo',p.correo],
     ['Domicilio',[p.calle,p.numero,p.colonia,p.delegacion,p.cp?'C.P.'+p.cp:''].filter(Boolean).join(', ')],
   ];
-  document.getElementById('pac-modal-body').innerHTML=rows.map(([k,v])=>
+  document.getElementById('pac-modal-body').innerHTML = rows.map(([k,v]) =>
     `<div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);">${k}</span><span style="font-weight:600;font-size:.82rem;">${v||'—'}</span></div>`
   ).join('');
-  const modal=document.getElementById('pac-modal');if(modal)modal.style.display='flex';
+  const modal = document.getElementById('pac-modal'); if (modal) modal.style.display = 'flex';
 }
 
-function closePacModal(){
-  const m=document.getElementById('pac-modal');if(m)m.style.display='none';
-  pacModalIdx=null;
+function closePacModal() {
+  const m = document.getElementById('pac-modal'); if (m) m.style.display = 'none';
+  pacModalIdx = null;
 }
 
-function pacCargar(){
-  if(pacModalIdx===null)return;
-  const p=getPacs()[pacModalIdx];if(!p)return;
-  s6editIdx=pacModalIdx;
-  // Restore wizard state from marca/perfil stored
-  const mKey=Object.entries(MARCA_L_ALL).find(([k,v])=>v===p.brandLabel)?.[0]||null;
-  if(mKey){setMarca(mKey);}
-  ['s6-nombre','s6-fnac','s6-peso','s6-talla','s6-dx','s6-medico','s6-tel-medico',
-   's6-contacto','s6-tel','s6-correo','s6-calle','s6-numero','s6-colonia','s6-delegacion','s6-cp','s6-ciudad',
-   's6-entrada','s6-salida','s6-inicio','s6-termino','s6-dias-mes'].forEach(id=>{
-    const map={'s6-nombre':'nombre','s6-fnac':'fnac','s6-peso':'peso','s6-talla':'talla','s6-dx':'dx',
-      's6-medico':'medico','s6-tel-medico':'telMedico','s6-contacto':'contacto','s6-tel':'tel','s6-correo':'correo',
-      's6-calle':'calle','s6-numero':'numero','s6-colonia':'colonia','s6-delegacion':'delegacion','s6-cp':'cp','s6-ciudad':'ciudad',
-      's6-entrada':'entrada','s6-salida':'salida','s6-inicio':'inicio','s6-termino':'termino','s6-dias-mes':'diasMes'};
-    const el=document.getElementById(id);if(el)el.value=p[map[id]]||'';
+function pacCargar() {
+  if (pacModalIdx === null) return;
+  const p = pacsCache[pacModalIdx]; if (!p) return;
+  const mKey = Object.entries(MARCA_L_ALL).find(([k,v]) => v === p.brandLabel)?.[0] || null;
+  if (mKey) setMarca(mKey);
+  const map = {
+    's6-nombre':'nombre','s6-fnac':'fnac','s6-peso':'peso','s6-talla':'talla','s6-dx':'dx',
+    's6-medico':'medico','s6-tel-medico':'telMedico','s6-contacto':'contacto',
+    's6-tel':'tel','s6-correo':'correo','s6-calle':'calle','s6-numero':'numero',
+    's6-colonia':'colonia','s6-delegacion':'delegacion','s6-cp':'cp','s6-ciudad':'ciudad',
+    's6-entrada':'entrada','s6-salida':'salida','s6-inicio':'inicio',
+    's6-termino':'termino','s6-dias-mes':'diasMes'
+  };
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id); if (el) el.value = p[key] || '';
   });
-  s6calcEdad();s6renderFicha();
-  closePacModal();setMode('p');goStep(6);
+  s6calcEdad(); s6renderFicha(); sincronizarFicha();
+  closePacModal(); setMode('p'); goStep(6);
 }
 
-function pacEliminar(){
-  if(pacModalIdx===null)return;
-  if(!confirm('¿Eliminar este paciente de la base local?'))return;
-  const list=getPacs();list.splice(pacModalIdx,1);savePacs(list);
-  closePacModal();renderPacs();
+async function pacEliminar() {
+  if (pacModalIdx === null) return;
+  const p = pacsCache[pacModalIdx];
+  if (!confirm('¿Eliminar a ' + (p?.nombre || 'este paciente') + ' de la base de datos?')) return;
+  closePacModal();
+  if (p.rowIndex) {
+    const url = APPS_SCRIPT_URL + '?action=delete&rowIndex=' + p.rowIndex;
+    try {
+      await new Promise((resolve) => {
+        const cbName = 'scs_del_' + Date.now();
+        window[cbName] = () => { delete window[cbName]; document.getElementById('scs-del-jsonp')?.remove(); resolve(); };
+        const s = document.createElement('script');
+        s.id = 'scs-del-jsonp';
+        s.src = url + '&callback=' + cbName;
+        s.onerror = () => resolve();
+        document.head.appendChild(s);
+        setTimeout(resolve, 5000);
+      });
+    } catch(e) {}
+  }
+  renderPacs();
 }
 
-function pacDrive(){
-  if(pacModalIdx===null)return;
-  const p=getPacs()[pacModalIdx];
-  const btn=document.querySelector('#pac-modal .btn-copy[onclick="pacDrive()"]');
-  if(btn){btn.id='pac-drive-btn';}
-  enviarADrive(p,'pac-drive-btn','pac-toast');
+function pacDrive() {
+  if (pacModalIdx === null) return;
+  const p = pacsCache[pacModalIdx];
+  enviarADrive(p, 'pac-drive-btn', 'pac-toast');
   closePacModal();
 }
+
+// Compatibilidad: s6guardar ahora también guarda en Drive automáticamente
+function s6guardar() {
+  const asesor = document.getElementById('asesor-sel')?.value;
+  if (!asesor) { s6toast('⚠️ Selecciona un asesor primero.'); return; }
+  if (!s6gv('s6-nombre')) { s6toast('⚠️ Ingresa el nombre del paciente.'); return; }
+  enviarADrive(s6snap(), 's6-drive-btn', 's6-toast');
+}
+
+// clGuardarPaciente también guarda en Drive
+function clGuardarPaciente() {
+  const sn = clSnap();
+  if (!sn.nombre) { clToast('⚠️ Ingresa el nombre del paciente.'); return; }
+  enviarADrive(sn, 'cl-drive-btn', 'cl-toast');
+}
+
 
 
 renderPerfil();
