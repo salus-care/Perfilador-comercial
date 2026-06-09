@@ -1244,7 +1244,7 @@ async function clEnviarDrive(){
 
 // ── DRIVE REAL (Google Apps Script Web App) ──────────────
 // ⚠️ Reemplaza esta URL con la tuya después de publicar el Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrSuhsPIG_RJ6Jw1gXlAEsZ_0pg6CszxiirpS0t0lxFYvxaJmgNmWW7uVmBl22bkBg/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzfcYzo7iOCHm__f2SYYTb5Bs97HJX7qwJugd3KbcttoRUQXTVm7347UmlhcOmWEt6w/exec';
 
 async function enviarADrive(p, btnId, toastId) {
   const btn = document.getElementById(btnId);
@@ -1282,36 +1282,17 @@ async function enviarADrive(p, btnId, toastId) {
       delegacion: p.delegacion || '', cp: p.cp || ''
     });
 
-    // Usamos un iframe oculto + form para evitar restricciones CORS de Apps Script
-    const iframe = document.createElement('iframe');
-    iframe.name = 'scs_drive_frame';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+    const url = APPS_SCRIPT_URL + '?data=' + encodeURIComponent(payload);
 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = APPS_SCRIPT_URL;
-    form.target = 'scs_drive_frame';
-    form.style.display = 'none';
+    // Usamos fetch con no-cors para GET — Apps Script acepta GET sin restricciones
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
 
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'data';
-    input.value = payload;
-    form.appendChild(input);
-    document.body.appendChild(form);
-
-    iframe.onload = () => {
-      showToast('✅ Guardado en Drive correctamente.', true);
-      document.body.removeChild(form);
-      document.body.removeChild(iframe);
-      if (btn) { btn.textContent = '☁️ Guardar en Drive'; btn.disabled = false; }
-    };
-
-    form.submit();
+    showToast('✅ Guardado en Drive correctamente.', true);
 
   } catch (err) {
     showToast('❌ Error al guardar en Drive: ' + err.message, false);
+    console.error('Drive error:', err);
+  } finally {
     if (btn) { btn.textContent = '☁️ Guardar en Drive'; btn.disabled = false; }
   }
 }
