@@ -514,7 +514,7 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
 <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
 <button class="btn-copy" onclick="s6renderFicha();s6copyFicha()">📋 Copiar para WhatsApp / CRM</button>
 <button class="btn-copy" onclick="s6guardar()" style="background:var(--teal);">💾 Guardar paciente</button>
-<button class="btn-copy" onclick="s6enviarDrive()" style="background:#185FA5;">☁️ Guardar en Drive</button>
+<button class="btn-copy" onclick="s6enviarDrive()" style="background:#185FA5;" id="s6-drive-btn">☁️ Guardar en Drive</button>
 </div>
 <div id="s6-toast" style="display:none;margin-top:8px;padding:8px 12px;background:#E3F5E8;border-radius:7px;font-size:.78rem;color:#2D6B3F;border:1px solid #A8D9B4;"></div>
 <div class="copy-box" id="s6-cbox"></div>
@@ -555,8 +555,9 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
   <div style="display:flex;gap:8px;flex-wrap:wrap;">
     <button class="btn btn-primary" onclick="pacCargar()" style="font-size:.78rem;padding:8px 14px;">✏️ Cargar y editar</button>
     <button class="btn btn-ghost" onclick="pacEliminar()" style="font-size:.78rem;padding:8px 14px;color:var(--red);border-color:var(--red);">🗑 Eliminar</button>
-    <button class="btn-copy" onclick="pacDrive()" style="background:#185FA5;font-size:.78rem;padding:8px 14px;">☁️ Guardar en Drive</button>
+    <button class="btn-copy" onclick="pacDrive()" id="pac-drive-btn" style="background:#185FA5;font-size:.78rem;padding:8px 14px;">☁️ Guardar en Drive</button>
   </div>
+  <div id="pac-toast" style="display:none;margin-top:8px;padding:8px 12px;background:#E3F5E8;border-radius:7px;font-size:.78rem;color:#2D6B3F;border:1px solid #A8D9B4;"></div>
 </div>
 </div>
 
@@ -788,10 +789,13 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
 </div>
 <div class="ficha-total" id="fi-tot-cell"><div class="ft-l">Total mensual estimado (incluye IVA)</div><div class="ft-v" id="fv-total">$—</div></div>
 </div>
-<div>
-<button class="btn-copy" onclick="cpFicha()">📋 Copiar ficha para WhatsApp / CRM</button>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+<button class="btn-copy" onclick="cpFicha()">📋 Copiar para WhatsApp / CRM</button>
+<button class="btn-copy" onclick="clGuardarPaciente()" style="background:var(--teal);">💾 Guardar paciente</button>
+<button class="btn-copy" onclick="clEnviarDrive()" style="background:#185FA5;" id="cl-drive-btn">☁️ Guardando en Drive…</button>
 <button class="btn-sec2" onclick="clReset()">🔄 Nueva llamada</button>
 </div>
+<div id="cl-toast" style="display:none;margin-top:8px;padding:8px 12px;background:#E3F5E8;border-radius:7px;font-size:.78rem;color:#2D6B3F;border:1px solid #A8D9B4;"></div>
 <div class="copy-box" id="fi-cbox"></div>
 </div>
 <!-- TAB SCORE -->
@@ -1152,14 +1156,99 @@ function s6driveMsg(p){
   return`Por favor agrega una fila a la hoja "Pacientes" del Google Sheets con ID: ${SHEET_ID}. Si la hoja no existe, créala y pon estos encabezados en la fila 1:\n${headers}\n\nLuego agrega esta fila:\n${s6buildRow(p)}`;
 }
 
+// ── GUARDAR DESDE CHECKLIST ──────────────────────────────
+function clSnap(){
+  const gv=id=>{const e=document.getElementById(id);return e?e.value.trim():'';}
+  const asesor=gv('fi-asesor')||document.getElementById('asesor-sel')?.value||'';
+  return{
+    id:Date.now(), ts:new Date().toISOString(),
+    asesor, brand:clM||'', brandLabel:clM?clMD[clM]?.label||clM:'—',
+    perfil:clPS.length?clPS.join(' + '):'—',
+    turno:clSn.jorn||'—', diasSemana:clSn.dias||'—',
+    nombre:gv('fi-nombre'), fnac:gv('fi-fnac'), edad:gv('fi-edad'),
+    peso:gv('fi-peso'), talla:gv('fi-talla'), dx:gv('fi-diag'),
+    medico:gv('fi-medico'), telMedico:gv('fi-tel-medico'),
+    contacto:gv('fi-contacto'), tel:gv('fi-tel'), correo:gv('fi-correo'),
+    calle:gv('fi-calle'), numero:gv('fi-numero'), colonia:gv('fi-colonia'),
+    delegacion:gv('fi-delegacion'), cp:gv('fi-cp'), ciudad:gv('fi-ciudad'),
+    entrada:gv('fi-entrada'), salida:gv('fi-salida'),
+    inicio:gv('fi-inicio'), termino:gv('fi-termino'), diasMes:gv('fi-dias-mes'),
+    totalMensual:gv('fi-total')||'—',
+  };
+}
+function clGuardarPaciente(){
+  const sn=clSnap();
+  if(!sn.nombre){clToast('⚠️ Ingresa el nombre del paciente.');return;}
+  const list=getPacs(); list.push(sn); savePacs(list);
+  clToast('✅ Paciente guardado en Mis pacientes.');
+}
+function clToast(msg){const t=document.getElementById('cl-toast');if(!t)return;t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
+async function clEnviarDrive(){
+  const sn=clSnap();
+  if(!sn.nombre){clToast('⚠️ Ingresa el nombre del paciente.');return;}
+  clGuardarPaciente();
+  await enviarADrive(sn,'cl-drive-btn','cl-toast');
+}
+
+// ── DRIVE REAL (Google Sheets vía Anthropic API) ─────────
+async function enviarADrive(p, btnId, toastId){
+  const btn=document.getElementById(btnId);
+  const toast_fn=id=>{const t=document.getElementById(id);if(!t)return;t.style.display='block';};
+  const toast_msg=(id,msg,ok)=>{const t=document.getElementById(id);if(!t)return;t.textContent=msg;t.style.background=ok?'#E3F5E8':'#FDECEA';t.style.color=ok?'#2D6B3F':'#7A1010';t.style.display='block';setTimeout(()=>t.style.display='none',4000);};
+  if(btn){btn.textContent='☁️ Guardando…';btn.disabled=true;}
+  const row=buildRow(p);
+  const HEADERS='Fecha\tAsesor\tMarca\tPaciente\tF.Nac\tEdad\tPeso(kg)\tTalla(cm)\tDiagnóstico\tPerfil\tTurno\tJornada\tDías/sem\tMédico\tTel.Médico\tEntrada\tSalida\tInicio\tTérmino\tDías/mes\tTotal Mensual\tContacto\tTel.Contacto\tCorreo\tCalle\tNúmero\tColonia\tDelegación\tC.P.';
+  const prompt=`Eres un asistente que escribe en Google Sheets. Usa la herramienta de Google Sheets para hacer lo siguiente en el archivo con ID "${SHEET_ID}":
+1. Si no existe una hoja llamada "Pacientes", créala.
+2. Si la fila 1 de la hoja "Pacientes" está vacía, escribe estos encabezados en A1: ${HEADERS}
+3. Agrega una nueva fila al final con estos valores (separados por tabulador): ${row}
+Responde solo con: "OK: fila agregada" si tuvo éxito, o "ERROR: [motivo]" si falló.`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:512,
+        mcp_servers:[{type:'url',url:'https://sheets.googleapis.com/mcp/v1',name:'google-sheets'}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const txt=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'';
+    if(txt.startsWith('OK')){
+      toast_msg(toastId,'✅ Guardado en Drive correctamente.',true);
+    } else {
+      throw new Error(txt||'Respuesta inesperada');
+    }
+  } catch(e){
+    toast_msg(toastId,'⚠️ No se pudo guardar en Drive automáticamente. Intenta de nuevo o contacta al administrador.',false);
+    console.error('Drive error:',e);
+  } finally {
+    if(btn){btn.textContent='☁️ Guardar en Drive';btn.disabled=false;}
+  }
+}
+
+function buildRow(p){
+  return[
+    p.ts?new Date(p.ts).toLocaleDateString('es-MX'):'',
+    p.asesor,p.brandLabel,p.nombre,s6fmtD(p.fnac),p.edad,
+    p.peso,p.talla,p.dx,p.perfil,p.turno,p.turno,p.diasSemana,
+    p.medico,p.telMedico,p.entrada,p.salida,
+    s6fmtD(p.inicio),s6fmtD(p.termino),p.diasMes,p.totalMensual,
+    p.contacto,p.tel,p.correo,
+    p.calle,p.numero,p.colonia,p.delegacion,p.cp
+  ].map(x=>x||'').join('\t');
+}
+
 function s6enviarDrive(){
   const asesor=document.getElementById('asesor-sel')?.value;
   if(!asesor){s6toast('⚠️ Selecciona un asesor primero.');return;}
   if(!s6gv('s6-nombre')){s6toast('⚠️ Ingresa el nombre del paciente.');return;}
   s6guardar();
-  const msg=s6driveMsg(s6snap());
-  alert('📋 Copia este mensaje y pégalo en un chat de Claude con Google Sheets conectado:\n\n'+msg);
+  enviarADrive(s6snap(),'s6-drive-btn','s6-toast');
 }
+
 
 // ── BASE DE PACIENTES ────────────────────────────────────
 function getPacs(){try{return JSON.parse(localStorage.getItem('scs_pacs')||'[]');}catch{return[];}}
@@ -1256,7 +1345,9 @@ function pacEliminar(){
 function pacDrive(){
   if(pacModalIdx===null)return;
   const p=getPacs()[pacModalIdx];
-  alert('📋 Copia este mensaje y pégalo en un chat de Claude con Google Sheets conectado:\n\n'+s6driveMsg(p));
+  const btn=document.querySelector('#pac-modal .btn-copy[onclick="pacDrive()"]');
+  if(btn){btn.id='pac-drive-btn';}
+  enviarADrive(p,'pac-drive-btn','pac-toast');
   closePacModal();
 }
 
