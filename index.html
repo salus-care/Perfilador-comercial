@@ -261,11 +261,21 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
   <img src="LOGO SALUS CARE SOLUTIONS-01.png" style="height:38px;width:auto;" alt="Salus" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
   <div class="logo" id="lfb" style="display:none;">S</div>
   <div><span style="font-size:.72rem;opacity:.6;display:block;margin-top:1px;">Perfilador, Cotizador &amp; Control de Calidad — Asesor Comercial</span></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+    <label for="asesor-sel" style="font-size:.72rem;opacity:.7;white-space:nowrap;">Asesor:</label>
+    <select id="asesor-sel" onchange="onAsesorChange()" style="font-size:.78rem;padding:5px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;max-width:170px;">
+      <option value="" style="color:#000;">— Seleccionar —</option>
+      <option style="color:#000;">Omar Juarez</option>
+      <option style="color:#000;">Manuel Rodriguez</option>
+      <option style="color:#000;">David Villegas</option>
+    </select>
+  </div>
   <div class="badge">USO INTERNO</div>
 </header>
 <div class="mode-bar">
   <div class="mode-tab active" id="mt-p" onclick="setMode('p')">📋 Perfilador &amp; Cotizador</div>
   <div class="mode-tab" id="mt-c" onclick="setMode('c')">📞 Checklist de Llamada</div>
+  <div class="mode-tab" id="mt-b" onclick="setMode('b')">🗂 Mis pacientes</div>
 </div>
 
 <!-- PERFILADOR -->
@@ -276,6 +286,7 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
   <div class="wstep hidden" id="ws3" onclick="goStep(3)"><div class="wn" id="wn3">3</div>Producto Salus</div>
   <div class="wstep" id="ws4" onclick="goStep(4)"><div class="wn" id="wn4">4</div>Turno</div>
   <div class="wstep" id="ws5" onclick="goStep(5)"><div class="wn" id="wn5">5</div>Cotización</div>
+  <div class="wstep" id="ws6" onclick="goStep(6)"><div class="wn" id="wn6">6</div>Datos del paciente</div>
 </div>
 <div class="main"><div class="panel" id="panel">
 <div id="step1">
@@ -419,12 +430,137 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
 <div class="cotiz-layout"><div id="cotiz-main"></div><div id="cotiz-aside"></div></div>
 <div class="step-nav">
 <button class="btn btn-ghost" onclick="goStep(4)">← Editar turno</button>
+<button class="btn btn-primary" onclick="goStep(6)">Registrar paciente →</button>
 <button class="btn btn-ghost" onclick="resetAll()">🔄 Nueva cotización</button>
 </div>
 </div>
+
+<!-- PASO 6: DATOS DEL PACIENTE -->
+<div id="step6" style="display:none">
+<p style="font-size:.85rem;color:var(--muted);margin-bottom:20px;">Registra los datos completos del paciente. Esta información se guardará en la base local y podrá enviarse a Google Drive.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;" id="s6-layout">
+<div>
+<div class="section-label" style="margin-top:0;">👤 Datos del paciente</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  <div style="grid-column:span 2;"><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Nombre completo</label><input type="text" id="s6-nombre" placeholder="Nombre completo del paciente" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;font-family:'DM Sans',sans-serif;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Fecha de nacimiento</label><input type="date" id="s6-fnac" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;" oninput="s6calcEdad()"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Edad (años)</label><input type="number" id="s6-edad" placeholder="Auto" readonly style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;background:#F8FBFC;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Peso (kg)</label><input type="number" id="s6-peso" placeholder="Ej: 65" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Talla (cm)</label><input type="number" id="s6-talla" placeholder="Ej: 165" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div style="grid-column:span 2;"><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Diagnóstico principal</label><input type="text" id="s6-dx" placeholder="Ej: EVC isquémico, fractura de cadera…" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+</div>
+
+<div class="section-label">🩺 Médico tratante</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Nombre del médico</label><input type="text" id="s6-medico" placeholder="Dr. / Dra." style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Teléfono del médico</label><input type="tel" id="s6-tel-medico" placeholder="55 0000 0000" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+</div>
+
+<div class="section-label">📞 Contacto responsable</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Nombre y parentesco</label><input type="text" id="s6-contacto" placeholder="Ej: Ana Martínez (hija)" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Teléfono</label><input type="tel" id="s6-tel" placeholder="55 0000 0000" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div style="grid-column:span 2;"><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Correo electrónico</label><input type="email" id="s6-correo" placeholder="correo@ejemplo.com" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+</div>
+
+<div class="section-label">📍 Domicilio</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Calle</label><input type="text" id="s6-calle" placeholder="Nombre de la calle" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Número</label><input type="text" id="s6-numero" placeholder="Ext / Int" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Colonia</label><input type="text" id="s6-colonia" placeholder="Colonia" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Delegación / Municipio</label><input type="text" id="s6-delegacion" placeholder="Benito Juárez…" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Código postal</label><input type="text" id="s6-cp" placeholder="C.P." maxlength="5" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Ciudad / Estado</label><input type="text" id="s6-ciudad" placeholder="Ciudad de México" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+</div>
+
+<div class="section-label">📅 Periodo del servicio</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Fecha de inicio</label><input type="date" id="s6-inicio" oninput="s6calcPeriodo()" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Fecha de término</label><input type="date" id="s6-termino" oninput="s6calcPeriodo()" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Días del mes</label><input type="number" id="s6-dias-mes" placeholder="Ej: 30" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Horario entrada del personal</label><input type="time" id="s6-entrada" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+  <div><label style="font-size:.72rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Horario salida del personal</label><input type="time" id="s6-salida" style="width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--border);font-size:.82rem;"></div>
+</div>
+</div>
+
+<!-- FICHA PREVIEW -->
+<div>
+<div class="section-label" style="margin-top:0;">Vista previa — Ficha de servicio</div>
+<div class="ficha-preview" id="s6-ficha-preview">
+<div class="ficha-hdr">
+  <div class="ficha-id" id="s6-fi-id-cell" style="background:#29B8D4;"><div class="fi-l" style="color:rgba(255,255,255,.85);">MARCA / ORIGEN</div><div class="fi-v" id="s6fv-marca" style="color:#fff;">—</div></div>
+  <div class="ficha-sv"><div class="fi-l"># SERVICIO</div><div class="fi-v" id="s6fv-sv" style="color:#fff;">OPS——</div></div>
+</div>
+<div class="ficha-grid">
+  <div class="ficha-cell"><div class="fc-l">Paciente</div><div class="fc-v" id="s6fv-nombre">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">F. nacimiento / Edad</div><div class="fc-v" id="s6fv-fnac">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Peso / Talla</div><div class="fc-v" id="s6fv-peso">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Diagnóstico</div><div class="fc-v" id="s6fv-dx">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Perfil clínico</div><div class="fc-v" id="s6fv-perfil">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Nivel / Complejidad</div><div class="fc-v" id="s6fv-nivel">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Médico tratante</div><div class="fc-v" id="s6fv-medico">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Tel. médico</div><div class="fc-v" id="s6fv-tel-medico">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Turno / Horario</div><div class="fc-v" id="s6fv-turno">—</div></div>
+  <div class="ficha-cell sp2"><div class="fc-l">Periodo del servicio</div><div class="fc-v" id="s6fv-periodo">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Días / mes</div><div class="fc-v" id="s6fv-dias">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Contacto</div><div class="fc-v" id="s6fv-contacto">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Correo</div><div class="fc-v" id="s6fv-correo">—</div></div>
+  <div class="ficha-cell sp2"><div class="fc-l">Domicilio</div><div class="fc-v" id="s6fv-dir">—</div></div>
+  <div class="ficha-cell"><div class="fc-l">Asesor</div><div class="fc-v" id="s6fv-asesor">—</div></div>
+</div>
+<div class="ficha-total" id="s6-fi-tot-cell"><div class="ft-l">Total mensual estimado</div><div class="ft-v" id="s6fv-total">$—</div></div>
+</div>
+<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+<button class="btn-copy" onclick="s6renderFicha();s6copyFicha()">📋 Copiar para WhatsApp / CRM</button>
+<button class="btn-copy" onclick="s6guardar()" style="background:var(--teal);">💾 Guardar paciente</button>
+<button class="btn-copy" onclick="s6enviarDrive()" style="background:#185FA5;">☁️ Guardar en Drive</button>
+</div>
+<div id="s6-toast" style="display:none;margin-top:8px;padding:8px 12px;background:#E3F5E8;border-radius:7px;font-size:.78rem;color:#2D6B3F;border:1px solid #A8D9B4;"></div>
+<div class="copy-box" id="s6-cbox"></div>
+</div>
+</div>
+
+<div class="step-nav">
+<button class="btn btn-ghost" onclick="goStep(5)">← Ver cotización</button>
+<button class="btn btn-ghost" onclick="resetAll()">🔄 Nueva cotización</button>
+<button class="btn btn-primary" onclick="setMode('b')">🗂 Ver mis pacientes →</button>
+</div>
+</div>
+
 </div></div></div>
 
-<!-- CHECKLIST -->
+<!-- MIS PACIENTES MODE -->
+<div id="mode-b" style="display:none;">
+<div class="cl-container"><div class="cl-panel">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+  <div style="font-size:.85rem;font-weight:600;color:var(--teal-d);">🗂 Base de pacientes</div>
+  <div style="display:flex;align-items:center;gap:10px;font-size:.78rem;">
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);">
+      <input type="checkbox" id="sup-toggle" onchange="renderPacs()" style="accent-color:var(--teal);width:14px;height:14px;"> Ver todos los asesores
+    </label>
+  </div>
+</div>
+<div id="pac-container"></div>
+</div></div></div>
+
+<!-- MODAL PACIENTE -->
+<div id="pac-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;">
+<div style="background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px;width:100%;max-width:640px;margin:auto;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-size:1rem;font-weight:600;color:var(--teal-d);" id="pac-modal-title">Paciente</div>
+    <button onclick="closePacModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);">✕</button>
+  </div>
+  <div id="pac-modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:.82rem;margin-bottom:16px;"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="pacCargar()" style="font-size:.78rem;padding:8px 14px;">✏️ Cargar y editar</button>
+    <button class="btn btn-ghost" onclick="pacEliminar()" style="font-size:.78rem;padding:8px 14px;color:var(--red);border-color:var(--red);">🗑 Eliminar</button>
+    <button class="btn-copy" onclick="pacDrive()" style="background:#185FA5;font-size:.78rem;padding:8px 14px;">☁️ Guardar en Drive</button>
+  </div>
+</div>
+</div>
+
+
 <div id="mode-c" style="display:none;">
 <div class="cl-container"><div class="cl-panel">
 <div class="cl-tabs">
@@ -510,19 +646,47 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
 </div>
 <!-- TAB FICHA -->
 <div class="cl-subpanel" id="clt-ficha">
-<div class="cl-sec-label" style="margin-top:0;">Datos del paciente</div>
+
+<div class="cl-sec-label" style="margin-top:0;">👤 Datos del paciente</div>
 <div class="fg2">
-<div><label class="fl-lbl" style="margin-top:0;">Nombre del paciente</label><input type="text" id="fi-nombre" placeholder="Nombre completo" oninput="updF()"></div>
-<div><label class="fl-lbl" style="margin-top:0;">Fecha de nacimiento</label><input type="date" id="fi-fnac" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Nombre completo del paciente</label><input type="text" id="fi-nombre" placeholder="Nombre completo" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Fecha de nacimiento</label><input type="date" id="fi-fnac" oninput="fi_calcEdad();updF()"></div>
 </div>
-<label class="fl-lbl">Diagnóstico</label><input type="text" id="fi-diag" placeholder="Ej. Post-operado colectomía, sin estoma" oninput="updF()">
-<label class="fl-lbl">Dirección</label><input type="text" id="fi-dir" placeholder="Calle, colonia, alcaldía, CDMX" oninput="updF()">
-<div class="cl-sec-label" style="margin-top:18px;">Datos del contacto / familiar</div>
+<div class="fg3" style="margin-top:10px;">
+  <div><label class="fl-lbl" style="margin-top:0;">Edad (años)</label><input type="number" id="fi-edad" placeholder="Auto" readonly style="background:#F8FBFC;" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Peso (kg)</label><input type="number" id="fi-peso" placeholder="Ej: 65" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Talla (cm)</label><input type="number" id="fi-talla" placeholder="Ej: 165" oninput="updF()"></div>
+</div>
+<label class="fl-lbl">Diagnóstico principal</label>
+<input type="text" id="fi-diag" placeholder="Ej. Post-operado colectomía, EVC isquémico…" oninput="updF()">
+
+<div class="cl-sec-label" style="margin-top:18px;">🩺 Médico tratante</div>
 <div class="fg2">
-<div><label class="fl-lbl" style="margin-top:0;">Nombre del contacto</label><input type="text" id="fi-contacto" placeholder="Nombre y apellido" oninput="updF()"></div>
-<div><label class="fl-lbl" style="margin-top:0;">Teléfono</label><input type="text" id="fi-tel" placeholder="55 XXXX XXXX" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Nombre del médico tratante</label><input type="text" id="fi-medico" placeholder="Dr. / Dra." oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Teléfono del médico</label><input type="tel" id="fi-tel-medico" placeholder="55 XXXX XXXX" oninput="updF()"></div>
 </div>
-<div class="cl-sec-label" style="margin-top:18px;">Tipo de servicio</div>
+
+<div class="cl-sec-label" style="margin-top:18px;">📞 Datos del contacto / familiar</div>
+<div class="fg2">
+  <div><label class="fl-lbl" style="margin-top:0;">Nombre y parentesco</label><input type="text" id="fi-contacto" placeholder="Ej: Ana Martínez (hija)" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Teléfono del contacto</label><input type="text" id="fi-tel" placeholder="55 XXXX XXXX" oninput="updF()"></div>
+</div>
+<label class="fl-lbl">Correo electrónico del contacto</label>
+<input type="email" id="fi-correo" placeholder="correo@ejemplo.com" oninput="updF()">
+
+<div class="cl-sec-label" style="margin-top:18px;">📍 Domicilio del paciente</div>
+<div class="fg2">
+  <div><label class="fl-lbl" style="margin-top:0;">Calle</label><input type="text" id="fi-calle" placeholder="Nombre de la calle" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Número exterior / interior</label><input type="text" id="fi-numero" placeholder="Ej: 42 Int. 3" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Colonia</label><input type="text" id="fi-colonia" placeholder="Colonia" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Delegación / Municipio</label><input type="text" id="fi-delegacion" placeholder="Benito Juárez…" oninput="updF()"></div>
+</div>
+<div class="fg3" style="margin-top:10px;">
+  <div><label class="fl-lbl" style="margin-top:0;">Código postal</label><input type="text" id="fi-cp" placeholder="C.P." maxlength="5" oninput="updF()"></div>
+  <div style="grid-column:span 2;"><label class="fl-lbl" style="margin-top:0;">Ciudad / Estado</label><input type="text" id="fi-ciudad" placeholder="Ciudad de México" oninput="updF()"></div>
+</div>
+
+<div class="cl-sec-label" style="margin-top:18px;">🗂 Tipo de servicio</div>
 <label class="fl-lbl" style="margin-top:0;">Perfil del personal</label>
 <div class="bdg-wrap" id="fi-pw">
 <span class="bdg" onclick="tgP(this)">Enfermero/a General</span>
@@ -567,39 +731,62 @@ header{background:var(--teal-d);color:#fff;padding:13px 28px;display:flex;align-
 <span class="bdg" onclick="tgS(this,'pago')">Cheque</span>
 </div></div>
 </div>
-<div class="fg3" style="margin-top:10px;">
-<div><label class="fl-lbl" style="margin-top:0;">Inicio del servicio</label><input type="date" id="fi-inicio" oninput="updF()"></div>
-<div><label class="fl-lbl" style="margin-top:0;">Asesor comercial</label><input type="text" id="fi-asesor" placeholder="Nombre del asesor" oninput="updF()"></div>
-<div><label class="fl-lbl" style="margin-top:0;">Coordinador de cuidados</label><input type="text" id="fi-coord" placeholder="Nombre" oninput="updF()"></div>
+
+<div class="cl-sec-label" style="margin-top:18px;">📅 Periodo del servicio</div>
+<div class="fg3">
+  <div><label class="fl-lbl" style="margin-top:0;">Fecha de inicio</label><input type="date" id="fi-inicio" oninput="fi_calcPeriodo()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Fecha de término</label><input type="date" id="fi-termino" oninput="fi_calcPeriodo()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Días del mes</label><input type="number" id="fi-dias-mes" placeholder="Ej: 30" oninput="updF()"></div>
 </div>
 <div class="fg2" style="margin-top:10px;">
-<div><label class="fl-lbl" style="margin-top:0;">Total mensual estimado (MXN, con IVA)</label><input type="text" id="fi-total" placeholder="Ej. $66,140.84" oninput="updF()"></div>
-<div><label class="fl-lbl" style="margin-top:0;">Especificaciones / comentarios</label><input type="text" id="fi-coments" placeholder="Ej. AVD, medicamentos VO, movilización" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Horario de entrada del personal</label><input type="time" id="fi-entrada" oninput="updF()"></div>
+  <div><label class="fl-lbl" style="margin-top:0;">Horario de salida del personal</label><input type="time" id="fi-salida" oninput="updF()"></div>
 </div>
-<div class="cl-sec-label" style="margin-top:20px;">Vista previa de la ficha</div>
+
+<div class="fg3" style="margin-top:10px;">
+<div><label class="fl-lbl" style="margin-top:0;">Asesor comercial</label><input type="text" id="fi-asesor" placeholder="Nombre del asesor" oninput="updF()"></div>
+<div><label class="fl-lbl" style="margin-top:0;">Coordinador de cuidados</label><input type="text" id="fi-coord" placeholder="Nombre" oninput="updF()"></div>
+<div><label class="fl-lbl" style="margin-top:0;">Total mensual (MXN c/IVA)</label><input type="text" id="fi-total" placeholder="Ej. $66,140.84" oninput="updF()"></div>
+</div>
+<label class="fl-lbl">Especificaciones / comentarios</label>
+<input type="text" id="fi-coments" placeholder="Ej. AVD, medicamentos VO, movilización" oninput="updF()">
+
+<div class="cl-sec-label" style="margin-top:20px;">Vista previa — Ficha de servicio</div>
 <div class="ficha-preview">
 <div class="ficha-hdr">
 <div class="ficha-id" id="fi-id-cell" style="background:#29B8D4;"><div class="fi-l" style="color:rgba(255,255,255,.85);">SALUS ID</div><div class="fi-v" id="fv-id" style="color:#fff;">—</div></div>
 <div class="ficha-sv"><div class="fi-l"># DE SERVICIO</div><div class="fi-v" id="fv-sv">OPS——</div></div>
 </div>
 <div class="ficha-grid">
-<div class="ficha-cell"><div class="fc-l">Contacto</div><div class="fc-v" id="fv-contacto">—</div></div>
-<div class="ficha-cell"><div class="fc-l">Coordinador de cuidados</div><div class="fc-v" id="fv-coord">—</div></div>
-<div class="ficha-cell"><div class="fc-l">Agente comercial</div><div class="fc-v" id="fv-asesor">—</div></div>
 <div class="ficha-cell"><div class="fc-l">Paciente / Beneficiario</div><div class="fc-v" id="fv-nombre">—</div></div>
-<div class="ficha-cell"><div class="fc-l">Período</div><div class="fc-v" id="fv-periodo">—</div></div>
-<div class="ficha-cell"><div class="fc-l">Perfil del personal</div><div class="fc-v" id="fv-perfil">—</div></div>
+<div class="ficha-cell"><div class="fc-l">F. nacimiento / Edad</div><div class="fc-v" id="fv-fnac-edad">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Peso / Talla</div><div class="fc-v" id="fv-peso-talla">—</div></div>
 <div class="ficha-cell"><div class="fc-l">Diagnóstico</div><div class="fc-v" id="fv-diag">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Médico tratante</div><div class="fc-v" id="fv-medico">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Tel. médico</div><div class="fc-v" id="fv-tel-medico">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Perfil del personal</div><div class="fc-v" id="fv-perfil">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Jornada</div><div class="fc-v" id="fv-jorn">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Horario entrada</div><div class="fc-v" id="fv-entrada">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Horario salida</div><div class="fc-v" id="fv-salida">—</div></div>
 <div class="ficha-cell"><div class="fc-l">Días de servicio</div><div class="fc-v" id="fv-dias">—</div></div>
 <div class="ficha-cell"><div class="fc-l">Sexo del personal</div><div class="fc-v" id="fv-sexo">—</div></div>
-<div class="ficha-cell sp2"><div class="fc-l">Dirección</div><div class="fc-v" id="fv-dir">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Fecha inicio</div><div class="fc-v" id="fv-inicio">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Fecha término</div><div class="fc-v" id="fv-termino">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Días / mes</div><div class="fc-v" id="fv-dias-mes">—</div></div>
 <div class="ficha-cell"><div class="fc-l">Forma de pago</div><div class="fc-v" id="fv-pago">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Contacto</div><div class="fc-v" id="fv-contacto">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Correo contacto</div><div class="fc-v" id="fv-correo">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Coordinador</div><div class="fc-v" id="fv-coord">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Agente comercial</div><div class="fc-v" id="fv-asesor">—</div></div>
 </div>
 <div class="ficha-grid" style="border-top:1px solid var(--border);">
+<div class="ficha-cell"><div class="fc-l">Calle y número</div><div class="fc-v" id="fv-calle-num">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Colonia</div><div class="fc-v" id="fv-colonia">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Delegación / Municipio</div><div class="fc-v" id="fv-delegacion">—</div></div>
+<div class="ficha-cell"><div class="fc-l">Código postal</div><div class="fc-v" id="fv-cp">—</div></div>
 <div class="ficha-cell sp2"><div class="fc-l">Especificaciones / comentarios</div><div class="fc-v" id="fv-coments">—</div></div>
-<div class="ficha-cell"><div class="fc-l">Jornada</div><div class="fc-v" id="fv-jorn">—</div></div>
 </div>
-<div class="ficha-total" id="fi-tot-cell"><div class="ft-l">Total (incluye IVA)</div><div class="ft-v" id="fv-total">$—</div></div>
+<div class="ficha-total" id="fi-tot-cell"><div class="ft-l">Total mensual estimado (incluye IVA)</div><div class="ft-v" id="fv-total">$—</div></div>
 </div>
 <div>
 <button class="btn-copy" onclick="cpFicha()">📋 Copiar ficha para WhatsApp / CRM</button>
@@ -653,11 +840,11 @@ const COL_LABEL=['4.3 días/mes','8.7 días/mes','21.7 días/mes','26.1 días/me
 const sel={};
 let marca=null,producto=null,variante=null,memb=null,turno=null,dias=null,step=1;
 function isSCS(){return marca==='scs';}
-function goStep(n){if(n>step){for(let s=step;s<n;s++){if(s===3&&!isSCS())continue;if(!canLeave(s))return;}}step=n;[1,2,3,4,5].forEach(i=>{document.getElementById('step'+i).style.display=(i===n)?'block':'none';});updateWizardTabs();if(n===4)prepTurnoStep();if(n===5)renderCotiz();}
+function goStep(n){if(n>step){for(let s=step;s<n;s++){if(s===3&&!isSCS())continue;if(!canLeave(s))return;}}step=n;[1,2,3,4,5,6].forEach(i=>{document.getElementById('step'+i).style.display=(i===n)?'block':'none';});updateWizardTabs();if(n===4)prepTurnoStep();if(n===5)renderCotiz();if(n===6)s6renderFicha();}
 function marcaNext(){if(!marca)return;goStep(isSCS()?3:4);}
 function turnoBack(){goStep(isSCS()?3:2);}
 function canLeave(s){if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&dias!==null;return true;}
-function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[1,2,3,4,5].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
+function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[1,2,3,4,5,6].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
 function updateBtns(){['btn1','btn2','btn3','btn4'].forEach((id,i)=>{const b=document.getElementById(id);if(b)b.disabled=!canLeave(i+1);});}
 function tog(el,id,lv,label){el.classList.toggle('on');if(el.classList.contains('on'))sel[id]={lv,label};else delete sel[id];renderPerfil();updateBtns();}
 function getProfile(){const lvs=Object.values(sel).map(v=>v.lv);let max=-1;for(const l of lvs){const i=HIERARCHY.indexOf(l);if(i>max)max=i;}return max>=0?HIERARCHY[max]:null;}
@@ -675,15 +862,16 @@ function renderCotiz(){const profile=getProfile();const pk=(profile==='p')?'a':p
 function precioBlock(pk,perfilLabel){const esp=ESTANDAR[marca]?.[pk]?.[turno];if(!esp)return`<p class="note">⚠️ Combinación no disponible para esta marca/turno.</p>`;const data=MEMB[marca]?.[pk]?.[turno];const colIdx=DIAS_A_COL[dias];let html='';html+=`<div class="match-note note-blue"><strong>${MARCA_L[marca]} · ${perfilLabel} · ${turno}h · ${dias} día${dias>1?'s':''}/sem</strong></div><div class="price-hero"><div class="ph-label">Precio por servicio unitario c/IVA</div><div class="ph-price">$${fmt(esp)} MXN</div><div class="ph-sub">${turno} horas · ${perfilLabel}</div></div>`;if(colIdx===null){const sd_b=data?.sd?.[1];const sd_a=data?.sd?.[2];const cd_b=data?.cd?.[1];const cd_a=data?.cd?.[2];html+=`<div class="price-breakdown"><div class="pb-head">Referencia mensual · ${dias} días/sem</div><p style="font-size:.72rem;color:var(--a);padding:10px 14px 4px;">⚠️ ${dias} días/sem no tiene columna exacta. Rango entre 2 y 5 días/sem.</p><div class="pb-row"><span class="pb-l">8.7 días/mes (~2×sem) sin dto.</span><span class="pb-v">$${fmt(sd_b)} MXN</span></div>${cd_b&&cd_b!==sd_b?`<div class="pb-row"><span class="pb-l">8.7 días/mes con dto.</span><span class="pb-v" style="color:var(--teal)">$${fmt(cd_b)} MXN</span></div>`:''}<div class="pb-row"><span class="pb-l">21.7 días/mes (~5×sem) sin dto.</span><span class="pb-v">$${fmt(sd_a)} MXN</span></div>${cd_a&&cd_a!==sd_a?`<div class="pb-row"><span class="pb-l">21.7 días/mes con dto.</span><span class="pb-v" style="color:var(--teal)">$${fmt(cd_a)} MXN</span></div>`:''}</div>`;return html;}const diasMes=COL_DIAS_MES[colIdx];const colLabel=COL_LABEL[colIdx];const precioSD=data?.sd?.[colIdx]??null;const precioCD=data?.cd?.[colIdx]??null;const tieneDesc=precioCD!=null&&precioCD!==precioSD;const descPct=tieneDesc?Math.round((1-precioCD/precioSD)*100):0;html+=`<div class="price-breakdown"><div class="pb-head">Precio mensual · ${colLabel}</div><div class="pb-row"><span class="pb-l">Días al mes</span><span class="pb-v">${diasMes} días</span></div><div class="pb-row"><span class="pb-l">Precio unitario por servicio</span><span class="pb-v">$${fmt(esp)} MXN</span></div><div class="pb-row"><span class="pb-l">Precio mensual sin descuento</span><span class="pb-v">$${fmt(precioSD)} MXN</span></div>`;if(tieneDesc){html+=`<div class="pb-row"><span class="pb-l">Descuento por frecuencia</span><span class="pb-v" style="color:var(--teal)">−${descPct}% (−$${fmt(precioSD-precioCD)})</span></div><div class="pb-row"><span class="pb-l"><strong>Precio mensual con descuento</strong></span><span class="pb-v hi">$${fmt(precioCD)} MXN</span></div>`;}else{html+=`<div class="pb-row"><span class="pb-l"><strong>Precio mensual</strong></span><span class="pb-v hi">$${fmt(precioSD)} MXN</span></div>`;}html+=`</div>`;return html;}
 function prodLabel(){if(producto==='match')return'Salus Match';if(producto==='select')return`Salus Select ${variante==='basico'?'Básico':'Plus'}${memb?' · '+membLabel():''}`;if(producto==='premium')return'Salus Premium';return'—';}
 function membLabel(){return{trim:'Trimestral',sem:'Semestral',anual:'Anual'}[memb]||'—';}
-function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;document.querySelectorAll('.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');renderPerfil();updateBtns();step=1;goStep(1);}
+function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;document.querySelectorAll('.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');['s6-nombre','s6-fnac','s6-edad','s6-peso','s6-talla','s6-dx','s6-medico','s6-tel-medico','s6-contacto','s6-tel','s6-correo','s6-calle','s6-numero','s6-colonia','s6-delegacion','s6-cp','s6-ciudad','s6-inicio','s6-termino','s6-dias-mes','s6-entrada','s6-salida'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});s6editIdx=null;renderPerfil();updateBtns();step=1;goStep(1);}
 
 // ── MODE SWITCHER ────────────────────────────────────────
 function setMode(m){
   document.getElementById('mode-p').style.display=m==='p'?'block':'none';
   document.getElementById('mode-c').style.display=m==='c'?'block':'none';
-  document.getElementById('mt-p').classList.toggle('active',m==='p');
-  document.getElementById('mt-c').classList.toggle('active',m==='c');
+  document.getElementById('mode-b').style.display=m==='b'?'block':'none';
+  ['p','c','b'].forEach(x=>document.getElementById('mt-'+x).classList.toggle('active',x===m));
   if(m==='c')clUpdAll();
+  if(m==='b'){renderPacs();s6renderFicha();}
 }
 
 // ── CHECKLIST DATA ───────────────────────────────────────
@@ -722,13 +910,357 @@ function clUpdAll(){var tot=0;clEC.forEach(function(cfg){var done=cfg.c.filter(f
 function clUpdScore(){var tot=0;var bk=[];clEC.forEach(function(cfg){var done=cfg.c.filter(function(c){return!!CL[c];}).length;tot+=done;bk.push({l:cfg.l,done:done,m:cfg.m});});var sb=document.getElementById('sc-bar');var sv=document.getElementById('sc-val');var sn2=document.getElementById('sc-nivel');var sm=document.getElementById('sc-marca-d');if(sb)sb.style.width=Math.round(tot/31*100)+'%';if(sv)sv.textContent=tot+' / 31';var nivel=tot<10?'Básico con huecos':tot<20?'Aceptable':tot<28?'Sólido':'⭐ Cinta Negra';if(sn2)sn2.textContent=nivel;if(sm)sm.textContent=clM?'Marca: '+clMD[clM].label:'';var bd=document.getElementById('sc-break');if(bd){bd.innerHTML='';bk.forEach(function(b){var pct=b.m>0?Math.round(b.done/b.m*100):0;var col=pct<50?'var(--e)':pct<80?'var(--a)':'var(--teal)';var el=document.createElement('div');el.className='sc-row';el.innerHTML='<div class="sc-row-top"><span class="sc-row-lbl">'+b.l+'</span><span class="sc-row-val" style="color:'+col+'">'+b.done+'/'+b.m+'</span></div><div class="sc-row-bar"><div class="sc-row-fill" style="width:'+pct+'%;background:'+col+'"></div></div>';bd.appendChild(el);});}var vOk=function(arr){return arr.filter(function(k){return!!CL[k];}).length;};var ve=document.getElementById('vc-et');var vc=document.getElementById('vc-cal');var vn=document.getElementById('vc-no');var vr=document.getElementById('vc-ec');if(ve)ve.textContent=vOk(clVM.et);if(vc)vc.textContent=vOk(clVM.cal);if(vn)vn.textContent=vOk(clVM.no);if(vr)vr.textContent=vOk(clVM.ec);}
 function tgP(el){var v=el.textContent.trim();el.classList.toggle('on');var idx=clPS.indexOf(v);if(idx>-1)clPS.splice(idx,1);else clPS.push(v);updF();}
 function tgS(el,g){var wrap=document.getElementById('fi-'+g.substring(0,1)+'w')||document.querySelector('#fi-'+g+'w')||null;document.querySelectorAll('[onclick="tgS(this,\''+g+'\')"]').forEach(function(b){b.classList.remove('on');});var v=el.textContent.trim();if(clSn[g]===v){clSn[g]=null;}else{el.classList.add('on');clSn[g]=v;}updF();}
-function updF(){var gv=function(id){var el=document.getElementById(id);return el?el.value||'—':'—';};var nombre=gv('fi-nombre'),fnac=gv('fi-fnac'),diag=gv('fi-diag'),dir=gv('fi-dir');var contacto=gv('fi-contacto'),tel=gv('fi-tel'),asesor=gv('fi-asesor'),coord=gv('fi-coord');var total=gv('fi-total'),coments=gv('fi-coments'),inicio=gv('fi-inicio');var perf=clPS.length?clPS.join(' · '):'—';var jorn=clSn.jorn||'—',dias2=clSn.dias||'—',sexo=clSn.sexo||'—',pago=clSn.pago||'—';var inicioFmt='—';if(inicio&&inicio!=='—'){try{var d=new Date(inicio+'T12:00:00');inicioFmt=d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){}}var initials='SC';if(nombre&&nombre!=='—'){var pts=nombre.trim().split(' ');initials=(pts[0][0]+(pts[1]?pts[1][0]:'')).toUpperCase();}var mPfx=clM?clMD[clM].label.replace(/\s/g,'').slice(0,4).toUpperCase():'SCS';var sid=mPfx+initials+(fnac&&fnac!=='—'?fnac.replace(/-/g,'').slice(2,8):'000000');var sn2='OPS'+clSvcN;var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v||'—';};sv('fv-id',sid);sv('fv-sv',sn2);sv('fv-contacto',contacto+(tel&&tel!=='—'?' ('+tel+')':''));sv('fv-coord',coord);sv('fv-asesor',asesor);sv('fv-nombre',nombre+(fnac&&fnac!=='—'?'\n'+fnac:''));sv('fv-periodo',inicio&&inicio!=='—'?'A partir del '+inicioFmt:'—');sv('fv-perfil',perf);sv('fv-diag',diag);sv('fv-dias',dias2);sv('fv-sexo',sexo);sv('fv-dir',dir);sv('fv-coments',coments);sv('fv-jorn',jorn);sv('fv-pago',pago);sv('fv-total',total);}
-function cpFicha(){var gv=function(id){var el=document.getElementById(id);return el?el.value||'—':'—';};var nombre=gv('fi-nombre'),diag=gv('fi-diag'),dir=gv('fi-dir');var contacto=gv('fi-contacto'),tel=gv('fi-tel'),asesor=gv('fi-asesor'),coord=gv('fi-coord');var total=gv('fi-total'),coments=gv('fi-coments');var perf=clPS.length?clPS.join(' + '):'—';var mL=clM?clMD[clM].label:'SCS';var txt='📋 *FICHA DE SERVICIO — '+mL.toUpperCase()+'*\n━━━━━━━━━━━━━━━━━━━━━━\n👤 *Paciente:* '+nombre+'\n🏥 *Diagnóstico:* '+diag+'\n📍 *Dirección:* '+dir+'\n━━━━━━━━━━━━━━━━━━━━━━\n📞 *Contacto:* '+contacto+(tel&&tel!=='—'?' ('+tel+')':'')+'\n👩‍⚕️ *Coordinador:* '+coord+'\n🤝 *Asesor:* '+asesor+'\n━━━━━━━━━━━━━━━━━━━━━━\n🔷 *Perfil:* '+perf+'\n⏱ *Jornada:* '+(clSn.jorn||'—')+'\n📅 *Días:* '+(clSn.dias||'—')+'\n👤 *Sexo del personal:* '+(clSn.sexo||'—')+'\n💳 *Forma de pago:* '+(clSn.pago||'—')+'\n📝 *Especificaciones:* '+coments+'\n━━━━━━━━━━━━━━━━━━━━━━\n💰 *Total (con IVA):* '+total+'\n━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx · 55 5211 8000';var box=document.getElementById('fi-cbox');if(box){box.style.display='block';box.textContent=txt;}if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(function(){});}
+function fi_calcEdad(){var fn=document.getElementById('fi-fnac');if(!fn||!fn.value)return;var t=new Date(),d=new Date(fn.value);var a=t.getFullYear()-d.getFullYear();if(t<new Date(t.getFullYear(),d.getMonth(),d.getDate()))a--;var el=document.getElementById('fi-edad');if(el)el.value=a>=0?a:'';}
+function fi_calcPeriodo(){var ini=document.getElementById('fi-inicio'),ter=document.getElementById('fi-termino');if(ini&&ter&&ini.value&&ter.value){var d=Math.round((new Date(ter.value)-new Date(ini.value))/86400000)+1;if(d>0){var dm=document.getElementById('fi-dias-mes');if(dm)dm.value=d;}}updF();}
+function fi_fmtD(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function updF(){var gv=function(id){var el=document.getElementById(id);return el?el.value||'—':'—';};
+  var nombre=gv('fi-nombre'),fnac=gv('fi-fnac'),edad=gv('fi-edad'),peso=gv('fi-peso'),talla=gv('fi-talla');
+  var diag=gv('fi-diag'),medico=gv('fi-medico'),telMedico=gv('fi-tel-medico');
+  var contacto=gv('fi-contacto'),tel=gv('fi-tel'),correo=gv('fi-correo');
+  var calle=gv('fi-calle'),numero=gv('fi-numero'),colonia=gv('fi-colonia'),delegacion=gv('fi-delegacion'),cp=gv('fi-cp');
+  var entrada=gv('fi-entrada'),salida=gv('fi-salida');
+  var inicio=gv('fi-inicio'),termino=gv('fi-termino'),diasMes=gv('fi-dias-mes');
+  var asesor=gv('fi-asesor'),coord=gv('fi-coord');
+  var total=gv('fi-total'),coments=gv('fi-coments');
+  var perf=clPS.length?clPS.join(' · '):'—';
+  var jorn=clSn.jorn||'—',dias2=clSn.dias||'—',sexo=clSn.sexo||'—',pago=clSn.pago||'—';
+  var initials='SC';if(nombre&&nombre!=='—'){var pts=nombre.trim().split(' ');initials=(pts[0][0]+(pts[1]?pts[1][0]:'')).toUpperCase();}
+  var mPfx=clM?clMD[clM].label.replace(/\s/g,'').slice(0,4).toUpperCase():'SCS';
+  var sid=mPfx+initials+(fnac&&fnac!=='—'?fnac.replace(/-/g,'').slice(2,8):'000000');
+  var sn2='OPS'+clSvcN;
+  var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v||'—';};
+  sv('fv-id',sid); sv('fv-sv',sn2);
+  sv('fv-nombre',nombre);
+  sv('fv-fnac-edad',fi_fmtD(fnac==='—'?'':fnac)+(edad&&edad!=='—'?' · '+edad+' años':''));
+  sv('fv-peso-talla',(peso!=='—'?peso+' kg':'—')+' / '+(talla!=='—'?talla+' cm':'—'));
+  sv('fv-diag',diag);
+  sv('fv-medico',medico); sv('fv-tel-medico',telMedico);
+  sv('fv-perfil',perf); sv('fv-jorn',jorn);
+  sv('fv-entrada',entrada); sv('fv-salida',salida);
+  sv('fv-dias',dias2); sv('fv-sexo',sexo);
+  sv('fv-inicio',fi_fmtD(inicio==='—'?'':inicio));
+  sv('fv-termino',fi_fmtD(termino==='—'?'':termino));
+  sv('fv-dias-mes',diasMes);
+  sv('fv-pago',pago);
+  sv('fv-contacto',contacto+(tel&&tel!=='—'?' ('+tel+')':''));
+  sv('fv-correo',correo);
+  sv('fv-coord',coord); sv('fv-asesor',asesor);
+  sv('fv-calle-num',[calle,numero].filter(x=>x&&x!=='—').join(' ')||'—');
+  sv('fv-colonia',colonia); sv('fv-delegacion',delegacion);
+  sv('fv-cp',cp!=='—'?'C.P. '+cp:'—');
+  sv('fv-coments',coments);
+  sv('fv-total',total);
+}
+function cpFicha(){var gv=function(id){var el=document.getElementById(id);return el?el.value||'—':'—';};
+  var nombre=gv('fi-nombre'),fnac=gv('fi-fnac'),edad=gv('fi-edad'),peso=gv('fi-peso'),talla=gv('fi-talla');
+  var diag=gv('fi-diag'),medico=gv('fi-medico'),telMedico=gv('fi-tel-medico');
+  var contacto=gv('fi-contacto'),tel=gv('fi-tel'),correo=gv('fi-correo');
+  var calle=gv('fi-calle'),numero=gv('fi-numero'),colonia=gv('fi-colonia'),delegacion=gv('fi-delegacion'),cp=gv('fi-cp'),ciudad=gv('fi-ciudad');
+  var entrada=gv('fi-entrada'),salida=gv('fi-salida');
+  var inicio=gv('fi-inicio'),termino=gv('fi-termino'),diasMes=gv('fi-dias-mes');
+  var asesor=gv('fi-asesor'),coord=gv('fi-coord'),total=gv('fi-total'),coments=gv('fi-coments');
+  var perf=clPS.length?clPS.join(' + '):'—';
+  var mL=clM?clMD[clM].label:'SCS';
+  var dir=[calle,numero,colonia,delegacion,cp&&cp!=='—'?'C.P. '+cp:''].filter(x=>x&&x!=='—').join(', ')||(ciudad!=='—'?ciudad:'—');
+  var txt='📋 *FICHA DE SERVICIO — '+mL.toUpperCase()+'*\n━━━━━━━━━━━━━━━━━━━━━━\n'+
+    '👤 *Paciente:* '+nombre+'\n'+
+    '🎂 *F. nacimiento:* '+fi_fmtD(fnac==='—'?'':fnac)+(edad&&edad!=='—'?' · '+edad+' años':'')+'\n'+
+    '⚖️ *Peso:* '+peso+' kg   *Talla:* '+talla+' cm\n'+
+    '🩺 *Diagnóstico:* '+diag+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━━━\n'+
+    '👨‍⚕️ *Médico tratante:* '+medico+'\n'+
+    '📞 *Tel. médico:* '+telMedico+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━━━\n'+
+    '🔷 *Perfil del personal:* '+perf+'\n'+
+    '⏱ *Jornada:* '+(clSn.jorn||'—')+'\n'+
+    '🕐 *Entrada:* '+entrada+'   *Salida:* '+salida+'\n'+
+    '📅 *Días de servicio:* '+(clSn.dias||'—')+'\n'+
+    '👤 *Sexo del personal:* '+(clSn.sexo||'—')+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━━━\n'+
+    '📅 *Fecha de inicio:* '+fi_fmtD(inicio==='—'?'':inicio)+'\n'+
+    '📅 *Fecha de término:* '+fi_fmtD(termino==='—'?'':termino)+'\n'+
+    '📆 *Días al mes:* '+diasMes+'\n'+
+    '💰 *Total mensual (IVA incl.):* '+total+'\n'+
+    '💳 *Forma de pago:* '+(clSn.pago||'—')+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━━━\n'+
+    '📞 *Contacto:* '+contacto+(tel&&tel!=='—'?' ('+tel+')':'')+'\n'+
+    '✉️ *Correo:* '+correo+'\n'+
+    '📍 *Domicilio:*\n'+
+    '   Calle: '+(calle!=='—'?calle:'—')+(numero&&numero!=='—'?' '+numero:'')+'\n'+
+    '   Colonia: '+(colonia!=='—'?colonia:'—')+'\n'+
+    '   Delegación: '+(delegacion!=='—'?delegacion:'—')+'\n'+
+    '   C.P.: '+(cp!=='—'?cp:'—')+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━━━\n'+
+    '👩‍⚕️ *Coordinador:* '+coord+'\n'+
+    '🤝 *Asesor:* '+asesor+'\n'+
+    '📝 *Especificaciones:* '+coments+'\n'+
+    '━━━━━━━━━━━━━━━━━━━━━━\n'+
+    'Salus Care Solutions · salus.mx · 55 5211 8000';
+  var box=document.getElementById('fi-cbox');if(box){box.style.display='block';box.textContent=txt;}
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(function(){});}
 function cpScore(){var tot=0;clEC.forEach(function(cfg){tot+=cfg.c.filter(function(c){return!!CL[c];}).length;});var nivel=tot<10?'Básico con huecos':tot<20?'Aceptable':tot<28?'Sólido':'Cinta Negra ⭐';var mL=clM?clMD[clM].label:'Sin seleccionar';var txt='📊 *REPORTE DE CALIDAD — SALUS CARE SOLUTIONS*\nManual Cinta Negra en Ventas Homecare\n━━━━━━━━━━━━━━━━━━━━━━\n🏷 *Marca / Fuente:* '+mL+'\n🎯 *Score:* '+tot+' / 31\n📈 *Nivel:* '+nivel+'\n';if(clObj){var ob=clOBJ.find(function(o){return o.k===clObj;});if(ob)txt+='⚠️ *Objeción detectada:* '+ob.t+'\n';}txt+='━━━━━━━━━━━━━━━━━━━━━━\n*Desglose por etapa:*\n';clEC.forEach(function(cfg){var done=cfg.c.filter(function(c){return!!CL[c];}).length;var ico=done===cfg.m?'✅':done>0?'🔶':'❌';txt+=ico+' '+cfg.l+': '+done+'/'+cfg.m+'\n';});var vOk=function(arr){return arr.filter(function(k){return!!CL[k];}).length;};txt+='━━━━━━━━━━━━━━━━━━━━━━\n*Técnicas Voss:*\n🗣 Etiquetas: '+vOk(clVM.et)+'/3\n❓ Calibradas: '+vOk(clVM.cal)+'/5\n🔄 Hacia el NO: '+vOk(clVM.no)+'/2\n✓ "¿Es correcto?": '+vOk(clVM.ec)+'/1\n━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx';var box=document.getElementById('sc-cbox');if(box){box.style.display='block';box.textContent=txt;}if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(function(){});}
 function clTab(t){document.querySelectorAll('.cl-tab').forEach(function(el,i){el.classList.toggle('active',['llamada','ficha','score'][i]===t);});document.querySelectorAll('.cl-subpanel').forEach(function(el){el.classList.remove('active');});var p=document.getElementById('clt-'+t);if(p)p.classList.add('active');if(t==='score')clUpdScore();}
-function clReset(){CL={};clM=null;clObj=null;clPS=[];clSn={jorn:null,dias:null,sexo:null,pago:null};document.querySelectorAll('.ck-box').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.etapa').forEach(function(el){el.classList.remove('done');});document.querySelectorAll('.etapa-body').forEach(function(el){el.classList.remove('open');});document.querySelectorAll('.cl-mcard').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.bdg').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.obj-item').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.obj-detail').forEach(function(el){el.classList.remove('show');});document.querySelectorAll('#clt-ficha input[type=text],#clt-ficha input[type=date]').forEach(function(el){el.value='';});var fb=document.getElementById('fi-cbox');if(fb)fb.style.display='none';var sb=document.getElementById('sc-cbox');if(sb)sb.style.display='none';updFColors(null);clUpdAll();updF();clTab('llamada');}
+function clReset(){CL={};clM=null;clObj=null;clPS=[];clSn={jorn:null,dias:null,sexo:null,pago:null};document.querySelectorAll('.ck-box').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.etapa').forEach(function(el){el.classList.remove('done');});document.querySelectorAll('.etapa-body').forEach(function(el){el.classList.remove('open');});document.querySelectorAll('.cl-mcard').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.bdg').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.obj-item').forEach(function(el){el.classList.remove('on');});document.querySelectorAll('.obj-detail').forEach(function(el){el.classList.remove('show');});['fi-nombre','fi-fnac','fi-edad','fi-peso','fi-talla','fi-diag','fi-medico','fi-tel-medico','fi-contacto','fi-tel','fi-correo','fi-calle','fi-numero','fi-colonia','fi-delegacion','fi-cp','fi-ciudad','fi-entrada','fi-salida','fi-inicio','fi-termino','fi-dias-mes','fi-asesor','fi-coord','fi-total','fi-coments'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});var fb=document.getElementById('fi-cbox');if(fb)fb.style.display='none';var sb=document.getElementById('sc-cbox');if(sb)sb.style.display='none';updFColors(null);clUpdAll();updF();clTab('llamada');}
 
-// ── INIT ─────────────────────────────────────────────────
+
+// ── ASESOR ───────────────────────────────────────────────
+function onAsesorChange(){ renderPacs(); }
+
+// ── STEP 6: DATOS DEL PACIENTE ───────────────────────────
+const SHEET_ID='1G4fbTOI02I2lJvMMZdSVu6KC22Z-ae4lurUoq5dN3yo';
+const MARCA_L_ALL={scs:'Salus Care Solutions',ms:'Médica Sur en tu Casa',polar:'Polar Salud Contigo'};
+let s6editIdx=null;
+
+function s6gv(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function s6fmtD(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
+
+function s6calcEdad(){
+  const fn=s6gv('s6-fnac');if(!fn)return;
+  const t=new Date(),d=new Date(fn);
+  let a=t.getFullYear()-d.getFullYear();
+  if(t<new Date(t.getFullYear(),d.getMonth(),d.getDate()))a--;
+  const el=document.getElementById('s6-edad');if(el)el.value=a>=0?a:'';
+  s6renderFicha();
+}
+
+function s6calcPeriodo(){
+  const ini=s6gv('s6-inicio'),ter=s6gv('s6-termino');
+  if(ini&&ter){const d=Math.round((new Date(ter)-new Date(ini))/86400000)+1;if(d>0){const el=document.getElementById('s6-dias-mes');if(el)el.value=d;}}
+  s6renderFicha();
+}
+
+function s6getTotal(){
+  const esp=turno&&marca?ESTANDAR[marca]?.[getProfile()==='p'?'a':getProfile()]?.[turno]:null;
+  if(!esp||!dias)return'—';
+  const col=DIAS_A_COL[dias];
+  if(col===null)return'Consultar';
+  const diasMes=COL_DIAS_MES[col];
+  const membd=marca&&getProfile()&&turno?MEMB[marca]?.[getProfile()==='p'?'a':getProfile()]?.[turno]:null;
+  const cd=membd?.cd?.[col]??null;
+  const sd=membd?.sd?.[col]??null;
+  const val=cd||sd;
+  return val?'$'+val.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})+' MXN':'—';
+}
+
+function s6renderFicha(){
+  const asesor=document.getElementById('asesor-sel')?.value||'—';
+  const profile=getProfile();const pk=profile==='p'?'a':profile;
+  const mLabel=marca?MARCA_L_ALL[marca]||marca:'—';
+  const nm=s6gv('s6-nombre')||'?';
+  const initials=nm.trim().split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
+  const sv='OPS'+String(Math.abs(nm.length*1234567%90000+10000)).slice(0,5);
+  const s=id=>document.getElementById(id);
+  const set=(id,v)=>{const el=s(id);if(el)el.textContent=v||'—';};
+  if(s('s6fv-marca'))s('s6fv-marca').textContent=mLabel;
+  if(s('s6fv-sv'))s('s6fv-sv').textContent=sv;
+  set('s6fv-nombre',nm);
+  set('s6fv-fnac',s6fmtD(s6gv('s6-fnac'))+(s6gv('s6-edad')?' · '+s6gv('s6-edad')+' años':''));
+  set('s6fv-peso',(s6gv('s6-peso')||'—')+' kg / '+(s6gv('s6-talla')||'—')+' cm');
+  set('s6fv-dx',s6gv('s6-dx'));
+  set('s6fv-perfil',pk&&PM[pk]?PM[pk].icon+' '+PM[pk].name:'—');
+  set('s6fv-nivel','—');
+  set('s6fv-medico',s6gv('s6-medico'));
+  set('s6fv-tel-medico',s6gv('s6-tel-medico'));
+  const entrada=s6gv('s6-entrada'),salida=s6gv('s6-salida');
+  set('s6fv-turno',(turno?turno+'h':'—')+(entrada?' · '+entrada+' – '+salida:''));
+  set('s6fv-periodo',s6fmtD(s6gv('s6-inicio'))+' al '+s6fmtD(s6gv('s6-termino')));
+  set('s6fv-dias',s6gv('s6-dias-mes')?s6gv('s6-dias-mes')+' días':'—');
+  set('s6fv-contacto',s6gv('s6-contacto')+(s6gv('s6-tel')?' ('+s6gv('s6-tel')+')':''));
+  set('s6fv-correo',s6gv('s6-correo'));
+  const dir=[s6gv('s6-calle'),s6gv('s6-numero'),s6gv('s6-colonia'),s6gv('s6-delegacion'),s6gv('s6-cp')?'C.P. '+s6gv('s6-cp'):''].filter(Boolean).join(', ');
+  set('s6fv-dir',dir);
+  set('s6fv-asesor',asesor);
+  const tot=s6getTotal();
+  if(s('s6fv-total'))s('s6fv-total').textContent=tot;
+  const icell=document.getElementById('s6-fi-id-cell');
+  if(icell&&marca){const cols={scs:'#29B8D4',ms:'#1a6b3a',polar:'#1a4fa8'};icell.style.background=cols[marca]||'#29B8D4';}
+}
+
+function s6copyFicha(){
+  const asesor=document.getElementById('asesor-sel')?.value||'—';
+  const profile=getProfile();const pk=profile==='p'?'a':profile;
+  const mLabel=marca?MARCA_L_ALL[marca]||marca:'—';
+  const dir=[s6gv('s6-calle'),s6gv('s6-numero'),s6gv('s6-colonia'),s6gv('s6-delegacion'),s6gv('s6-cp')?'C.P. '+s6gv('s6-cp'):''].filter(Boolean).join(', ');
+  const txt=[
+    '📋 *FICHA DE SERVICIO — '+mLabel.toUpperCase()+'*','━━━━━━━━━━━━━━━━━━━━━━',
+    '👤 *Paciente:* '+s6gv('s6-nombre'),
+    '🎂 *F. nacimiento:* '+s6fmtD(s6gv('s6-fnac'))+(s6gv('s6-edad')?' · '+s6gv('s6-edad')+' años':''),
+    '⚖️ *Peso:* '+(s6gv('s6-peso')||'—')+' kg   *Talla:* '+(s6gv('s6-talla')||'—')+' cm',
+    '🩺 *Diagnóstico:* '+s6gv('s6-dx'),'',
+    '👨‍⚕️ *Médico:* '+s6gv('s6-medico')+'   *Tel:* '+s6gv('s6-tel-medico'),
+    '📊 *Perfil:* '+(pk&&PM[pk]?PM[pk].name:'—'),'━━━━━━━━━━━━━━━━━━━━━━',
+    '🕐 *Turno:* '+(turno?turno+'h':'—')+'   *Entrada:* '+s6gv('s6-entrada')+'   *Salida:* '+s6gv('s6-salida'),
+    '📅 *Periodo:* '+s6fmtD(s6gv('s6-inicio'))+' al '+s6fmtD(s6gv('s6-termino'))+'   *Días/mes:* '+(s6gv('s6-dias-mes')||'—'),
+    '💰 *Total:* '+s6getTotal(),'━━━━━━━━━━━━━━━━━━━━━━',
+    '📞 *Contacto:* '+s6gv('s6-contacto')+(s6gv('s6-tel')?' ('+s6gv('s6-tel')+')':''),
+    '✉️ *Correo:* '+s6gv('s6-correo'),
+    '📍 *Domicilio:* '+dir,'',
+    '🤝 *Asesor:* '+asesor,
+    '━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx',
+  ].join('\n');
+  const box=document.getElementById('s6-cbox');if(box){box.style.display='block';box.textContent=txt;}
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>s6toast('¡Ficha copiada al portapapeles!')).catch(()=>{});
+}
+
+function s6toast(msg){const t=document.getElementById('s6-toast');if(!t)return;t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2800);}
+
+function s6snap(){
+  const asesor=document.getElementById('asesor-sel')?.value||'';
+  const profile=getProfile();const pk=profile==='p'?'a':profile;
+  return{
+    id:s6editIdx!==null?getPacs()[s6editIdx]?.id:Date.now(),
+    ts:new Date().toISOString(),
+    asesor,brand:marca||'',brandLabel:marca?MARCA_L_ALL[marca]||marca:'—',
+    perfil:pk&&PM[pk]?PM[pk].name:'—',turno:turno?turno+'h':'—',
+    diasSemana:dias?dias+' día(s)/sem':'—',
+    nombre:s6gv('s6-nombre'),fnac:s6gv('s6-fnac'),edad:s6gv('s6-edad'),
+    peso:s6gv('s6-peso'),talla:s6gv('s6-talla'),dx:s6gv('s6-dx'),
+    medico:s6gv('s6-medico'),telMedico:s6gv('s6-tel-medico'),
+    contacto:s6gv('s6-contacto'),tel:s6gv('s6-tel'),correo:s6gv('s6-correo'),
+    calle:s6gv('s6-calle'),numero:s6gv('s6-numero'),colonia:s6gv('s6-colonia'),
+    delegacion:s6gv('s6-delegacion'),cp:s6gv('s6-cp'),ciudad:s6gv('s6-ciudad'),
+    entrada:s6gv('s6-entrada'),salida:s6gv('s6-salida'),
+    inicio:s6gv('s6-inicio'),termino:s6gv('s6-termino'),diasMes:s6gv('s6-dias-mes'),
+    totalMensual:s6getTotal(),
+  };
+}
+
+function s6guardar(){
+  const asesor=document.getElementById('asesor-sel')?.value;
+  if(!asesor){s6toast('⚠️ Selecciona un asesor primero.');return;}
+  if(!s6gv('s6-nombre')){s6toast('⚠️ Ingresa el nombre del paciente.');return;}
+  const list=getPacs(),snap=s6snap();
+  if(s6editIdx!==null){list[s6editIdx]=snap;s6editIdx=null;}else{list.push(snap);}
+  savePacs(list);s6toast('✅ Paciente guardado correctamente.');
+}
+
+function s6buildRow(p){
+  const cols=[
+    p.ts?new Date(p.ts).toLocaleDateString('es-MX'):'',
+    p.asesor,p.brandLabel,p.nombre,s6fmtD(p.fnac),p.edad,
+    p.peso,p.talla,p.dx,p.perfil,p.turno,p.diasSemana,
+    p.medico,p.telMedico,p.entrada,p.salida,
+    s6fmtD(p.inicio),s6fmtD(p.termino),p.diasMes,p.totalMensual,
+    p.contacto,p.tel,p.correo,
+    [p.calle,p.numero,p.colonia,p.delegacion,p.cp?'C.P.'+p.cp:''].filter(Boolean).join(', '),
+  ];
+  return cols.map(x=>x||'').join('\t');
+}
+
+function s6driveMsg(p){
+  const headers='Fecha\tAsesor\tMarca\tPaciente\tF.Nac\tEdad\tPeso(kg)\tTalla(cm)\tDiagnóstico\tPerfil\tTurno\tDías/sem\tMédico\tTel.Médico\tEntrada\tSalida\tInicio\tTérmino\tDías/mes\tTotal Mensual\tContacto\tTel.Contacto\tCorreo\tDomicilio';
+  return`Por favor agrega una fila a la hoja "Pacientes" del Google Sheets con ID: ${SHEET_ID}. Si la hoja no existe, créala y pon estos encabezados en la fila 1:\n${headers}\n\nLuego agrega esta fila:\n${s6buildRow(p)}`;
+}
+
+function s6enviarDrive(){
+  const asesor=document.getElementById('asesor-sel')?.value;
+  if(!asesor){s6toast('⚠️ Selecciona un asesor primero.');return;}
+  if(!s6gv('s6-nombre')){s6toast('⚠️ Ingresa el nombre del paciente.');return;}
+  s6guardar();
+  const msg=s6driveMsg(s6snap());
+  alert('📋 Copia este mensaje y pégalo en un chat de Claude con Google Sheets conectado:\n\n'+msg);
+}
+
+// ── BASE DE PACIENTES ────────────────────────────────────
+function getPacs(){try{return JSON.parse(localStorage.getItem('scs_pacs')||'[]');}catch{return[];}}
+function savePacs(l){localStorage.setItem('scs_pacs',JSON.stringify(l));}
+
+let pacModalIdx=null;
+
+function renderPacs(){
+  const asesor=document.getElementById('asesor-sel')?.value||'';
+  const sup=document.getElementById('sup-toggle')?.checked;
+  const all=getPacs();
+  const list=sup?all:all.filter(p=>p.asesor===asesor);
+  const c=document.getElementById('pac-container');if(!c)return;
+  if(!list.length){
+    c.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:.85rem;">${asesor?asesor+' no tiene pacientes guardados aún.':'Selecciona un asesor para ver sus pacientes.'}</div>`;
+    return;
+  }
+  const nivelCls={c:'np-c',p:'np-p',a:'np-a',e:'np-e'};
+  c.innerHTML=list.map(p=>{
+    const ri=all.indexOf(p);
+    const ini=(p.nombre||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const pk=p.perfil?Object.entries(PM).find(([k,v])=>v.name===p.perfil)?.[0]||'c':'c';
+    return`<div onclick="openPacModal(${ri})" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:#FAFCFD;cursor:pointer;margin-bottom:7px;transition:all .13s;" onmouseover="this.style.borderColor='var(--teal-l)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--tag-bg);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--teal-d);flex-shrink:0;">${ini}</div>
+        <div>
+          <div style="font-size:.85rem;font-weight:600;">${p.nombre||'—'}</div>
+          <div style="font-size:.72rem;color:var(--muted);">${p.brandLabel||'—'} · ${p.asesor||'—'} · ${s6fmtD(p.inicio)}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${p.perfil?`<span class="npill ${nivelCls[pk]||'np-c'}" style="font-size:.65rem;">${p.perfil}</span>`:''}
+        <span style="color:var(--muted);font-size:1rem;">›</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPacModal(idx){
+  pacModalIdx=idx;
+  const p=getPacs()[idx];if(!p)return;
+  document.getElementById('pac-modal-title').textContent=p.nombre||'Paciente';
+  const rows=[
+    ['Marca',p.brandLabel],['Asesor',p.asesor],
+    ['F. nacimiento',s6fmtD(p.fnac)],['Edad',p.edad?p.edad+' años':'—'],
+    ['Peso',p.peso?p.peso+' kg':'—'],['Talla',p.talla?p.talla+' cm':'—'],
+    ['Diagnóstico',p.dx],['Perfil',p.perfil],
+    ['Médico',p.medico],['Tel. médico',p.telMedico],
+    ['Turno',p.turno],['Días/semana',p.diasSemana],
+    ['Entrada',p.entrada||'—'],['Salida',p.salida||'—'],
+    ['Periodo',s6fmtD(p.inicio)+' — '+s6fmtD(p.termino)],['Días/mes',p.diasMes],
+    ['Total mensual',p.totalMensual],['Contacto',p.contacto],
+    ['Tel. contacto',p.tel],['Correo',p.correo],
+    ['Domicilio',[p.calle,p.numero,p.colonia,p.delegacion,p.cp?'C.P.'+p.cp:''].filter(Boolean).join(', ')],
+  ];
+  document.getElementById('pac-modal-body').innerHTML=rows.map(([k,v])=>
+    `<div style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);">${k}</span><span style="font-weight:600;font-size:.82rem;">${v||'—'}</span></div>`
+  ).join('');
+  const modal=document.getElementById('pac-modal');if(modal)modal.style.display='flex';
+}
+
+function closePacModal(){
+  const m=document.getElementById('pac-modal');if(m)m.style.display='none';
+  pacModalIdx=null;
+}
+
+function pacCargar(){
+  if(pacModalIdx===null)return;
+  const p=getPacs()[pacModalIdx];if(!p)return;
+  s6editIdx=pacModalIdx;
+  // Restore wizard state from marca/perfil stored
+  const mKey=Object.entries(MARCA_L_ALL).find(([k,v])=>v===p.brandLabel)?.[0]||null;
+  if(mKey){setMarca(mKey);}
+  ['s6-nombre','s6-fnac','s6-peso','s6-talla','s6-dx','s6-medico','s6-tel-medico',
+   's6-contacto','s6-tel','s6-correo','s6-calle','s6-numero','s6-colonia','s6-delegacion','s6-cp','s6-ciudad',
+   's6-entrada','s6-salida','s6-inicio','s6-termino','s6-dias-mes'].forEach(id=>{
+    const map={'s6-nombre':'nombre','s6-fnac':'fnac','s6-peso':'peso','s6-talla':'talla','s6-dx':'dx',
+      's6-medico':'medico','s6-tel-medico':'telMedico','s6-contacto':'contacto','s6-tel':'tel','s6-correo':'correo',
+      's6-calle':'calle','s6-numero':'numero','s6-colonia':'colonia','s6-delegacion':'delegacion','s6-cp':'cp','s6-ciudad':'ciudad',
+      's6-entrada':'entrada','s6-salida':'salida','s6-inicio':'inicio','s6-termino':'termino','s6-dias-mes':'diasMes'};
+    const el=document.getElementById(id);if(el)el.value=p[map[id]]||'';
+  });
+  s6calcEdad();s6renderFicha();
+  closePacModal();setMode('p');goStep(6);
+}
+
+function pacEliminar(){
+  if(pacModalIdx===null)return;
+  if(!confirm('¿Eliminar este paciente de la base local?'))return;
+  const list=getPacs();list.splice(pacModalIdx,1);savePacs(list);
+  closePacModal();renderPacs();
+}
+
+function pacDrive(){
+  if(pacModalIdx===null)return;
+  const p=getPacs()[pacModalIdx];
+  alert('📋 Copia este mensaje y pégalo en un chat de Claude con Google Sheets conectado:\n\n'+s6driveMsg(p));
+  closePacModal();
+}
+
+
 renderPerfil();
 updateBtns();
 clBuildObj();
