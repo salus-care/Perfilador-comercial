@@ -151,20 +151,16 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 .prog-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .4s}
 .prog-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:.66rem;color:var(--muted)}
 .cl-sec-label{font-size:.64rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
-.cl-marca-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:18px}
+.cl-marca-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:18px}
 .cl-mcard{border:1.5px solid var(--border);border-radius:9px;padding:9px 7px;cursor:pointer;transition:all .15s;background:#FAFCFD;text-align:center}
 .cl-mcard:hover{border-color:var(--teal-l)}.cl-mcard.on{border-width:2px}
 .cm-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff}
 .cm-n{font-size:.7rem;font-weight:600;color:var(--text);line-height:1.3}
 .cl-mcard[data-m="SCS"] .cm-dot{background:var(--scs)}
 .cl-mcard[data-m="MS"] .cm-dot{background:var(--ms)}
-.cl-mcard[data-m="PSJ"] .cm-dot{background:var(--psj)}
-.cl-mcard[data-m="PCT"] .cm-dot{background:var(--pct)}
 .cl-mcard[data-m="HSAI"] .cm-dot{background:var(--hsa)}
 .cl-mcard[data-m="SCS"].on{border-color:var(--scs);background:#e8f8fb}
 .cl-mcard[data-m="MS"].on{border-color:var(--ms);background:#e8f5ee}
-.cl-mcard[data-m="PSJ"].on{border-color:var(--psj);background:#e8edf8}
-.cl-mcard[data-m="PCT"].on{border-color:var(--pct);background:#f0ecfe}
 .cl-mcard[data-m="HSAI"].on{border-color:var(--hsa);background:#fef3e2}
 .etapa{margin-bottom:9px;border:1px solid var(--border);border-radius:9px;overflow:hidden}
 .etapa.done{border-color:var(--teal)}
@@ -258,15 +254,92 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 .bdg{padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#FAFCFD;color:var(--muted);transition:all .13s;display:inline-block;margin:3px 3px 0 0}
 .bdg:hover{border-color:var(--teal-l)}.bdg.on{background:var(--teal);border-color:var(--teal);color:#fff}
 @media(max-width:900px){.s1-layout,.cotiz-layout{grid-template-columns:1fr}.perfil-sticky{position:static}.check-grid,.marca-grid,.product-grid,.turno-grid{grid-template-columns:1fr}.cl-marca-grid{grid-template-columns:repeat(3,1fr)}.voss-grid,.g2,.g3,.g4{grid-template-columns:1fr}.ficha-grid{grid-template-columns:1fr 1fr}.pac-grid{grid-template-columns:1fr}}
+/* ── TIPO DE SERVICIO / JOBS (step0) ── */
+.fecha-inicio-box{display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#FDF3E0,#FEF9F0);border:2px solid #F0CC8A;border-radius:12px;padding:16px 20px;margin-bottom:22px;flex-wrap:wrap}
+.fib-left{display:flex;align-items:center;gap:13px}
+.fib-ico{font-size:1.8rem}
+.fib-title{font-size:.92rem;font-weight:600;color:#7A5010}
+.fib-sub{font-size:.72rem;color:#9A7030;margin-top:2px}
+.fib-input{width:auto;min-width:180px;border:2px solid #F0CC8A;font-size:.9rem;font-weight:600;color:#7A5010;padding:9px 14px}
+.fib-input:focus{border-color:var(--a)}
+.jobs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.job-card{border:2px solid var(--border);border-radius:13px;padding:18px 18px 16px;cursor:pointer;transition:all .15s;background:#FAFCFD;display:flex;flex-direction:column;gap:9px}
+.job-card:hover{border-color:var(--teal-l);transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,123,138,.08)}
+.job-card.on{border-color:var(--teal);background:#E6F5F7}
+.job-head{display:flex;align-items:center;gap:10px}
+.job-ico{font-size:1.7rem}
+.job-name{font-family:'DM Serif Display',serif;font-size:1.08rem;color:var(--teal-d)}
+.job-desc{font-size:.76rem;color:var(--text);line-height:1.5}
+.job-tags{display:flex;flex-wrap:wrap;gap:5px}
+.job-tag{font-size:.63rem;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--tag-bg);color:var(--teal-d)}
+.job-card.on .job-tag{background:#fff}
+.job-valora{font-size:.72rem;color:var(--muted);border-top:1px dashed var(--border);padding-top:9px;margin-top:2px}
+@media(max-width:700px){.jobs-grid{grid-template-columns:1fr}.fecha-inicio-box{flex-direction:column;align-items:stretch}.fib-input{width:100%}}
+/* ── COTIZ DESTACADO ── */
+.cotiz-destacado{background:var(--teal-d);border-radius:11px;padding:14px 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:12px}
+.cd-row{display:flex;align-items:center;gap:11px}
+.cd-ico{font-size:1.4rem;flex-shrink:0}
+.cd-l{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.cd-v{font-size:.92rem;font-weight:600;color:#fff;margin-top:1px}
+/* ── LOGIN ── */
+#login-overlay{position:fixed;inset:0;z-index:3000;background:linear-gradient(135deg,var(--teal-d),var(--teal));display:flex;align-items:center;justify-content:center;padding:20px}
+#login-overlay.hidden{display:none}
+.login-card{background:#fff;border-radius:16px;padding:32px 30px;width:min(420px,95vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{display:flex;justify-content:center;margin-bottom:16px}
+.login-logo-fb{width:50px;height:50px;background:var(--teal-d);border-radius:12px;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:#fff}
+.login-title{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--teal-d);text-align:center;margin-bottom:4px}
+.login-sub{font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5}
+.login-field{margin-bottom:16px}
+.login-field label{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.login-roles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.login-role{border:2px solid var(--border);border-radius:11px;padding:14px 10px;cursor:pointer;text-align:center;transition:all .14s;background:#FAFCFD}
+.login-role:hover{border-color:var(--teal-l)}
+.login-role.on{border-color:var(--teal);background:#E6F5F7}
+.lr-ico{font-size:1.5rem;margin-bottom:5px}
+.lr-t{font-size:.8rem;font-weight:600;color:var(--teal-d)}
+.lr-s{font-size:.64rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.user-chip{display:flex;align-items:center;gap:7px;font-size:.72rem;padding:6px 12px;border-radius:20px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);color:#fff;cursor:pointer}
+.user-chip:hover{background:rgba(255,255,255,.22)}
+.user-chip .uc-rol{opacity:.65;font-size:.64rem}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
+
+<!-- ══ LOGIN INICIAL ══ -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="LOGO SALUS CARE SOLUTIONS-01.png" style="height:44px;width:auto" alt="Salus" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="login-logo-fb" style="display:none">S</div>
+    </div>
+    <h1 class="login-title">Bienvenido</h1>
+    <p class="login-sub">Identifícate para comenzar. Tu nombre quedará guardado en este dispositivo.</p>
+    <div class="login-field">
+      <label>Tu nombre</label>
+      <input type="text" id="login-name" placeholder="Nombre y apellido" autocomplete="name">
+    </div>
+    <div class="login-field">
+      <label>Rol</label>
+      <div class="login-roles">
+        <div class="login-role on" id="lr-asesor" onclick="selRol('asesor')">
+          <div class="lr-ico">🤝</div><div class="lr-t">Asesor comercial</div><div class="lr-s">Ves solo tus pacientes</div>
+        </div>
+        <div class="login-role" id="lr-supervisor" onclick="selRol('supervisor')">
+          <div class="lr-ico">👁️</div><div class="lr-t">Supervisor</div><div class="lr-s">Ves todos los registros</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="doLogin()">Entrar →</button>
+  </div>
+</div>
+
 <header>
   <img src="LOGO SALUS CARE SOLUTIONS-01.png" style="height:36px;width:auto;" alt="Salus" onerror="this.style.display='none';document.getElementById('lfb').style.display='flex'">
   <div class="logo-fb" id="lfb" style="display:none">S</div>
   <div><span style="font-size:.7rem;opacity:.6;display:block;margin-top:1px">Perfilador, Cotizador, Checklist & Base de Datos — Asesor Comercial</span></div>
   <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+    <div class="user-chip" id="user-chip" onclick="cambiarUsuario()" style="display:none"><span>👤</span><span id="uc-name">—</span><span class="uc-rol" id="uc-rol"></span></div>
     <div class="drive-status" id="drive-status"><div class="ds-dot" id="ds-dot"></div><span id="ds-txt">Drive: configurando…</span></div>
     <div class="badge">USO INTERNO</div>
   </div>
@@ -278,13 +351,59 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 </div>
 <div id="mode-p">
 <div class="wizard">
-  <div class="wstep active" id="ws1" onclick="goStep(1)"><div class="wn" id="wn1">1</div>Necesidades</div>
-  <div class="wstep" id="ws2" onclick="goStep(2)"><div class="wn" id="wn2">2</div>Marca</div>
-  <div class="wstep hidden" id="ws3" onclick="goStep(3)"><div class="wn" id="wn3">3</div>Producto Salus</div>
-  <div class="wstep" id="ws4" onclick="goStep(4)"><div class="wn" id="wn4">4</div>Turno</div>
-  <div class="wstep" id="ws5" onclick="goStep(5)"><div class="wn" id="wn5">5</div>Cotización</div>
+  <div class="wstep active" id="ws0" onclick="goStep(0)"><div class="wn" id="wn0">1</div>Tipo de servicio</div>
+  <div class="wstep" id="ws1" onclick="goStep(1)"><div class="wn" id="wn1">2</div>Necesidades</div>
+  <div class="wstep" id="ws2" onclick="goStep(2)"><div class="wn" id="wn2">3</div>Marca</div>
+  <div class="wstep hidden" id="ws3" onclick="goStep(3)"><div class="wn" id="wn3">4</div>Producto Salus</div>
+  <div class="wstep" id="ws4" onclick="goStep(4)"><div class="wn" id="wn4">5</div>Turno</div>
+  <div class="wstep" id="ws5" onclick="goStep(5)"><div class="wn" id="wn5">6</div>Cotización</div>
 </div>
 <div class="main"><div class="panel" id="panel">
+<div id="step0">
+<!-- Fecha probable de inicio (indispensable) -->
+<div class="fecha-inicio-box">
+<div class="fib-left">
+<div class="fib-ico">📅</div>
+<div>
+<div class="fib-title">Fecha probable de inicio del servicio</div>
+<div class="fib-sub">Dato indispensable — dispara la alerta a RRHH y al equipo Clínico</div>
+</div>
+</div>
+<input type="date" id="fi-inicio-top" class="fib-input" onchange="onFechaInicioTop()">
+</div>
+
+<p style="font-size:.82rem;color:var(--muted);margin:4px 0 14px"><strong>¿Qué job vamos a resolver?</strong> Selecciona el tipo de servicio que clasifica este caso.</p>
+<div class="jobs-grid">
+<div class="job-card" id="ts-guardia" onclick="setTipoSvc('guardia')">
+<div class="job-head"><span class="job-ico">🚑</span><span class="job-name">Urgencia / Guardia Hospitalaria</span></div>
+<div class="job-desc">Imprevisto de la familia que necesita atención <strong>cuanto antes</strong>. Servicios de corta duración, precio más alto.</div>
+<div class="job-tags"><span class="job-tag">Inicio inmediato</span><span class="job-tag">Corta duración</span><span class="job-tag">Ticket alto</span></div>
+<div class="job-valora">La familia valora: <strong>agilidad, eficiencia y confianza</strong></div>
+</div>
+<div class="job-card" id="ts-posthosp" onclick="setTipoSvc('posthosp')">
+<div class="job-head"><span class="job-ico">🩹</span><span class="job-name">Cuidados Post-Hospitalarios</span></div>
+<div class="job-desc">Cuidados tras intervención: fracturas, cirugías, recuperación y acompañamiento. Duración ~20 días, inicio dentro de los próximos 7 días.</div>
+<div class="job-tags"><span class="job-tag">~20 días</span><span class="job-tag">Inicio ≤7 días</span><span class="job-tag">Equipo médico</span></div>
+<div class="job-valora">La familia valora: <strong>experiencia, confianza y servicios complementarios</strong></div>
+</div>
+<div class="job-card" id="ts-adultomayor" onclick="setTipoSvc('adultomayor')">
+<div class="job-head"><span class="job-ico">👴</span><span class="job-name">Adulto Mayor</span></div>
+<div class="job-desc">Nuestras <strong>membresías por excelencia</strong>. Necesidad clínica o acompañamiento que se agudiza. Rara vez urgente: se planea, se discute en familia, se evalúan opciones.</div>
+<div class="job-tags"><span class="job-tag">Membresía</span><span class="job-tag">Decisión familiar</span><span class="job-tag">Acompañamiento clínico</span></div>
+<div class="job-valora">La familia valora: <strong>confianza, seguridad y un claro diferenciador</strong></div>
+</div>
+<div class="job-card" id="ts-bebe" onclick="setTipoSvc('bebe')">
+<div class="job-head"><span class="job-ico">👶</span><span class="job-name">Bebé Neonato</span></div>
+<div class="job-desc">Reserva con <strong>meses de anticipación</strong> para cuidar al recién nacido y a la mamá. De 20 días a 3 meses, puede extenderse a uno o más años. Buen ticket, no se cierra al primer contacto.</div>
+<div class="job-tags"><span class="job-tag">Reserva anticipada</span><span class="job-tag">20 días – 3 meses+</span><span class="job-tag">Ticket alto</span></div>
+<div class="job-valora">La familia valora: <strong>confianza, seguridad y profesionalismo</strong></div>
+</div>
+</div>
+<div class="step-nav">
+<button class="btn btn-ghost" onclick="resetAll()">🔄 Reiniciar</button>
+<button class="btn btn-primary" id="btn0" onclick="goStep(1)" disabled>Siguiente: Necesidades →</button>
+</div>
+</div>
 <div id="step1">
 <div class="s1-layout">
 <div>
@@ -356,7 +475,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div class="perfil-sticky"><div class="pcard" id="pcard"><div id="pcard-content"><div class="nosel">Selecciona las necesidades del paciente para ver el perfil recomendado.</div></div></div></div>
 </div>
 <div class="step-nav">
-<button class="btn btn-ghost" onclick="resetAll()">🔄 Reiniciar</button>
+<button class="btn btn-ghost" onclick="goStep(0)">← Atrás</button>
 <button class="btn btn-primary" id="btn1" onclick="goStep(2)" disabled>Siguiente: Marca →</button>
 </div>
 </div>
@@ -365,7 +484,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div class="marca-grid">
 <div class="mcard" id="mc-scs" onclick="setMarca('scs')"><div class="mcard-radio" id="mr-scs"></div><div class="mcard-name">+Salus Care Solutions</div><div class="mcard-sub">Marca central. Incluye Match, Select y Premium además de precios estándar.</div><span class="mcard-tag">Match · Select · Premium</span></div>
 <div class="mcard" id="mc-ms" onclick="setMarca('ms')"><div class="mcard-radio" id="mr-ms"></div><div class="mcard-name">Médica Sur en tu casa</div><div class="mcard-sub">White label. Precios estándar por servicio y membresía.</div><span class="mcard-tag wl-tag">White label</span></div>
-<div class="mcard" id="mc-polar" onclick="setMarca('polar')"><div class="mcard-radio" id="mr-polar"></div><div class="mcard-name">Polar Salud Contigo</div><div class="mcard-sub">White label. Precios estándar por servicio y membresía.</div><span class="mcard-tag wl-tag">White label</span></div>
+<div class="mcard" id="mc-polar" onclick="setMarca('polar')"><div class="mcard-radio" id="mr-polar"></div><div class="mcard-name">Hospital San Ángel Inn en tu Casa</div><div class="mcard-sub">White label. Precios estándar por servicio y membresía.</div><span class="mcard-tag wl-tag">White label</span></div>
 </div>
 <div class="step-nav">
 <button class="btn btn-ghost" onclick="goStep(1)">← Atrás</button>
@@ -441,7 +560,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div class="sec-lbl" style="margin-top:0">Datos del asesor</div>
 <div class="g3">
 <div class="fl"><label>Asesor comercial</label><input type="text" id="fi-asesor" placeholder="Nombre completo" oninput="updF()"></div>
-<div class="fl"><label>Marca / fuente</label><select id="fi-marca" onchange="updF()"><option value="">— Selecciona —</option><option>SCS</option><option>Médica Sur en tu Casa</option><option>Polar San José</option><option>Polar CMT</option><option>HSAI</option></select></div>
+<div class="fl"><label>Marca / fuente</label><select id="fi-marca" onchange="updF()"><option value="">— Selecciona —</option><option>SCS</option><option>Médica Sur en tu Casa</option><option>Hospital San Ángel Inn en tu Casa</option></select></div>
 <div class="fl"><label>Coordinador de cuidados</label><input type="text" id="fi-coord" placeholder="Nombre" oninput="updF()"></div>
 </div>
 <div class="sec-lbl">Datos del paciente</div>
@@ -454,6 +573,10 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div class="fl"><label>Peso (kg)</label><input type="number" id="fi-peso" placeholder="Ej. 65" step="0.1" oninput="updF()"></div>
 <div class="fl"><label>Talla (cm)</label><input type="number" id="fi-talla" placeholder="Ej. 165" oninput="updF()"></div>
 <div class="fl"><label>Diagnóstico</label><input type="text" id="fi-diag" placeholder="Ej. Post-op colectomía" oninput="updF()"></div>
+</div>
+<div class="g2">
+<div class="fl"><label>Tipo de servicio / motivo de ingreso</label><select id="fi-tiposvc" onchange="updF()"><option value="">— Selecciona —</option><option>Guardia Hospitalaria / Urgencia</option><option>Post-Hospitalario / Post-Operatorio</option><option>Adulto Mayor</option><option>Bebé (Neonatal)</option></select></div>
+<div class="fl"><label></label><div style="height:32px"></div></div>
 </div>
 <div class="sec-lbl">Médico tratante</div>
 <div class="g2">
@@ -496,7 +619,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 </div>
 <div class="g4">
 <div class="fl"><label>Período (días por mes)</label><input type="number" id="fi-periodo" placeholder="Ej. 30" min="1" max="31" oninput="updF()"></div>
-<div class="fl"><label>Fecha inicio</label><input type="date" id="fi-inicio" oninput="updF()"></div>
+<div class="fl"><label>Fecha inicio</label><input type="date" id="fi-inicio" oninput="syncFechaToTop();updF()"></div>
 <div class="fl"><label>Fecha término</label><input type="date" id="fi-termino" oninput="updF()"></div>
 <div class="fl"><label>Sexo del personal</label><select id="fi-sexo" onchange="updF()"><option value="">— Sexo —</option><option>Masculino</option><option>Femenino</option><option>Indiferente</option></select></div>
 </div>
@@ -520,6 +643,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div class="fc"><div class="fc-l">Paciente</div><div class="fc-v" id="fv-nombre">—</div></div>
 <div class="fc"><div class="fc-l">Fecha nac. · Edad</div><div class="fc-v" id="fv-fnac">—</div></div>
 <div class="fc"><div class="fc-l">Peso · Talla</div><div class="fc-v" id="fv-antro">—</div></div>
+<div class="fc"><div class="fc-l">Tipo de servicio</div><div class="fc-v" id="fv-tiposvc">—</div></div>
 <div class="fc"><div class="fc-l">Diagnóstico</div><div class="fc-v" id="fv-diag">—</div></div>
 <div class="fc"><div class="fc-l">Médico tratante</div><div class="fc-v" id="fv-medico">—</div></div>
 <div class="fc"><div class="fc-l">Tel. médico</div><div class="fc-v" id="fv-telmedico">—</div></div>
@@ -558,8 +682,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div class="cl-marca-grid">
 <div class="cl-mcard" data-m="SCS" onclick="clSelM('SCS')"><div class="cm-dot">SCS</div><div class="cm-n">SCS</div></div>
 <div class="cl-mcard" data-m="MS" onclick="clSelM('MS')"><div class="cm-dot">MS</div><div class="cm-n">Médica Sur en tu Casa</div></div>
-<div class="cl-mcard" data-m="PSJ" onclick="clSelM('PSJ')"><div class="cm-dot">PSJ</div><div class="cm-n">Polar San José</div></div>
-<div class="cl-mcard" data-m="PCT" onclick="clSelM('PCT')"><div class="cm-dot">PCT</div><div class="cm-n">Polar CMT</div></div>
+
 <div class="cl-mcard" data-m="HSAI" onclick="clSelM('HSAI')"><div class="cm-dot">HSA</div><div class="cm-n">HSAI</div></div>
 </div>
 <div class="etapa" id="clet0"><div class="etapa-hdr" onclick="clTogEt('cleb0')"><div class="etapa-num" id="clen0">0</div><div class="etapa-lbl">Preparación — 15 seg antes</div><div class="etapa-sc" id="cles0">0/2</div></div>
@@ -652,15 +775,15 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
 <div><h2 style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--teal-d)">Historial de Pacientes</h2><p style="font-size:.75rem;color:var(--muted);margin-top:2px">Registros guardados localmente + sincronizados a Drive</p></div>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-<div class="fl" style="margin:0"><label style="margin-top:0">Vista</label><select id="hst-rol" onchange="renderHistorial()" style="width:150px"><option value="asesor">Mis pacientes</option><option value="supervisor">Supervisor (todos)</option></select></div>
-<div class="fl" style="margin:0"><label style="margin-top:0">Mi nombre (asesor)</label><input type="text" id="hst-asesor" placeholder="Nombre asesor" style="width:160px" oninput="renderHistorial()"></div>
+<div class="fl" style="margin:0"><label style="margin-top:0">Vista</label><select id="hst-rol" onchange="onRolChange()" style="width:160px"><option value="asesor">Mis pacientes</option><option value="supervisor">Supervisor (todos)</option></select></div>
+<div class="fl" style="margin:0" id="hst-asesor-wrap"><label style="margin-top:0">Mi nombre (asesor)</label><input type="text" id="hst-asesor" placeholder="Nombre asesor" style="width:160px" oninput="renderHistorial()"></div>
 <button class="btn btn-sm btn-ghost" onclick="exportCSV()">📥 Exportar CSV</button>
 <button class="btn btn-sm btn-cyan" onclick="syncDrive()">☁️ Sincronizar Drive</button>
 </div>
 </div>
 <div class="hst-toolbar">
 <input class="hst-search" type="text" id="hst-search" placeholder="🔍 Buscar por nombre, diagnóstico, asesor…" oninput="renderHistorial()">
-<select id="hst-marca-filter" onchange="renderHistorial()" style="width:180px"><option value="">Todas las marcas</option><option>SCS</option><option>Médica Sur en tu Casa</option><option>Polar San José</option><option>Polar CMT</option><option>HSAI</option></select>
+<select id="hst-marca-filter" onchange="renderHistorial()" style="width:180px"><option value="">Todas las marcas</option><option>SCS</option><option>Médica Sur en tu Casa</option><option>Hospital San Ángel Inn en tu Casa</option></select>
 </div>
 <div class="pac-grid" id="pac-grid"><div class="pac-empty"><span class="pe-icon">🗂</span>Aún no hay pacientes registrados.<br>Completa una ficha de servicio y guarda el registro.</div></div>
 </div></div></div>
@@ -675,16 +798,21 @@ const MEMB_MENSUAL={c:{trim:599,sem:539,anual:479},a:{trim:799,sem:719,anual:639
 const MEMB_DISC={trim:0,sem:.10,anual:.20};const MEMB_MES={trim:3,sem:6,anual:12};const GUARDIAS_INC={trim:1,sem:3,anual:7};
 const HIERARCHY=['c','p','a','e'];
 const PM={c:{icon:'🤝',name:'Cuidadora',sub:'Cuidado básico',cls:'ic-c',acls:'ac',pcls:'lp-c'},p:{icon:'👶',name:'Puericulturista',sub:'Especialista pediátrica',cls:'ic-p',acls:'ap',pcls:'lp-p'},a:{icon:'🩺',name:'Auxiliar de Enfermería',sub:'Procedimientos técnicos',cls:'ic-a',acls:'aa',pcls:'lp-a'},e:{icon:'👩‍⚕️',name:'Enfermera Titulada',sub:'Procedimientos avanzados',cls:'ic-e',acls:'ae',pcls:'lp-e'}};
-const MARCA_L={scs:'Salus Care Solutions',ms:'Médica Sur en tu casa',polar:'Polar Salud Contigo'};
+const MARCA_L={scs:'Salus Care Solutions',ms:'Médica Sur en tu casa',polar:'Hospital San Ángel Inn en tu Casa'};
 const DIAS_A_COL={1:0,2:1,3:null,4:null,5:2,6:3,7:4};
 const COL_DIAS_MES=[4.3,8.7,21.7,26.1,30.4];const COL_LABEL=['4.3 días/mes','8.7 días/mes','21.7 días/mes','26.1 días/mes','30.4 días/mes'];
-const sel={};let marca=null,producto=null,variante=null,memb=null,turno=null,dias=null,step=1;
+const sel={};let marca=null,producto=null,variante=null,memb=null,turno=null,dias=null,step=0,tipoSvc=null;
+const TIPO_SVC_L={guardia:'Guardia Hospitalaria / Urgencia',posthosp:'Post-Hospitalario / Post-Operatorio',adultomayor:'Adulto Mayor',bebe:'Bebé (Neonatal)'};
+function setTipoSvc(t){tipoSvc=t;['guardia','posthosp','adultomayor','bebe'].forEach(x=>document.getElementById('ts-'+x).classList.toggle('on',x===t));var fs=document.getElementById('fi-tiposvc');if(fs&&TIPO_SVC_L[t]){fs.value=TIPO_SVC_L[t];if(typeof updF==='function')updF();}validateStep0();}
+function onFechaInicioTop(){var v=document.getElementById('fi-inicio-top').value;var fi=document.getElementById('fi-inicio');if(fi){fi.value=v;}if(typeof updF==='function')updF();validateStep0();}
+function validateStep0(){var fecha=document.getElementById('fi-inicio-top').value;var b=document.getElementById('btn0');if(b)b.disabled=!(tipoSvc&&fecha);}
+function syncFechaToTop(){var fi=document.getElementById('fi-inicio');var ft=document.getElementById('fi-inicio-top');if(fi&&ft){ft.value=fi.value;}validateStep0();}
 function isSCS(){return marca==='scs';}
-function goStep(n){if(n>step){for(let s=step;s<n;s++){if(s===3&&!isSCS())continue;if(!canLeave(s))return;}}step=n;[1,2,3,4,5].forEach(i=>document.getElementById('step'+i).style.display=i===n?'block':'none');updateWizardTabs();if(n===4)prepTurnoStep();if(n===5)renderCotiz();}
+function goStep(n){if(n>step){for(let s=step;s<n;s++){if(s===3&&!isSCS())continue;if(!canLeave(s))return;}}step=n;[0,1,2,3,4,5].forEach(i=>document.getElementById('step'+i).style.display=i===n?'block':'none');updateWizardTabs();if(n===4)prepTurnoStep();if(n===5)renderCotiz();}
 function marcaNext(){if(!marca)return;goStep(isSCS()?3:4);}
 function turnoBack(){goStep(isSCS()?3:2);}
-function canLeave(s){if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&dias!==null;return true;}
-function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[1,2,3,4,5].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
+function canLeave(s){if(s===0){var f=document.getElementById('fi-inicio-top');return tipoSvc!==null&&f&&f.value!=='';}if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&dias!==null;return true;}
+function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[0,1,2,3,4,5].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
 function updateBtns(){['btn1','btn2','btn3','btn4'].forEach((id,i)=>{const b=document.getElementById(id);if(b)b.disabled=!canLeave(i+1);});}
 function tog(el,id,lv,label){el.classList.toggle('on');if(el.classList.contains('on'))sel[id]={lv,label};else delete sel[id];renderPerfil();updateBtns();}
 function getProfile(){const lvs=Object.values(sel).map(v=>v.lv);let max=-1;for(const l of lvs){const i=HIERARCHY.indexOf(l);if(i>max)max=i;}return max>=0?HIERARCHY[max]:null;}
@@ -700,16 +828,17 @@ if(!isSCS())hint.innerHTML='<strong>'+MARCA_L[marca]+'</strong> · Precios c/IVA
 ts.forEach(h=>{const av=isSCS()||(h!==24);const price=av?(ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][h]:null):null;const card=document.getElementById('tc'+h);card.querySelector('.th').innerHTML=price!=null?'$'+fmt(price)+' MXN':h===24?'Solo SCS':'N/D';});}
 function setTurno(h){turno=h;[8,12,18,24].forEach(x=>document.getElementById('tc'+x).classList.toggle('on',x===h));updateBtns();}
 function setDias(d){dias=d;[1,2,3,4,5,6,7].forEach(x=>document.getElementById('d'+x).classList.toggle('on',x===d));updateBtns();}
-function renderCotiz(){const profile=getProfile();const pk=profile==='p'?'a':profile;const main=document.getElementById('cotiz-main');const aside=document.getElementById('cotiz-aside');aside.innerHTML='<div class="summary-box"><div class="sb-title">Resumen</div><div class="sb-row"><span class="sb-l">Perfil</span><span class="sb-v">'+PM[profile].icon+' '+PM[profile].name+'</span></div><div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">'+MARCA_L[marca]+'</span></div>'+(isSCS()?'<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">'+prodLabel()+'</span></div>':'')+'<div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">'+turno+'h</span></div><div class="sb-row"><span class="sb-l">Días/sem</span><span class="sb-v">'+dias+' día'+(dias>1?'s':'')+'</span></div></div><div class="guardias-box"><strong>Guardias adicionales c/IVA</strong><br>Cuidadora: $928 (8-12h)/$1,392 (18-24h)<br>Auxiliar: $1,160 (8-12h)/$1,624 (18-24h)<br>Enfermería: $1,392 (8-12h)/$2,088 (18-24h)</div><div style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="saveCotizacion()">☁️ Guardar cotización en Drive</button></div>';
+function renderCotiz(){const profile=getProfile();const pk=profile==='p'?'a':profile;const main=document.getElementById('cotiz-main');const aside=document.getElementById('cotiz-aside');var fIni=document.getElementById('fi-inicio-top')?document.getElementById('fi-inicio-top').value:'';var fIniFmt=fIni?new Date(fIni+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}):'—';
+aside.innerHTML='<div class="cotiz-destacado">'+(tipoSvc?'<div class="cd-row"><span class="cd-ico">🔖</span><div><div class="cd-l">Tipo de servicio (Job)</div><div class="cd-v">'+TIPO_SVC_L[tipoSvc]+'</div></div></div>':'')+'<div class="cd-row"><span class="cd-ico">📅</span><div><div class="cd-l">Fecha probable de inicio</div><div class="cd-v">'+fIniFmt+'</div></div></div></div><div class="summary-box"><div class="sb-title">Resumen</div><div class="sb-row"><span class="sb-l">Perfil</span><span class="sb-v">'+PM[profile].icon+' '+PM[profile].name+'</span></div><div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">'+MARCA_L[marca]+'</span></div>'+(isSCS()?'<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">'+prodLabel()+'</span></div>':'')+'<div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">'+turno+'h</span></div><div class="sb-row"><span class="sb-l">Días/sem</span><span class="sb-v">'+dias+' día'+(dias>1?'s':'')+'</span></div></div><div class="guardias-box"><strong>Guardias adicionales c/IVA</strong><br>Cuidadora: $928 (8-12h)/$1,392 (18-24h)<br>Auxiliar: $1,160 (8-12h)/$1,624 (18-24h)<br>Enfermería: $1,392 (8-12h)/$2,088 (18-24h)</div><div style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="saveCotizacion()">☁️ Guardar cotización en Drive</button></div>';
 let html='';if(!isSCS()){html+=precioBlock(pk,PM[profile].name);}else if(producto==='match'){const recl=MATCH_PRICES[pk],plan=2900,total=recl+plan;html+='<div class="match-note note-green"><strong>Salus Match — Pago único · Garantía 30 días</strong><br>Reclutamiento + Valoración + Plan de cuidados + Seguridad del hogar.</div><div class="price-breakdown"><div class="pb-head">Desglose pago único</div><div class="pb-row"><span class="pb-l">Reclutamiento ('+PM[profile].name+')</span><span class="pb-v">$'+fmt(recl)+'</span></div><div class="pb-row"><span class="pb-l">Valoración + Plan + Seguridad</span><span class="pb-v">$'+fmt(plan)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total c/IVA</strong></span><span class="pb-v hi">$'+fmt(total)+' MXN</span></div></div>';html+=precioBlock(pk,PM[profile].name);}else if(producto==='select'){const isB=variante==='basico';const up=isB?SELECT_BASICO:MATCH_PRICES[pk];const disc=MEMB_DISC[memb];const mML=MEMB_MENSUAL[pk]['trim'];const mMD=MEMB_MENSUAL[pk][memb];const meses=MEMB_MES[memb];const tM=mMD*meses;const tC=up+tM;html+='<div class="match-note note-green"><strong>Salus Select '+(isB?'Básico':'Plus')+' · '+membLabel()+'</strong><br>'+(isB?'Solo valoración clínica + membresía.':'Reclutamiento + valoración + membresía.')+(disc>0?' <strong>'+(disc*100)+'% dto.</strong> en membresía.':'')+'</div><div class="price-breakdown"><div class="pb-head">Desglose</div><div class="pb-row"><span class="pb-l">'+(isB?'Valoración + Plan':'Reclutamiento + Valoración + Plan')+'</span><span class="pb-v">$'+fmt(up)+'</span></div><div class="pb-row"><span class="pb-l">Membresía '+(disc>0?'($'+fmt(mML)+'/mes → $'+fmt(mMD)+'/mes)':'')+' × '+meses+' meses</span><span class="pb-v">$'+fmt(tM)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total '+meses+' meses c/IVA</strong></span><span class="pb-v hi">$'+fmt(tC)+' MXN</span></div></div><div class="memb-breakdown"><div class="mb-head"><span>Beneficios '+membLabel()+'</span></div><div class="mb-row"><span class="mb-l">Guardias incluidas</span><span class="mb-v">'+GUARDIAS_INC[memb]+' día(s)</span></div><div class="mb-row"><span class="mb-l">Serenity + SOFIA</span><span class="mb-v">✓</span></div><div class="mb-row"><span class="mb-l">Dto. re-reclutamiento</span><span class="mb-v">'+(memb==='trim'?'15%':memb==='sem'?'25%':'50%')+'</span></div><div class="mb-row"><span class="mb-l">Dto. guardias adicionales</span><span class="mb-v">'+(memb==='trim'?'10%':memb==='sem'?'15%':'20%')+'</span></div></div>';html+=precioBlock(pk,PM[profile].name);}else if(producto==='premium'){html+='<div class="match-note note-purple"><strong>Salus Premium — Todo incluido</strong><br>Salus emplea, supervisa y gestiona. Riesgo laboral 100% Salus.</div>';html+=precioBlock(pk,PM[profile].name);}main.innerHTML=html;}
 function precioBlock(pk,pl){const esp=ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][turno]:null;if(!esp)return'<p style="font-size:.7rem;color:var(--muted);margin-top:8px">⚠️ No disponible para esta marca/turno.</p>';const data=MEMB[marca]&&MEMB[marca][pk]?MEMB[marca][pk][turno]:null;const ci=DIAS_A_COL[dias];let html='<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+dias+'d/sem</strong></div><div class="price-hero"><div class="ph-label">Precio por servicio c/IVA</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div>';if(ci===null){const sb=data&&data.sd?data.sd[1]:null;const sa=data&&data.sd?data.sd[2]:null;html+='<div class="price-breakdown"><div class="pb-head">Referencia mensual</div><div class="pb-row"><span class="pb-l">~8.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sb)+' MXN</span></div><div class="pb-row"><span class="pb-l">~21.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sa)+' MXN</span></div></div>';return html;}const dm=COL_DIAS_MES[ci];const cl=COL_LABEL[ci];const pSD=data&&data.sd?data.sd[ci]:null;const pCD=data&&data.cd?data.cd[ci]:null;const td=pCD!=null&&pCD!==pSD;const dp=td?Math.round((1-pCD/pSD)*100):0;html+='<div class="price-breakdown"><div class="pb-head">Precio mensual · '+cl+'</div><div class="pb-row"><span class="pb-l">Días al mes</span><span class="pb-v">'+dm+'</span></div><div class="pb-row"><span class="pb-l">Precio unitario</span><span class="pb-v">$'+fmt(esp)+'</span></div><div class="pb-row"><span class="pb-l">Mensual sin dto.</span><span class="pb-v">$'+fmt(pSD)+'</span></div>';if(td)html+='<div class="pb-row"><span class="pb-l">Dto. frecuencia</span><span class="pb-v" style="color:var(--teal)">−'+dp+'% (−$'+fmt(pSD-pCD)+')</span></div><div class="pb-row"><span class="pb-l"><strong>Mensual con dto.</strong></span><span class="pb-v hi">$'+fmt(pCD)+' MXN</span></div>';else html+='<div class="pb-row"><span class="pb-l"><strong>Precio mensual</strong></span><span class="pb-v hi">$'+fmt(pSD)+' MXN</span></div>';html+='</div>';return html;}
 function prodLabel(){if(producto==='match')return'Salus Match';if(producto==='select')return'Salus Select '+(variante==='basico'?'Básico':'Plus')+(memb?' · '+membLabel():'');if(producto==='premium')return'Salus Premium';return'—';}
 function membLabel(){return{trim:'Trimestral',sem:'Semestral',anual:'Anual'}[memb]||'—';}
-function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;document.querySelectorAll('.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');renderPerfil();updateBtns();step=1;goStep(1);}
+function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;tipoSvc=null;document.querySelectorAll('.tsvc-card,.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');var ft=document.getElementById('fi-inicio-top');if(ft)ft.value='';var b0=document.getElementById('btn0');if(b0)b0.disabled=true;renderPerfil();updateBtns();step=0;goStep(0);}
 function setMode(m){document.getElementById('mode-p').style.display=m==='p'?'block':'none';document.getElementById('mode-c').style.display=m==='c'?'block':'none';document.getElementById('mode-h').style.display=m==='h'?'block':'none';document.getElementById('mt-p').classList.toggle('active',m==='p');document.getElementById('mt-c').classList.toggle('active',m==='c');document.getElementById('mt-h').classList.toggle('active',m==='h');if(m==='c')clUpdAll();if(m==='h')renderHistorial();}
 var CL={},clM=null,clObj=null,clPS=[];
 var clSvcN=Math.floor(Math.random()*90000)+10000;
-var clMD={SCS:{color:'#29B8D4',label:'SCS'},MS:{color:'#1a6b3a',label:'Médica Sur en tu Casa'},PSJ:{color:'#1a4fa8',label:'Polar San José'},PCT:{color:'#7c3aed',label:'Polar CMT'},HSAI:{color:'#b45309',label:'HSAI'}};
+var clMD={SCS:{color:'#29B8D4',label:'SCS'},MS:{color:'#1a6b3a',label:'Médica Sur en tu Casa'},HSAI:{color:'#b45309',label:'Hospital San Ángel Inn en tu Casa'}};
 var clEC=[{i:0,b:'cleb0',c:['ck0a','ck0b'],m:2,l:'Preparación'},{i:1,b:'cleb1',c:['ck1a','ck1b','ck1c','ck1d'],m:4,l:'Apertura'},{i:2,b:'cleb2',c:['ck2a','ck2b','ck2c','ck2d','ck2e','ck2f','ck2g'],m:7,l:'Diagnóstico'},{i:3,b:'cleb3',c:['ck3a','ck3b','ck3c'],m:3,l:'Empatía'},{i:4,b:'cleb4',c:['ck4a','ck4b','ck4c','ck4d'],m:4,l:'Propuesta'},{i:5,b:'cleb5',c:['ck5a','ck5b'],m:2,l:'Precio'},{i:6,b:'cleb6',c:['ck6a','ck6b','ck6c','ck6d'],m:4,l:'Objeciones'},{i:7,b:'cleb7',c:['ck7a','ck7b','ck7c'],m:3,l:'Cierre'},{i:8,b:'cleb8',c:['ck8a','ck8b'],m:2,l:'Post-llamada'}];
 var clVM={et:['ck3a','ck3c','ck6a'],cal:['ck2f','ck2g','ck4a','ck6b','ck6c'],no:['ck6d','ck7a'],ec:['ck7b']};
 var clOBJ=[{k:'pensarlo',t:'"Déjeme pensarlo / revisarlo"',d:'Etiquetar: "Suena a que quiere estar 100% segura antes de avanzar."\nPregunta NO: "¿Sería una mala idea si le marco a las __ para ver qué decidió?"\nNext step: Agendar seguimiento con hora exacta.'},{k:'familia',t:'"Tengo que consultarlo con mi familia"',d:'Etiquetar: "Parece que quieren decidirlo en equipo."\nPregunta NO: "¿Sería una mala idea reservar el perfil ahora mientras lo validan?"\nNext step: Proponer llamada de 3 min con todos.'},{k:'caro',t:'"Está caro / no es mi presupuesto"',d:'Etiquetar: "Suena a que el presupuesto diario pesa y quiere que valga cada peso."\nPregunta NO: "¿Sería una mala idea iniciar con un periodo corto para probarnos?"\nNext step: Opciones A (5 días prueba) / B (mensual con descuento).'},{k:'miedo',t:'"Me da miedo meter a alguien a la casa"',d:'Etiquetar: "Parece que la seguridad es el punto número uno."\nPregunta NO: "¿Sería una mala idea que le compartiera protocolos y referencias?"\nNext step: Enviar protocolos + presentación del equipo.'},{k:'llega',t:'"¿Y si no llega / me quedan mal?"',d:'Etiquetar: "Parece que ya vivió un susto con cobertura."\nPregunta NO: "¿Sería una mala idea iniciar con un día de prueba?"\nNext step: Garantía de cobertura + protocolo de reemplazo.'},{k:'genero',t:'"Necesito hombre / mujer específicamente"',d:'Etiquetar: "Suena a que es por seguridad y movilización."\nPregunta NO: "¿Sería una mala idea que le comparta 2 perfiles para que usted elija?"\nNext step: Enviar 2 opciones de perfil y agendar inicio.'},{k:'rapido',t:'"¿Qué tan rápido pueden empezar?" (urgencia)',d:'Etiquetar: "Suena a que el tiempo es crítico."\nPregunta NO: "¿Sería una mala idea si le envío los contratos por WhatsApp y vamos generando el apartado?"\nNext step: Contratos por WhatsApp + definir ventana de llegada.'}];
@@ -726,36 +855,56 @@ function clReset(){CL={};clM=null;clObj=null;clPS=[];document.querySelectorAll('
 function autoEdad(){var f=document.getElementById('fi-fnac').value;if(!f)return;try{var d=new Date(f+'T12:00:00');var hoy=new Date();var e=hoy.getFullYear()-d.getFullYear();var mm=hoy.getMonth()-d.getMonth();if(mm<0||(mm===0&&hoy.getDate()<d.getDate()))e--;if(e>=0&&e<=120){document.getElementById('fi-edad').value=e;}}catch(err){}}
 function tgP(el){var v=el.textContent.trim();el.classList.toggle('on');var idx=clPS.indexOf(v);if(idx>-1)clPS.splice(idx,1);else clPS.push(v);updF();}
 function gv(id){var el=document.getElementById(id);return el?(el.value||'').trim():'';}
-function updF(){var nombre=gv('fi-nombre'),fnac=gv('fi-fnac'),edad=gv('fi-edad'),peso=gv('fi-peso'),talla=gv('fi-talla'),diag=gv('fi-diag');var calle=gv('fi-calle'),numero=gv('fi-numero'),colonia=gv('fi-colonia'),deleg=gv('fi-deleg'),cp=gv('fi-cp');var contacto=gv('fi-contacto'),tel=gv('fi-tel'),correo=gv('fi-correo'),asesor=gv('fi-asesor'),coord=gv('fi-coord');var medico=gv('fi-medico'),telMed=gv('fi-telmedico');var jorn=gv('fi-jorn'),dias2=gv('fi-dias'),entrada=gv('fi-entrada'),salida=gv('fi-salida');var periodo=gv('fi-periodo'),inicio=gv('fi-inicio'),termino=gv('fi-termino');var sexo=gv('fi-sexo'),pago=gv('fi-pago'),total=gv('fi-total'),factura=gv('fi-factura'),coments=gv('fi-coments'),marca2=gv('fi-marca');
+function updF(){var nombre=gv('fi-nombre'),fnac=gv('fi-fnac'),edad=gv('fi-edad'),peso=gv('fi-peso'),talla=gv('fi-talla'),diag=gv('fi-diag');var calle=gv('fi-calle'),numero=gv('fi-numero'),colonia=gv('fi-colonia'),deleg=gv('fi-deleg'),cp=gv('fi-cp');var contacto=gv('fi-contacto'),tel=gv('fi-tel'),correo=gv('fi-correo'),asesor=gv('fi-asesor'),coord=gv('fi-coord');var medico=gv('fi-medico'),telMed=gv('fi-telmedico');var jorn=gv('fi-jorn'),dias2=gv('fi-dias'),entrada=gv('fi-entrada'),salida=gv('fi-salida');var periodo=gv('fi-periodo'),inicio=gv('fi-inicio'),termino=gv('fi-termino');var sexo=gv('fi-sexo'),pago=gv('fi-pago'),total=gv('fi-total'),factura=gv('fi-factura'),coments=gv('fi-coments'),marca2=gv('fi-marca'),tiposvc=gv('fi-tiposvc');
 var perf=clPS.length?clPS.join(' · '):'—';var dir=[calle,numero,colonia,deleg].filter(Boolean).join(', ');
 var initials='SC';if(nombre){var pts=nombre.trim().split(' ');initials=(pts[0][0]+(pts[1]?pts[1][0]:'')).toUpperCase();}
 var mPfx=marca2?marca2.replace(/\s/g,'').slice(0,4).toUpperCase():'SCS';var fnacClean=fnac?fnac.replace(/-/g,'').slice(2,8):'000000';var sid=mPfx+initials+fnacClean;var sn='OPS'+clSvcN;
-var mc={'SCS':'#29B8D4','Médica Sur en tu Casa':'#1a6b3a','Polar San José':'#1a4fa8','Polar CMT':'#7c3aed','HSAI':'#b45309'};var hdrCol=mc[marca2]||'#29B8D4';var fhid=document.getElementById('fhid');if(fhid)fhid.style.background=hdrCol;var ftot=document.getElementById('fi-tot-cell');if(ftot)ftot.style.background=hdrCol;
+var mc={'SCS':'#29B8D4','Médica Sur en tu Casa':'#1a6b3a','Hospital San Ángel Inn en tu Casa':'#b45309','HSAI':'#b45309'};var hdrCol=mc[marca2]||'#29B8D4';var fhid=document.getElementById('fhid');if(fhid)fhid.style.background=hdrCol;var ftot=document.getElementById('fi-tot-cell');if(ftot)ftot.style.background=hdrCol;
 var sv=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v||'—';};
-sv('fv-id',sid);sv('fv-sv',sn);sv('fv-contacto',contacto+(tel?' ('+tel+')':''));sv('fv-coord',coord);sv('fv-asesor',asesor);sv('fv-nombre',nombre);sv('fv-fnac',(fnac||'')+(edad?' · '+edad+' años':''));sv('fv-antro',(peso?peso+' kg':'')+(talla?' · '+talla+' cm':''));sv('fv-diag',diag);sv('fv-medico',medico);sv('fv-telmedico',telMed);sv('fv-dir',dir);sv('fv-cp',cp);sv('fv-correo',correo);sv('fv-tel',tel);sv('fv-perfil',perf+(jorn?' · '+jorn:''));sv('fv-dias',dias2);sv('fv-horario',(entrada||'')+(salida?' – '+salida:''));sv('fv-periodo',periodo?periodo+' días/mes':'—');sv('fv-inicio',inicio);sv('fv-termino',termino);sv('fv-sexo',sexo);sv('fv-pago',pago);sv('fv-factura',factura);sv('fv-coments',coments);sv('fv-jorn',jorn);sv('fv-total',total);}
-function cpFicha(){var nombre=gv('fi-nombre'),diag=gv('fi-diag'),calle=gv('fi-calle'),numero=gv('fi-numero'),colonia=gv('fi-colonia'),deleg=gv('fi-deleg'),cp=gv('fi-cp');var contacto=gv('fi-contacto'),tel=gv('fi-tel'),correo=gv('fi-correo'),asesor=gv('fi-asesor'),coord=gv('fi-coord'),marca2=gv('fi-marca');var medico=gv('fi-medico'),telMed=gv('fi-telmedico'),fnac=gv('fi-fnac'),edad=gv('fi-edad'),peso=gv('fi-peso'),talla=gv('fi-talla');var perf=clPS.length?clPS.join(' + '):'—';var jorn=gv('fi-jorn'),dias2=gv('fi-dias'),entrada=gv('fi-entrada'),salida=gv('fi-salida');var periodo=gv('fi-periodo'),inicio=gv('fi-inicio'),termino=gv('fi-termino'),sexo=gv('fi-sexo'),pago=gv('fi-pago'),total=gv('fi-total'),coments=gv('fi-coments');var mL=marca2||'SCS';var dir=[calle,numero,colonia,deleg,cp].filter(Boolean).join(', ');
-var t='📋 *FICHA DE SERVICIO — '+mL.toUpperCase()+'*\n━━━━━━━━━━━━━━━━━━━━━━\n';t+='👤 *Paciente:* '+nombre+'\n';if(fnac)t+='🎂 *Fecha nac.:* '+fnac+(edad?' · '+edad+' años':'')+'\n';if(peso||talla)t+='⚖️ *Antrop.:* '+(peso?peso+'kg':'')+(talla?' · '+talla+'cm':'')+'\n';t+='🏥 *Diagnóstico:* '+diag+'\n━━━━━━━━━━━━━━━━━━━━━━\n';if(medico)t+='👨‍⚕️ *Médico tratante:* '+medico+(telMed?' ('+telMed+')':'')+'\n';t+='📍 *Dirección:* '+dir+'\n━━━━━━━━━━━━━━━━━━━━━━\n';t+='📞 *Contacto:* '+contacto+(tel?' ('+tel+')':'')+(correo?'\n📧 *Correo:* '+correo:'')+'\n';t+='👩‍⚕️ *Coordinador:* '+coord+'\n🤝 *Asesor:* '+asesor+'\n━━━━━━━━━━━━━━━━━━━━━━\n';t+='🔷 *Perfil:* '+perf+'\n⏱ *Jornada:* '+jorn+'\n📅 *Días:* '+dias2+'\n';if(entrada||salida)t+='🕐 *Horario:* '+entrada+(salida?' – '+salida:'')+'\n';if(periodo)t+='📆 *Período:* '+periodo+' días/mes\n';if(inicio)t+='🗓 *Inicio:* '+inicio+'\n';if(termino)t+='🗓 *Término:* '+termino+'\n';t+='👤 *Sexo personal:* '+sexo+'\n💳 *Forma de pago:* '+pago+'\n';if(coments)t+='📝 *Especificaciones:* '+coments+'\n';t+='━━━━━━━━━━━━━━━━━━━━━━\n💰 *Total (con IVA):* '+total+'\n━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx · 55 5211 8000';
+sv('fv-id',sid);sv('fv-sv',sn);sv('fv-contacto',contacto+(tel?' ('+tel+')':''));sv('fv-coord',coord);sv('fv-asesor',asesor);sv('fv-nombre',nombre);sv('fv-fnac',(fnac||'')+(edad?' · '+edad+' años':''));sv('fv-antro',(peso?peso+' kg':'')+(talla?' · '+talla+' cm':''));sv('fv-tiposvc',tiposvc);sv('fv-diag',diag);sv('fv-medico',medico);sv('fv-telmedico',telMed);sv('fv-dir',dir);sv('fv-cp',cp);sv('fv-correo',correo);sv('fv-tel',tel);sv('fv-perfil',perf+(jorn?' · '+jorn:''));sv('fv-dias',dias2);sv('fv-horario',(entrada||'')+(salida?' – '+salida:''));sv('fv-periodo',periodo?periodo+' días/mes':'—');sv('fv-inicio',inicio);sv('fv-termino',termino);sv('fv-sexo',sexo);sv('fv-pago',pago);sv('fv-factura',factura);sv('fv-coments',coments);sv('fv-jorn',jorn);sv('fv-total',total);}
+function cpFicha(){var nombre=gv('fi-nombre'),diag=gv('fi-diag'),tiposvc=gv('fi-tiposvc'),calle=gv('fi-calle'),numero=gv('fi-numero'),colonia=gv('fi-colonia'),deleg=gv('fi-deleg'),cp=gv('fi-cp');var contacto=gv('fi-contacto'),tel=gv('fi-tel'),correo=gv('fi-correo'),asesor=gv('fi-asesor'),coord=gv('fi-coord'),marca2=gv('fi-marca');var medico=gv('fi-medico'),telMed=gv('fi-telmedico'),fnac=gv('fi-fnac'),edad=gv('fi-edad'),peso=gv('fi-peso'),talla=gv('fi-talla');var perf=clPS.length?clPS.join(' + '):'—';var jorn=gv('fi-jorn'),dias2=gv('fi-dias'),entrada=gv('fi-entrada'),salida=gv('fi-salida');var periodo=gv('fi-periodo'),inicio=gv('fi-inicio'),termino=gv('fi-termino'),sexo=gv('fi-sexo'),pago=gv('fi-pago'),total=gv('fi-total'),coments=gv('fi-coments');var mL=marca2||'SCS';var dir=[calle,numero,colonia,deleg,cp].filter(Boolean).join(', ');
+var t='📋 *FICHA DE SERVICIO — '+mL.toUpperCase()+'*\n━━━━━━━━━━━━━━━━━━━━━━\n';t+='👤 *Paciente:* '+nombre+'\n';if(fnac)t+='🎂 *Fecha nac.:* '+fnac+(edad?' · '+edad+' años':'')+'\n';if(peso||talla)t+='⚖️ *Antrop.:* '+(peso?peso+'kg':'')+(talla?' · '+talla+'cm':'')+'\n';if(tiposvc)t+='🔖 *Tipo de servicio:* '+tiposvc+'\n';t+='🏥 *Diagnóstico:* '+diag+'\n━━━━━━━━━━━━━━━━━━━━━━\n';if(medico)t+='👨‍⚕️ *Médico tratante:* '+medico+(telMed?' ('+telMed+')':'')+'\n';t+='📍 *Dirección:* '+dir+'\n━━━━━━━━━━━━━━━━━━━━━━\n';t+='📞 *Contacto:* '+contacto+(tel?' ('+tel+')':'')+(correo?'\n📧 *Correo:* '+correo:'')+'\n';t+='👩‍⚕️ *Coordinador:* '+coord+'\n🤝 *Asesor:* '+asesor+'\n━━━━━━━━━━━━━━━━━━━━━━\n';t+='🔷 *Perfil:* '+perf+'\n⏱ *Jornada:* '+jorn+'\n📅 *Días:* '+dias2+'\n';if(entrada||salida)t+='🕐 *Horario:* '+entrada+(salida?' – '+salida:'')+'\n';if(periodo)t+='📆 *Período:* '+periodo+' días/mes\n';if(inicio)t+='🗓 *Inicio:* '+inicio+'\n';if(termino)t+='🗓 *Término:* '+termino+'\n';t+='👤 *Sexo personal:* '+sexo+'\n💳 *Forma de pago:* '+pago+'\n';if(coments)t+='📝 *Especificaciones:* '+coments+'\n';t+='━━━━━━━━━━━━━━━━━━━━━━\n💰 *Total (con IVA):* '+total+'\n━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx · 55 5211 8000';
 var box=document.getElementById('fi-cbox');if(box){box.style.display='block';box.textContent=t;}if(navigator.clipboard)navigator.clipboard.writeText(t).catch(function(){});showToast('✓ Ficha copiada al portapapeles');}
 function cpScore(){var tot=0;clEC.forEach(function(cfg){tot+=cfg.c.filter(function(c){return!!CL[c];}).length;});var nivel=tot<10?'Básico con huecos':tot<20?'Aceptable':tot<28?'Sólido':'Cinta Negra ⭐';var mL=clM?clMD[clM].label:'Sin seleccionar';var t='📊 *REPORTE DE CALIDAD — SALUS CARE SOLUTIONS*\nManual Cinta Negra en Ventas Homecare\n━━━━━━━━━━━━━━━━━━━━━━\n🏷 *Marca / Fuente:* '+mL+'\n🎯 *Score:* '+tot+' / 31\n📈 *Nivel:* '+nivel+'\n';if(clObj){var ob=clOBJ.find(function(o){return o.k===clObj;});if(ob)t+='⚠️ *Objeción detectada:* '+ob.t+'\n';}t+='━━━━━━━━━━━━━━━━━━━━━━\n*Desglose por etapa:*\n';clEC.forEach(function(cfg){var done=cfg.c.filter(function(c){return!!CL[c];}).length;var ico=done===cfg.m?'✅':done>0?'🔶':'❌';t+=ico+' '+cfg.l+': '+done+'/'+cfg.m+'\n';});var vOk=function(arr){return arr.filter(function(k){return!!CL[k];}).length;};t+='━━━━━━━━━━━━━━━━━━━━━━\n*Técnicas Voss:*\n🗣 Etiquetas: '+vOk(clVM.et)+'/3\n❓ Calibradas: '+vOk(clVM.cal)+'/5\n🔄 Hacia el NO: '+vOk(clVM.no)+'/2\n✓ "¿Es correcto?": '+vOk(clVM.ec)+'/1\n━━━━━━━━━━━━━━━━━━━━━━\nSalus Care Solutions · salus.mx';var box=document.getElementById('sc-cbox');if(box){box.style.display='block';box.textContent=t;}if(navigator.clipboard)navigator.clipboard.writeText(t).catch(function(){});showToast('✓ Reporte copiado');}
 function showToast(msg,type){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast show'+(type==='err'?' err':'');setTimeout(function(){t.className='toast';},2600);}
 const STORAGE_KEY='scs_pacientes_v2';
 function getAllPacientes(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
 function savePacientes(arr){localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}
-function getFichaData(){return{asesor:gv('fi-asesor'),marca:gv('fi-marca'),coord:gv('fi-coord'),nombrePaciente:gv('fi-nombre'),fechaNacimiento:gv('fi-fnac'),edad:gv('fi-edad'),peso:gv('fi-peso'),talla:gv('fi-talla'),diagnostico:gv('fi-diag'),medico:gv('fi-medico'),telefonoMedico:gv('fi-telmedico'),calle:gv('fi-calle'),numero:gv('fi-numero'),colonia:gv('fi-colonia'),delegacion:gv('fi-deleg'),cp:gv('fi-cp'),contacto:gv('fi-contacto'),telefonoContacto:gv('fi-tel'),correoContacto:gv('fi-correo'),perfil:clPS.join(' + '),jornada:gv('fi-jorn'),diasServicio:gv('fi-dias'),horarioEntrada:gv('fi-entrada'),horarioSalida:gv('fi-salida'),periodoMes:gv('fi-periodo'),fechaInicio:gv('fi-inicio'),fechaTermino:gv('fi-termino'),sexoPersonal:gv('fi-sexo'),formaPago:gv('fi-pago'),total:gv('fi-total'),factura:gv('fi-factura'),comentarios:gv('fi-coments')};}
-function savePaciente(){var d=getFichaData();if(!d.nombrePaciente){showToast('⚠️ Ingresa el nombre del paciente antes de guardar','err');return;}var arr=getAllPacientes();var idx=arr.findIndex(function(p){return p.id===window._editId;});if(idx>=0){d.id=window._editId;d.createdAt=arr[idx].createdAt;d.updatedAt=new Date().toLocaleString('es-MX');arr[idx]=d;showToast('✓ Registro actualizado');}else{d.id='PAC-'+Date.now();d.createdAt=new Date().toLocaleString('es-MX');d.updatedAt=d.createdAt;arr.unshift(d);showToast('✓ Paciente guardado en historial');}savePacientes(arr);window._editId=d.id;if(APPS_SCRIPT_URL)dsCall('savePaciente',d);}
-function renderHistorial(){var arr=getAllPacientes();var search=(gv('hst-search')||'').toLowerCase();var marcaF=gv('hst-marca-filter')||'';var rol=gv('hst-rol')||'asesor';var asesorF=(gv('hst-asesor')||'').toLowerCase();var grid=document.getElementById('pac-grid');if(!grid)return;var filtered=arr.filter(function(p){var txt=[p.nombrePaciente,p.diagnostico,p.asesor,p.contacto,p.calle,p.delegacion].join(' ').toLowerCase();var mOk=!marcaF||p.marca===marcaF;var rolOk=true;if(rol==='asesor'&&asesorF){rolOk=(p.asesor||'').toLowerCase().includes(asesorF);}return txt.includes(search)&&mOk&&rolOk;});if(!filtered.length){grid.innerHTML='<div class="pac-empty"><span class="pe-icon">🔍</span>'+(arr.length?'No se encontraron registros con ese filtro.':'Aún no hay pacientes registrados.<br>Completa una ficha de servicio y guarda el registro.')+'</div>';return;}var mc={SCS:'#29B8D4','Médica Sur en tu Casa':'#1a6b3a','Polar San José':'#1a4fa8','Polar CMT':'#7c3aed',HSAI:'#b45309'};grid.innerHTML=filtered.map(function(p){var col=mc[p.marca]||'#007B8A';return'<div class="pac-card" onclick="openPacModal(\''+p.id+'\')"><div class="pc-name">'+(p.nombrePaciente||'Sin nombre')+'</div><div class="pc-meta">'+(p.diagnostico?'🏥 '+p.diagnostico+'<br>':'')+(p.asesor?'👤 '+p.asesor+'<br>':'')+(p.fechaInicio?'📅 Inicio: '+p.fechaInicio+'<br>':'')+(p.total?'💰 '+p.total:'')+'</div><span class="pc-badge" style="background:'+col+'20;color:'+col+';border:1px solid '+col+'40">'+(p.marca||'SCS')+'</span><span style="font-size:.6rem;color:var(--muted);margin-left:6px">'+(p.updatedAt||'')+'</span></div>';}).join('');}
-function openPacModal(id){var arr=getAllPacientes();var p=arr.find(function(x){return x.id===id;});if(!p)return;document.getElementById('modal-title').textContent=p.nombrePaciente||'Detalle del paciente';var flds=[['Asesor',p.asesor],['Marca',p.marca],['Coordinador',p.coord],['Diagnóstico',p.diagnostico],['Fecha nac.',p.fechaNacimiento],['Edad',p.edad?p.edad+' años':''],['Peso',p.peso?p.peso+' kg':''],['Talla',p.talla?p.talla+' cm':''],['Médico tratante',p.medico],['Tel. médico',p.telefonoMedico],['Dirección',[p.calle,p.numero,p.colonia,p.delegacion,p.cp].filter(Boolean).join(', ')],['Contacto',p.contacto],['Tel. contacto',p.telefonoContacto],['Correo',p.correoContacto],['Perfil',p.perfil],['Jornada',p.jornada],['Días',p.diasServicio],['Horario entrada',p.horarioEntrada],['Horario salida',p.horarioSalida],['Período',p.periodoMes?p.periodoMes+' días/mes':''],['Fecha inicio',p.fechaInicio],['Fecha término',p.fechaTermino],['Sexo personal',p.sexoPersonal],['Forma de pago',p.formaPago],['Total',p.total],['Facturar a',p.factura],['Especificaciones',p.comentarios]];document.getElementById('modal-body').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">'+flds.filter(function(f){return f[1];}).map(function(f){return'<div style="padding:8px 12px;border-bottom:1px solid var(--border)"><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:2px">'+f[0]+'</div><div style="font-size:.8rem;color:var(--text)">'+f[1]+'</div></div>';}).join('')+'</div><div style="display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn btn-primary btn-sm" onclick="loadPaciente(\''+id+'\')">✏️ Editar en ficha</button><button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deletePaciente(\''+id+'\')">🗑 Eliminar</button></div>';document.getElementById('pac-modal').classList.add('open');}
-function loadPaciente(id){var arr=getAllPacientes();var p=arr.find(function(x){return x.id===id;});if(!p)return;var sv=function(elId,val){var el=document.getElementById(elId);if(el)el.value=val||'';};sv('fi-asesor',p.asesor);sv('fi-marca',p.marca);sv('fi-coord',p.coord);sv('fi-nombre',p.nombrePaciente);sv('fi-fnac',p.fechaNacimiento);sv('fi-edad',p.edad);sv('fi-peso',p.peso);sv('fi-talla',p.talla);sv('fi-diag',p.diagnostico);sv('fi-medico',p.medico);sv('fi-telmedico',p.telefonoMedico);sv('fi-calle',p.calle);sv('fi-numero',p.numero);sv('fi-colonia',p.colonia);sv('fi-deleg',p.delegacion);sv('fi-cp',p.cp);sv('fi-contacto',p.contacto);sv('fi-tel',p.telefonoContacto);sv('fi-correo',p.correoContacto);sv('fi-jorn',p.jornada);sv('fi-dias',p.diasServicio);sv('fi-entrada',p.horarioEntrada);sv('fi-salida',p.horarioSalida);sv('fi-periodo',p.periodoMes);sv('fi-inicio',p.fechaInicio);sv('fi-termino',p.fechaTermino);sv('fi-sexo',p.sexoPersonal);sv('fi-pago',p.formaPago);sv('fi-total',p.total);sv('fi-factura',p.factura);sv('fi-coments',p.comentarios);clPS=(p.perfil||'').split(' + ').filter(Boolean);document.querySelectorAll('#fi-pw .bdg').forEach(function(b){b.classList.toggle('on',clPS.includes(b.textContent.trim()));});window._editId=id;updF();closePacModal();setMode('c');clTab('ficha');showToast('✓ Datos cargados en la ficha');}
+function getFichaData(){return{asesor:gv('fi-asesor'),marca:gv('fi-marca'),tipoServicio:gv('fi-tiposvc'),coord:gv('fi-coord'),nombrePaciente:gv('fi-nombre'),fechaNacimiento:gv('fi-fnac'),edad:gv('fi-edad'),peso:gv('fi-peso'),talla:gv('fi-talla'),diagnostico:gv('fi-diag'),medico:gv('fi-medico'),telefonoMedico:gv('fi-telmedico'),calle:gv('fi-calle'),numero:gv('fi-numero'),colonia:gv('fi-colonia'),delegacion:gv('fi-deleg'),cp:gv('fi-cp'),contacto:gv('fi-contacto'),telefonoContacto:gv('fi-tel'),correoContacto:gv('fi-correo'),perfil:clPS.join(' + '),jornada:gv('fi-jorn'),diasServicio:gv('fi-dias'),horarioEntrada:gv('fi-entrada'),horarioSalida:gv('fi-salida'),periodoMes:gv('fi-periodo'),fechaInicio:gv('fi-inicio'),fechaTermino:gv('fi-termino'),sexoPersonal:gv('fi-sexo'),formaPago:gv('fi-pago'),total:gv('fi-total'),factura:gv('fi-factura'),comentarios:gv('fi-coments')};}
+function savePaciente(){var d=getFichaData();if(!d.nombrePaciente){showToast('⚠️ Ingresa el nombre del paciente antes de guardar','err');return;}var sess=getSession();if(!d.asesor&&sess)d.asesor=sess.name;var arr=getAllPacientes();var idx=arr.findIndex(function(p){return p.id===window._editId;});if(idx>=0){d.id=window._editId;d.createdAt=arr[idx].createdAt;d.updatedAt=new Date().toLocaleString('es-MX');arr[idx]=d;showToast('✓ Registro actualizado');}else{d.id='PAC-'+Date.now();d.createdAt=new Date().toLocaleString('es-MX');d.updatedAt=d.createdAt;arr.unshift(d);showToast('✓ Paciente guardado en historial');}savePacientes(arr);window._editId=d.id;if(APPS_SCRIPT_URL)dsCall('savePaciente',d);}
+function onRolChange(){var rol=gv('hst-rol')||'asesor';var wrap=document.getElementById('hst-asesor-wrap');var ha=document.getElementById('hst-asesor');var sess=getSession();if(rol==='supervisor'){if(wrap)wrap.style.opacity='.4';if(ha){ha.disabled=true;}}else{if(wrap)wrap.style.opacity='1';if(ha){ha.disabled=false;if(sess&&sess.rol==='asesor')ha.value=sess.name;}}renderHistorial();}
+function renderHistorial(){var arr=getAllPacientes();var search=(gv('hst-search')||'').toLowerCase();var marcaF=gv('hst-marca-filter')||'';var rol=gv('hst-rol')||'asesor';var asesorF=(gv('hst-asesor')||'').toLowerCase();var grid=document.getElementById('pac-grid');if(!grid)return;var filtered=arr.filter(function(p){var txt=[p.nombrePaciente,p.diagnostico,p.asesor,p.contacto,p.calle,p.delegacion].join(' ').toLowerCase();var mOk=!marcaF||p.marca===marcaF;var rolOk=true;if(rol==='asesor'&&asesorF){rolOk=(p.asesor||'').toLowerCase().includes(asesorF);}return txt.includes(search)&&mOk&&rolOk;});if(!filtered.length){grid.innerHTML='<div class="pac-empty"><span class="pe-icon">🔍</span>'+(arr.length?'No se encontraron registros con ese filtro.':'Aún no hay pacientes registrados.<br>Completa una ficha de servicio y guarda el registro.')+'</div>';return;}var mc={SCS:'#29B8D4','Médica Sur en tu Casa':'#1a6b3a','Hospital San Ángel Inn en tu Casa':'#b45309',HSAI:'#b45309'};grid.innerHTML=filtered.map(function(p){var col=mc[p.marca]||'#007B8A';return'<div class="pac-card" onclick="openPacModal(\''+p.id+'\')"><div class="pc-name">'+(p.nombrePaciente||'Sin nombre')+'</div><div class="pc-meta">'+(p.diagnostico?'🏥 '+p.diagnostico+'<br>':'')+(p.asesor?'👤 '+p.asesor+'<br>':'')+(p.fechaInicio?'📅 Inicio: '+p.fechaInicio+'<br>':'')+(p.total?'💰 '+p.total:'')+'</div><span class="pc-badge" style="background:'+col+'20;color:'+col+';border:1px solid '+col+'40">'+(p.marca||'SCS')+'</span><span style="font-size:.6rem;color:var(--muted);margin-left:6px">'+(p.updatedAt||'')+'</span></div>';}).join('');}
+function openPacModal(id){var arr=getAllPacientes();var p=arr.find(function(x){return x.id===id;});if(!p)return;document.getElementById('modal-title').textContent=p.nombrePaciente||'Detalle del paciente';var flds=[['Asesor',p.asesor],['Marca',p.marca],['Tipo de servicio',p.tipoServicio],['Coordinador',p.coord],['Diagnóstico',p.diagnostico],['Fecha nac.',p.fechaNacimiento],['Edad',p.edad?p.edad+' años':''],['Peso',p.peso?p.peso+' kg':''],['Talla',p.talla?p.talla+' cm':''],['Médico tratante',p.medico],['Tel. médico',p.telefonoMedico],['Dirección',[p.calle,p.numero,p.colonia,p.delegacion,p.cp].filter(Boolean).join(', ')],['Contacto',p.contacto],['Tel. contacto',p.telefonoContacto],['Correo',p.correoContacto],['Perfil',p.perfil],['Jornada',p.jornada],['Días',p.diasServicio],['Horario entrada',p.horarioEntrada],['Horario salida',p.horarioSalida],['Período',p.periodoMes?p.periodoMes+' días/mes':''],['Fecha inicio',p.fechaInicio],['Fecha término',p.fechaTermino],['Sexo personal',p.sexoPersonal],['Forma de pago',p.formaPago],['Total',p.total],['Facturar a',p.factura],['Especificaciones',p.comentarios]];document.getElementById('modal-body').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">'+flds.filter(function(f){return f[1];}).map(function(f){return'<div style="padding:8px 12px;border-bottom:1px solid var(--border)"><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.06em;margin-bottom:2px">'+f[0]+'</div><div style="font-size:.8rem;color:var(--text)">'+f[1]+'</div></div>';}).join('')+'</div><div style="display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"><button class="btn btn-primary btn-sm" onclick="loadPaciente(\''+id+'\')">✏️ Editar en ficha</button><button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red)" onclick="deletePaciente(\''+id+'\')">🗑 Eliminar</button></div>';document.getElementById('pac-modal').classList.add('open');}
+function loadPaciente(id){var arr=getAllPacientes();var p=arr.find(function(x){return x.id===id;});if(!p)return;var sv=function(elId,val){var el=document.getElementById(elId);if(el)el.value=val||'';};sv('fi-asesor',p.asesor);sv('fi-marca',p.marca);sv('fi-tiposvc',p.tipoServicio);sv('fi-coord',p.coord);sv('fi-nombre',p.nombrePaciente);sv('fi-fnac',p.fechaNacimiento);sv('fi-edad',p.edad);sv('fi-peso',p.peso);sv('fi-talla',p.talla);sv('fi-diag',p.diagnostico);sv('fi-medico',p.medico);sv('fi-telmedico',p.telefonoMedico);sv('fi-calle',p.calle);sv('fi-numero',p.numero);sv('fi-colonia',p.colonia);sv('fi-deleg',p.delegacion);sv('fi-cp',p.cp);sv('fi-contacto',p.contacto);sv('fi-tel',p.telefonoContacto);sv('fi-correo',p.correoContacto);sv('fi-jorn',p.jornada);sv('fi-dias',p.diasServicio);sv('fi-entrada',p.horarioEntrada);sv('fi-salida',p.horarioSalida);sv('fi-periodo',p.periodoMes);sv('fi-inicio',p.fechaInicio);sv('fi-termino',p.fechaTermino);sv('fi-sexo',p.sexoPersonal);sv('fi-pago',p.formaPago);sv('fi-total',p.total);sv('fi-factura',p.factura);sv('fi-coments',p.comentarios);clPS=(p.perfil||'').split(' + ').filter(Boolean);document.querySelectorAll('#fi-pw .bdg').forEach(function(b){b.classList.toggle('on',clPS.includes(b.textContent.trim()));});window._editId=id;updF();closePacModal();setMode('c');clTab('ficha');showToast('✓ Datos cargados en la ficha');}
 function deletePaciente(id){if(!confirm('¿Eliminar este registro permanentemente?'))return;var arr=getAllPacientes().filter(function(p){return p.id!==id;});savePacientes(arr);closePacModal();renderHistorial();showToast('Registro eliminado');}
 function closePacModal(){document.getElementById('pac-modal').classList.remove('open');}
 function exportCSV(){var arr=getAllPacientes();if(!arr.length){showToast('No hay registros para exportar','err');return;}var keys=Object.keys(arr[0]);var csv=[keys.join(',')].concat(arr.map(function(r){return keys.map(function(k){return'"'+String(r[k]||'').replace(/"/g,'""')+'"';}).join(',');})).join('\n');var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+csv);a.download='scs_pacientes_'+new Date().toISOString().slice(0,10)+'.csv';a.click();showToast('✓ CSV exportado');}
 async function dsCall(action,data){if(!APPS_SCRIPT_URL)return null;try{var r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,data:data})});var j=await r.json();return j.success?j.result:null;}catch(e){return null;}}
 function setDriveStatus(state,msg){var dot=document.getElementById('ds-dot');var txt=document.getElementById('ds-txt');if(dot)dot.className='ds-dot'+(state?' '+state:'');if(txt)txt.textContent='Drive: '+msg;}
 async function pingDrive(){if(!APPS_SCRIPT_URL){setDriveStatus('','pendiente de configurar');return;}setDriveStatus('loading','conectando…');var r=await dsCall('ping',{});if(r)setDriveStatus('ok','conectado ✓');else setDriveStatus('err','sin conexión');}
-async function saveCotizacion(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var profile=getProfile();var pk=profile==='p'?'a':profile;var esp=ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][turno]:null;var data={asesor:gv('fi-asesor'),marca:MARCA_L[marca]||'',perfil:PM[profile]?PM[profile].name:'',producto:prodLabel(),turno:turno+'h',dias:dias+' días/sem',membresia:membLabel(),precioUnitario:'$'+fmt(esp),nombrePaciente:gv('fi-nombre'),contacto:gv('fi-contacto')};setDriveStatus('loading','guardando…');var r=await dsCall('saveCotizacion',data);if(r){showToast('✓ Cotización guardada en Drive');setDriveStatus('ok','conectado ✓');}else{showToast('Error guardando cotización','err');setDriveStatus('err','error');}}
+async function saveCotizacion(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var profile=getProfile();var pk=profile==='p'?'a':profile;var esp=ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][turno]:null;var data={asesor:gv('fi-asesor'),marca:MARCA_L[marca]||'',tipoServicio:tipoSvc?TIPO_SVC_L[tipoSvc]:'',fechaInicio:gv('fi-inicio-top')||gv('fi-inicio'),perfil:PM[profile]?PM[profile].name:'',producto:prodLabel(),turno:turno+'h',dias:dias+' días/sem',membresia:membLabel(),precioUnitario:'$'+fmt(esp),nombrePaciente:gv('fi-nombre'),contacto:gv('fi-contacto')};setDriveStatus('loading','guardando…');var r=await dsCall('saveCotizacion',data);if(r){showToast('✓ Cotización guardada en Drive');setDriveStatus('ok','conectado ✓');}else{showToast('Error guardando cotización','err');setDriveStatus('err','error');}}
 async function saveChecklist(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var tot=0;clEC.forEach(function(cfg){tot+=cfg.c.filter(function(c){return!!CL[c];}).length;});var nivel=tot<10?'Básico':tot<20?'Aceptable':tot<28?'Sólido':'Cinta Negra';var desglose=clEC.map(function(cfg){var d=cfg.c.filter(function(c){return!!CL[c];}).length;return cfg.l+': '+d+'/'+cfg.m;}).join(' | ');var data={asesor:gv('fi-asesor'),marca:clM?clMD[clM].label:'',score:tot,nivel:nivel,desglose:desglose,nombrePaciente:gv('fi-nombre'),objecion:clObj?clOBJ.find(function(o){return o.k===clObj;}).t:''};setDriveStatus('loading','guardando…');var r=await dsCall('saveChecklist',data);if(r){showToast('✓ Checklist guardado en Drive');setDriveStatus('ok','conectado ✓');}else{showToast('Error guardando checklist','err');setDriveStatus('err','error');}}
 async function syncDrive(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var recs=getAllPacientes();var ok=0;setDriveStatus('loading','sincronizando…');for(var i=0;i<recs.length;i++){var r=await dsCall('savePaciente',recs[i]);if(r)ok++;}showToast('✓ '+ok+' registros sincronizados a Drive');setDriveStatus('ok','conectado ✓');}
-renderPerfil();updateBtns();clBuildObj();clUpdAll();updF();pingDrive();
+// ══ LOGIN / SESIÓN ══
+var SESSION_KEY='scs_session_v2';
+var _rolSel='asesor';
+function selRol(r){_rolSel=r;document.getElementById('lr-asesor').classList.toggle('on',r==='asesor');document.getElementById('lr-supervisor').classList.toggle('on',r==='supervisor');}
+function getSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null');}catch(e){return null;}}
+function doLogin(){var name=(document.getElementById('login-name').value||'').trim();if(!name){document.getElementById('login-name').focus();document.getElementById('login-name').style.borderColor='var(--red)';return;}var sess={name:name,rol:_rolSel,ts:Date.now()};localStorage.setItem(SESSION_KEY,JSON.stringify(sess));aplicarSesion(sess);document.getElementById('login-overlay').classList.add('hidden');showToast('✓ Bienvenido, '+name);}
+function aplicarSesion(sess){if(!sess)return;_rolSel=sess.rol;
+// chip header
+var chip=document.getElementById('user-chip');if(chip){chip.style.display='flex';document.getElementById('uc-name').textContent=sess.name;document.getElementById('uc-rol').textContent='· '+(sess.rol==='supervisor'?'Supervisor':'Asesor');}
+// autorrellenar asesor en ficha
+var fa=document.getElementById('fi-asesor');if(fa&&!fa.value){fa.value=sess.name;}
+// historial: rol y nombre
+var hr=document.getElementById('hst-rol');if(hr){hr.value=sess.rol;}
+var ha=document.getElementById('hst-asesor');if(ha){ha.value=sess.rol==='asesor'?sess.name:'';}
+if(typeof onRolChange==='function')onRolChange();
+if(typeof updF==='function')updF();}
+function cambiarUsuario(){if(confirm('¿Cambiar de usuario? Se cerrará la sesión actual en este dispositivo.')){localStorage.removeItem(SESSION_KEY);location.reload();}}
+function initLogin(){var sess=getSession();if(sess){aplicarSesion(sess);document.getElementById('login-overlay').classList.add('hidden');}else{document.getElementById('login-overlay').classList.remove('hidden');var li=document.getElementById('login-name');if(li)li.focus();}}
+
+renderPerfil();updateBtns();clBuildObj();clUpdAll();updF();pingDrive();initLogin();
 </script>
 </body>
 </html>
