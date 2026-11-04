@@ -1769,6 +1769,17 @@ function cqModalidadSugerida(c){if(!c)return'';if(c.producto==='match')return'pa
   // Con mensualidad en la lista para esos días (las dos marcas, lista 2026), se sugiere la mensualidad; si no, por jornada.
   // (Antes, en Médica Sur siempre por jornada, como sus cotizaciones de PandaDoc; cambió el 29-oct-2026.)
   return c.columna!=null?'mensualidad':'por_jornada';}
+// Modalidades que corresponden a lo elegido en el Perfilador:
+//   Match / Select (cotizaciones viejas): su pago único.
+//   Por jornadas (y Urgencia): Paquete de jornadas; en Médica Sur, Por jornada × días del periodo.
+//   Membresía: Mensualidad (si la lista tiene precio para esos días por semana) o Por jornada.
+// Una cotización guardada conserva su modalidad aunque hoy no corresponda (no le cambia el precio al abrirla).
+function cqModalidadesPermitidas(c){
+  var p=c.producto==='match'?['pago_unico_match']:c.producto==='select'?['select_membresia']:
+    c.contratacion==='jornadas'?[marca==='ms'?'por_jornada':'paquete_jornadas']:
+    c.columna!=null?['mensualidad','por_jornada']:['por_jornada'];
+  if(CQ.id&&CQ.modalidadGuardada&&p.indexOf(CQ.modalidadGuardada)<0)p.push(CQ.modalidadGuardada);
+  return p;}
 function cqPrecioLista(c,mod,jornadas){
   if(!c)return{v:null,o:''};
   switch(mod){
@@ -1863,9 +1874,10 @@ function cqModalidadCambio(){CQ.modalidadManual=true;cqRecalcular(true);}
 function cqRecalcular(){
   var c=cqCalculo();if(!c)return;
   var sm=document.getElementById('cq-modalidad');
-  // Las modalidades de Match y Select solo se pueden elegir en una cotización vieja de ese producto.
-  if(sm)Array.prototype.forEach.call(sm.options,function(o){if(o.value==='pago_unico_match')o.disabled=c.producto!=='match';if(o.value==='select_membresia')o.disabled=c.producto!=='select';});
-  if(sm&&(!CQ.modalidadManual||!sm.value))sm.value=cqModalidadSugerida(c);
+  // La modalidad queda amarrada a la pestaña Turno: solo se pueden elegir las que corresponden (cqModalidadesPermitidas).
+  var perm=cqModalidadesPermitidas(c);
+  if(sm)Array.prototype.forEach.call(sm.options,function(o){if(o.value){o.disabled=perm.indexOf(o.value)<0;o.hidden=o.disabled;}});
+  if(sm&&(!CQ.modalidadManual||!sm.value||perm.indexOf(sm.value)<0))sm.value=cqModalidadSugerida(c);
   var mod=sm?sm.value:'';
   // Por jornadas: las jornadas de la pestaña Turno son los días del periodo / jornadas del paquete.
   if(c.contratacion==='jornadas'&&(mod==='paquete_jornadas'||mod==='por_jornada')&&cqNum(gv('cq-dias-periodo'))!==c.jornadas&&!CQ.cargando)cqSet('cq-dias-periodo',c.jornadas);
@@ -2073,7 +2085,7 @@ async function cqEliminar(){
   CQ.sucio=false;resetAll();setMode('q');showToast('✓ Cotización '+r.folio+' borrada');
 }
 function cqLimpiar(){
-  CQ.id=null;CQ.folio=null;CQ.version=null;CQ.estado=null;CQ.asesorNombre='';CQ.manualTextos={};CQ.precioManual=false;CQ.modalidadManual=false;CQ.protos=new Set();CQ.protosManual=false;CQ.sucio=false;
+  CQ.id=null;CQ.folio=null;CQ.version=null;CQ.estado=null;CQ.asesorNombre='';CQ.manualTextos={};CQ.precioManual=false;CQ.modalidadManual=false;CQ.modalidadGuardada=null;CQ.protos=new Set();CQ.protosManual=false;CQ.sucio=false;
   ['cq-dest-nombres','cq-dest-nombre2','cq-dest-ap','cq-dest-am','cq-dest-correo','cq-dest-tel','cq-turno-tipo','cq-modalidad','cq-dias-periodo','cq-descuento','cq-precio-acordado',
    'cq-tx-perfil','cq-tx-jornada','cq-tx-servicio','cq-tx-precio','cq-pac-nombre','cq-pac-fnac','cq-pac-dx','cq-cli-rfc','cq-cli-curp','cq-cli-cp','cq-cli-alcaldia','cq-observaciones'].forEach(function(id){cqSet(id,'');var el=document.getElementById(id);if(el)el.classList.remove('manual');});
   telSet('cq-dest-tel','');
@@ -2106,7 +2118,7 @@ function cqCargar(r){
   cqSet('cq-dest-nombres',c.dest_nombres);cqSet('cq-dest-nombre2',c.dest_segundo_nombre);
   cqSet('cq-dest-ap',c.dest_apellido_paterno||(c.dest_apellido_materno?'':c.dest_apellidos));cqSet('cq-dest-am',c.dest_apellido_materno);cqSet('cq-dest-correo',c.dest_correo);telSet('cq-dest-tel',c.dest_telefono);
   cqSet('cq-asesor-nombre',c.asesor_nombre);cqSet('cq-asesor-correo',c.asesor_correo);cqSet('cq-turno-tipo',c.turno_tipo);
-  cqSet('cq-modalidad',c.modalidad_cobro);CQ.modalidadManual=!!c.modalidad_cobro;
+  cqSet('cq-modalidad',c.modalidad_cobro);CQ.modalidadManual=!!c.modalidad_cobro;CQ.modalidadGuardada=c.modalidad_cobro||null;
   cqSet('cq-dias-periodo',c.dias_periodo);cqSet('cq-descuento',c.descuento_pct);
   CQ.precioManual=!!c.precio_acordado_manual;if(CQ.precioManual)cqSet('cq-precio-acordado',c.precio_acordado);
   CQ.protos=new Set((c.protocolos||[]).map(function(x){return x.codigo;}));CQ.protosManual=true;
