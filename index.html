@@ -1052,7 +1052,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="sec-lbl">Servicio (carátula)</div>
 <div class="g4">
 <div class="fl"><label>4. Fecha de inicio *</label><input type="date" id="ct-fini"></div>
-<div class="fl"><label>Fecha de término</label><input type="date" id="ct-ffin"></div>
+<div class="fl"><label>Fecha de término *</label><input type="date" id="ct-ffin"><div class="cq-hint">Obligatoria; no se imprime en el contrato</div></div>
 <div class="fl"><label>5. Jornadas contratadas *</label><input type="number" id="ct-jornadas" min="0" step="0.5"></div>
 <div class="fl"><label>7. Perfil del profesional *</label><input type="text" id="ct-perfil"></div>
 </div>
@@ -2330,7 +2330,7 @@ function cqCerrarModal(){document.getElementById('cq-modal').classList.remove('o
 var CT={id:null,cotizacion:null,sucio:false,cargando:false};
 // Campo del documento (faltantes de la BD) → inputs a resaltar. Anexos: prefijo ai. / nr.
 const CT_CAMPOS={pac_nombre:['ct-pac-nombre'],pac_edad:['ct-pac-edad','ct-pac-fnac'],pac_diagnostico:['ct-pac-dx'],pac_estado_clinico:['ct-pac-ec'],
-  fecha_inicio:['ct-fini'],jornadas_contratadas:['ct-jornadas'],horarios:['ct-horarios'],texto_perfil:['ct-perfil'],servicio_solicitado:['ct-servicio'],
+  fecha_inicio:['ct-fini'],fecha_termino:['ct-ffin'],jornadas_contratadas:['ct-jornadas'],horarios:['ct-horarios'],texto_perfil:['ct-perfil'],servicio_solicitado:['ct-servicio'],
   srv_domicilio:['ct-srv-calle','ct-srv-numero'],precio_acordado:['ct-precio'],subtotal:['ct-total'],iva:['ct-total'],total:['ct-total'],
   cuenta_expediente:['ct-expediente'],testigo_nombre:['ct-testigo'],testigo_correo:['ct-testigo-correo'],cli_nombre:['ct-cli-nombres','ct-cli-ap'],cli_rfc:['ct-cli-rfc','ct-cli-curp'],cli_curp:['ct-cli-curp'],
   cli_domicilio:['ct-cli-calle'],cli_telefono:['ct-cli-tel-num'],cli_correo:['ct-cli-correo'],lugar_firma:['ct-lugar'],fecha_emision:['ct-femision'],
