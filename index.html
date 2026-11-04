@@ -591,17 +591,29 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="tcard" id="tc18" onclick="setTurno(18)"><div class="tn">🌙 18 horas</div><div class="th">—</div></div>
 <div class="tcard" id="tc24" onclick="setTurno(24)"><div class="tn">⏰ 24 horas</div><div class="th">—</div></div>
 </div>
-<div style="margin-top:22px">
-<div class="sec-lbl">📅 Días de servicio por semana</div>
-<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px">
-<div class="tcard" id="d1" onclick="setDias(1)"><div class="tn">1</div><div class="th">día</div></div>
-<div class="tcard" id="d2" onclick="setDias(2)"><div class="tn">2</div><div class="th">días</div></div>
-<div class="tcard" id="d3" onclick="setDias(3)"><div class="tn">3</div><div class="th">días</div></div>
-<div class="tcard" id="d4" onclick="setDias(4)"><div class="tn">4</div><div class="th">días</div></div>
-<div class="tcard" id="d5" onclick="setDias(5)"><div class="tn">5</div><div class="th">días</div></div>
-<div class="tcard" id="d6" onclick="setDias(6)"><div class="tn">6</div><div class="th">días</div></div>
-<div class="tcard" id="d7" onclick="setDias(7)"><div class="tn">7</div><div class="th">días</div></div>
+<div style="margin-top:22px" id="contrato-wrap">
+<div class="sec-lbl">🧾 Forma de contratación</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px">
+<div class="tcard" id="ct-memb" onclick="setContrato('membresia')"><div class="tn">📆 Membresía</div><div class="th">Días de la semana · precio de lista</div></div>
+<div class="tcard" id="ct-jorn" onclick="setContrato('jornadas')"><div class="tn">🔢 Por jornadas</div><div class="th">Número de jornadas · precio de urgencia</div></div>
 </div>
+</div>
+<div style="margin-top:18px;display:none" id="dsem-wrap">
+<div class="sec-lbl">📅 Días de servicio <span id="dsem-cuenta" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--teal-d)"></span></div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px">
+<div class="tcard" id="dw-lun" onclick="togDia('lun')"><div class="tn">Lun</div><div class="th">lunes</div></div>
+<div class="tcard" id="dw-mar" onclick="togDia('mar')"><div class="tn">Mar</div><div class="th">martes</div></div>
+<div class="tcard" id="dw-mie" onclick="togDia('mie')"><div class="tn">Mié</div><div class="th">miércoles</div></div>
+<div class="tcard" id="dw-jue" onclick="togDia('jue')"><div class="tn">Jue</div><div class="th">jueves</div></div>
+<div class="tcard" id="dw-vie" onclick="togDia('vie')"><div class="tn">Vie</div><div class="th">viernes</div></div>
+<div class="tcard" id="dw-sab" onclick="togDia('sab')"><div class="tn">Sáb</div><div class="th">sábado</div></div>
+<div class="tcard" id="dw-dom" onclick="togDia('dom')"><div class="tn">Dom</div><div class="th">domingo</div></div>
+</div>
+</div>
+<div style="margin-top:18px;display:none" id="jorn-wrap">
+<div class="sec-lbl">🔢 Jornadas contratadas</div>
+<div class="fl" style="max-width:260px"><label>Número de jornadas *</label><input type="number" id="jorn-num" min="1" step="1" placeholder="Ej. 10" oninput="setJornadas(this.value)"></div>
+<div class="cq-hint" id="jorn-hint">Días seguidos desde la fecha de inicio. Cada jornada se cobra con la lista de urgencia.</div>
 </div>
 <div class="step-nav">
 <button class="btn btn-ghost" id="btn4-back" onclick="turnoBack()">← Atrás</button>
@@ -1266,6 +1278,12 @@ const MARCA_L={scs:'Salus Care Solutions',ms:'Médica Sur en tu casa',polar:'Hos
 const DIAS_A_COL={1:0,2:1,3:null,4:null,5:2,6:3,7:4};
 const COL_DIAS_MES=[4.3,8.7,21.7,26.1,30.4];const COL_LABEL=['4.3 días/mes','8.7 días/mes','21.7 días/mes','26.1 días/mes','30.4 días/mes'];
 const sel={};let marca=null,producto=null,variante=null,memb=null,turno=null,dias=null,step=0,tipoSvc=null;
+// Forma de contratación (pestaña Turno, 4-nov-2026): «membresia» = días de la semana marcados (dias = cuántos) con la lista
+// normal; «jornadas» = número fijo de jornadas seguidas desde la fecha de inicio, con la lista de urgencia (+15 % en Salus).
+// Urgencia / Guardia Hospitalaria solo se contrata por jornadas.
+let contrato=null,jornadas=null,diasSel=[];
+const DIAS_SEMANA=['lun','mar','mie','jue','vie','sab','dom'];
+const DIA_CORTO={lun:'lun',mar:'mar',mie:'mié',jue:'jue',vie:'vie',sab:'sáb',dom:'dom'};
 const TIPO_SVC_L={guardia:'Guardia Hospitalaria / Urgencia',posthosp:'Post-Hospitalario / Post-Operatorio',adultomayor:'Adulto Mayor',bebe:'Bebé (Neonatal)'};
 function setTipoSvc(t){tipoSvc=t;['guardia','posthosp','adultomayor','bebe'].forEach(x=>document.getElementById('ts-'+x).classList.toggle('on',x===t));var fs=document.getElementById('fi-tiposvc');if(fs&&TIPO_SVC_L[t]){fs.value=TIPO_SVC_L[t];if(typeof updF==='function')updF();}validateStep0();}
 function onFechaInicioTop(){var v=document.getElementById('fi-inicio-top').value;var fi=document.getElementById('fi-inicio');if(fi){fi.value=v;}if(typeof updF==='function')updF();validateStep0();}
@@ -1275,7 +1293,7 @@ function isSCS(){return marca==='scs';}
 function goStep(n){if(n>step){for(let s=step;s<n;s++){if(s===3&&!isSCS())continue;if(!canLeave(s))return;}}step=n;[0,1,2,3,4,5].forEach(i=>document.getElementById('step'+i).style.display=i===n?'block':'none');updateWizardTabs();if(n===4)prepTurnoStep();if(n===5)renderCotiz();}
 function marcaNext(){if(!marca)return;goStep(isSCS()?3:4);}
 function turnoBack(){goStep(isSCS()?3:2);}
-function canLeave(s){if(s===0){var f=document.getElementById('fi-inicio-top');return tipoSvc!==null&&f&&f.value!=='';}if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&dias!==null;return true;}
+function canLeave(s){if(s===0){var f=document.getElementById('fi-inicio-top');return tipoSvc!==null&&f&&f.value!=='';}if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&(contrato==='jornadas'?jornadas>=1:contrato==='membresia'&&dias!==null);return true;}
 function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[0,1,2,3,4,5].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
 function updateBtns(){['btn1','btn2','btn3','btn4'].forEach((id,i)=>{const b=document.getElementById(id);if(b)b.disabled=!canLeave(i+1);});}
 function tog(el,id,lv,label){el.classList.toggle('on');if(el.classList.contains('on'))sel[id]={lv,label};else delete sel[id];renderPerfil();updateBtns();}
@@ -1287,24 +1305,45 @@ function setVariant(v){variante=v;document.getElementById('vb-basico').classList
 function setMemb(m){memb=m;['trim','sem','anual'].forEach(x=>document.getElementById('mb-'+x).classList.toggle('on',x===m));updateBtns();}
 // Turno de 24 h: Salus y las marcas con precio de 24 h en ESTANDAR. Salus y Médica Sur: 2 × el de 12 h; Médica Sur,
 // como en las cotizaciones que envía desde su cuenta de PandaDoc (revisadas el 21-oct-2026).
-function esGuardiaCorta(){return tipoSvc==='guardia'&&!!GUARDIA_CORTA[marca];}
+// Lista de urgencia: la guardia y cualquier servicio contratado por jornadas.
+function esGuardiaCorta(){return(tipoSvc==='guardia'||contrato==='jornadas')&&!!GUARDIA_CORTA[marca];}
 // Precio por servicio c/IVA: la lista de guardias cortas si el servicio es Urgencia / Guardia Hospitalaria (solo Salus), si no la base
 function precioServicio(pk,h){var t=esGuardiaCorta()?GUARDIA_CORTA:ESTANDAR;return t[marca]&&t[marca][pk]?t[marca][pk][h]:null;}
 function con24(){return isSCS()||Object.values(ESTANDAR[marca]||{}).some(p=>p[24]!=null);}
-function prepTurnoStep(){const t24=document.getElementById('tc24');if(!con24()){t24.classList.add('disabled');if(turno===24){turno=null;t24.classList.remove('on');}}else t24.classList.remove('disabled');renderTurnoCards();}
+function prepTurnoStep(){const t24=document.getElementById('tc24');if(!con24()){t24.classList.add('disabled');if(turno===24){turno=null;t24.classList.remove('on');}}else t24.classList.remove('disabled');
+  if(tipoSvc==='guardia'&&contrato!=='jornadas')setContrato('jornadas');else pintarContrato();renderTurnoCards();}
+function setContrato(m){if(tipoSvc==='guardia')m='jornadas';contrato=m;dias=m==='membresia'&&diasSel.length?diasSel.length:null;pintarContrato();renderTurnoCards();updateBtns();}
+function pintarContrato(){
+  var g=tipoSvc==='guardia';
+  document.getElementById('contrato-wrap').style.display=g?'none':'';
+  document.getElementById('ct-memb').classList.toggle('on',contrato==='membresia');
+  document.getElementById('ct-jorn').classList.toggle('on',contrato==='jornadas');
+  document.getElementById('dsem-wrap').style.display=contrato==='membresia'?'':'none';
+  document.getElementById('jorn-wrap').style.display=contrato==='jornadas'?'':'none';
+  DIAS_SEMANA.forEach(function(d){document.getElementById('dw-'+d).classList.toggle('on',diasSel.indexOf(d)>=0);});
+  var n=diasSel.length;document.getElementById('dsem-cuenta').textContent=n?'· '+n+' día'+(n>1?'s':'')+' por semana':'';
+  var ji=document.getElementById('jorn-num');if(ji&&String(jornadas||'')!==ji.value)ji.value=jornadas||'';
+  var h=document.getElementById('jorn-hint');if(h)h.textContent=(g?'Urgencia / Guardia se contrata solo por jornadas. ':'')+'Días seguidos desde la fecha de inicio. Cada jornada se cobra con la lista de urgencia'+(GUARDIA_CORTA[marca]?' (+15 %)':'')+'.';}
+function togDia(d){var i=diasSel.indexOf(d);if(i>=0)diasSel.splice(i,1);else diasSel.push(d);diasSel.sort(function(a,b){return DIAS_SEMANA.indexOf(a)-DIAS_SEMANA.indexOf(b);});
+  dias=diasSel.length||null;pintarContrato();updateBtns();}
+function setJornadas(v){var n=parseInt(v,10);jornadas=n>=1?n:null;updateBtns();}
+// Texto de los días: «lun, mié y vie».
+function diasTexto(lista){var l=(lista||[]).map(function(d){return DIA_CORTO[d]||d;});return l.length>1?l.slice(0,-1).join(', ')+' y '+l[l.length-1]:l.join('');}
 function fmt(n){return n!=null?Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2}):'N/D';}
 function renderTurnoCards(){const profile=getProfile();const pk=profile;const hint=document.getElementById('turno-hint');const perfiles=[{k:'c',label:'Cuidadora'},{k:'a',label:'Auxiliar Enf.'},{k:'e',label:'Enfermera'}];const ts=[8,12,18,24];let tabla='<div style="overflow-x:auto;margin-bottom:18px"><table style="width:100%;border-collapse:collapse;font-size:.76rem"><thead><tr style="background:var(--tag-bg)"><th style="padding:7px 11px;text-align:left;border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:.64rem;text-transform:uppercase">Perfil</th>'+ts.map(h=>{const av=con24()||(h!==24);return'<th style="padding:7px 11px;text-align:center;border:1px solid var(--border);color:'+(av?'var(--teal-d)':'var(--muted)')+';font-weight:600;font-size:.64rem;text-transform:uppercase">'+h+'h'+(!av?' *':'')+'</th>';}).join('')+'</tr></thead><tbody>'+perfiles.map(p=>'<tr style="'+(p.k===pk?'background:#E6F5F7;font-weight:600':'')+'"><td style="padding:7px 11px;border:1px solid var(--border)">'+(p.k===pk?'<span style="color:var(--teal);margin-right:3px">★</span>':'')+p.label+'</td>'+ts.map(h=>{const av=con24()||(h!==24);const price=av?precioServicio(p.k,h):null;return'<td style="padding:7px 11px;text-align:center;border:1px solid var(--border);color:'+(!av?'var(--muted)':p.k===pk?'var(--teal-d)':'var(--text)')+'">'+(price!=null?'$'+fmt(price):'—')+'</td>';}).join('')+'</tr>').join('')+'</tbody></table>'+(!isSCS()?'<p style="font-size:.63rem;color:var(--muted);margin-top:3px">* Turno 24h no disponible en esta marca.</p>':'')+'</div>';
 if(!isSCS())hint.innerHTML='<strong>'+MARCA_L[marca]+'</strong> · Precios c/IVA. Selecciona turno:'+tabla;else hint.innerHTML='<strong>SCS</strong> · Producto: <strong>'+prodLabel()+'</strong>.'+(esGuardiaCorta()?' <strong>Guardia corta: lista +15%</strong>.':'')+' Selecciona turno:'+tabla;
 ts.forEach(h=>{const av=con24()||(h!==24);const price=av?precioServicio(pk,h):null;const card=document.getElementById('tc'+h);card.querySelector('.th').innerHTML=price!=null?'$'+fmt(price)+' MXN':'N/D';});}
 function setTurno(h){turno=h;[8,12,18,24].forEach(x=>document.getElementById('tc'+x).classList.toggle('on',x===h));updateBtns();}
-function setDias(d){dias=d;[1,2,3,4,5,6,7].forEach(x=>document.getElementById('d'+x).classList.toggle('on',x===d));updateBtns();}
+// Cotizaciones guardadas antes del 4-nov-2026: solo traen cuántos días por semana (sin cuáles).
+function setDias(d){contrato='membresia';dias=d;if(diasSel.length!==d)diasSel=DIAS_SEMANA.slice(0,d);pintarContrato();updateBtns();}
 function renderCotiz(){const profile=getProfile();const pk=profile;const main=document.getElementById('cotiz-main');const aside=document.getElementById('cotiz-aside');var fIni=document.getElementById('fi-inicio-top')?document.getElementById('fi-inicio-top').value:'';var fIniFmt=fIni?new Date(fIni+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}):'—';
-aside.innerHTML='<div class="cotiz-destacado">'+(tipoSvc?'<div class="cd-row"><span class="cd-ico">🔖</span><div><div class="cd-l">Tipo de servicio (Job)</div><div class="cd-v">'+TIPO_SVC_L[tipoSvc]+'</div></div></div>':'')+'<div class="cd-row"><span class="cd-ico">📅</span><div><div class="cd-l">Fecha probable de inicio</div><div class="cd-v">'+fIniFmt+'</div></div></div></div><div class="summary-box"><div class="sb-title">Resumen</div><div class="sb-row"><span class="sb-l">Perfil</span><span class="sb-v">'+PM[profile].icon+' '+PM[profile].name+'</span></div><div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">'+MARCA_L[marca]+'</span></div>'+(isSCS()?'<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">'+prodLabel()+'</span></div>':'')+'<div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">'+turno+'h</span></div><div class="sb-row"><span class="sb-l">Días/sem</span><span class="sb-v">'+dias+' día'+(dias>1?'s':'')+'</span></div></div><div class="guardias-box"><strong>Guardias adicionales c/IVA</strong><br>Cuidadora: $928 (8-12h)/$1,392 (18-24h)<br>Auxiliar: $1,160 (8-12h)/$1,624 (18-24h)<br>Enfermería: $1,392 (8-12h)/$2,088 (18-24h)</div><div style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="saveCotizacion()">☁️ Guardar cotización en Drive</button></div>';
+aside.innerHTML='<div class="cotiz-destacado">'+(tipoSvc?'<div class="cd-row"><span class="cd-ico">🔖</span><div><div class="cd-l">Tipo de servicio (Job)</div><div class="cd-v">'+TIPO_SVC_L[tipoSvc]+'</div></div></div>':'')+'<div class="cd-row"><span class="cd-ico">📅</span><div><div class="cd-l">Fecha probable de inicio</div><div class="cd-v">'+fIniFmt+'</div></div></div></div><div class="summary-box"><div class="sb-title">Resumen</div><div class="sb-row"><span class="sb-l">Perfil</span><span class="sb-v">'+PM[profile].icon+' '+PM[profile].name+'</span></div><div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">'+MARCA_L[marca]+'</span></div>'+(isSCS()?'<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">'+prodLabel()+'</span></div>':'')+'<div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">'+turno+'h</span></div>'+(contrato==='jornadas'?'<div class="sb-row"><span class="sb-l">Contratación</span><span class="sb-v">'+jornadas+' jornada'+(jornadas>1?'s':'')+'</span></div>':'<div class="sb-row"><span class="sb-l">Días/sem</span><span class="sb-v">'+dias+' · '+diasTexto(diasSel)+'</span></div>')+'</div><div class="guardias-box"><strong>Guardias adicionales c/IVA</strong><br>Cuidadora: $928 (8-12h)/$1,392 (18-24h)<br>Auxiliar: $1,160 (8-12h)/$1,624 (18-24h)<br>Enfermería: $1,392 (8-12h)/$2,088 (18-24h)</div><div style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="saveCotizacion()">☁️ Guardar cotización en Drive</button></div>';
 let html='';if(!isSCS()){html+=precioBlock(pk,PM[profile].name);}else if(producto==='match'){const recl=MATCH_PRICES[pk],plan=2900,total=recl+plan;html+='<div class="match-note note-green"><strong>Salus Match — Pago único · Garantía 30 días</strong><br>Reclutamiento + Valoración + Plan de cuidados + Seguridad del hogar.</div><div class="price-breakdown"><div class="pb-head">Desglose pago único</div><div class="pb-row"><span class="pb-l">Reclutamiento ('+PM[profile].name+')</span><span class="pb-v">$'+fmt(recl)+'</span></div><div class="pb-row"><span class="pb-l">Valoración + Plan + Seguridad</span><span class="pb-v">$'+fmt(plan)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total c/IVA</strong></span><span class="pb-v hi">$'+fmt(total)+' MXN</span></div></div>';html+=precioBlock(pk,PM[profile].name);}else if(producto==='select'){const isB=variante==='basico';const up=isB?SELECT_BASICO:MATCH_PRICES[pk];const disc=MEMB_DISC[memb];const mML=MEMB_MENSUAL[pk]['trim'];const mMD=MEMB_MENSUAL[pk][memb];const meses=MEMB_MES[memb];const tM=mMD*meses;const tC=up+tM;html+='<div class="match-note note-green"><strong>Salus Select '+(isB?'Básico':'Plus')+' · '+membLabel()+'</strong><br>'+(isB?'Solo valoración clínica + membresía.':'Reclutamiento + valoración + membresía.')+(disc>0?' <strong>'+(disc*100)+'% dto.</strong> en membresía.':'')+'</div><div class="price-breakdown"><div class="pb-head">Desglose</div><div class="pb-row"><span class="pb-l">'+(isB?'Valoración + Plan':'Reclutamiento + Valoración + Plan')+'</span><span class="pb-v">$'+fmt(up)+'</span></div><div class="pb-row"><span class="pb-l">Membresía '+(disc>0?'($'+fmt(mML)+'/mes → $'+fmt(mMD)+'/mes)':'')+' × '+meses+' meses</span><span class="pb-v">$'+fmt(tM)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total '+meses+' meses c/IVA</strong></span><span class="pb-v hi">$'+fmt(tC)+' MXN</span></div></div><div class="memb-breakdown"><div class="mb-head"><span>Beneficios '+membLabel()+'</span></div><div class="mb-row"><span class="mb-l">Guardias incluidas</span><span class="mb-v">'+GUARDIAS_INC[memb]+' día(s)</span></div><div class="mb-row"><span class="mb-l">Serenity + SOFIA</span><span class="mb-v">✓</span></div><div class="mb-row"><span class="mb-l">Dto. re-reclutamiento</span><span class="mb-v">'+(memb==='trim'?'15%':memb==='sem'?'25%':'50%')+'</span></div><div class="mb-row"><span class="mb-l">Dto. guardias adicionales</span><span class="mb-v">'+(memb==='trim'?'10%':memb==='sem'?'15%':'20%')+'</span></div></div>';html+=precioBlock(pk,PM[profile].name);}else if(producto==='premium'){html+='<div class="match-note note-purple"><strong>Salus Premium — Todo incluido</strong><br>Salus emplea, supervisa y gestiona. Riesgo laboral 100% Salus.</div>';html+=precioBlock(pk,PM[profile].name);}main.innerHTML=html;}
-function precioBlock(pk,pl){const esp=precioServicio(pk,turno),base=ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][turno]:null;if(!esp)return'<p style="font-size:.7rem;color:var(--muted);margin-top:8px">⚠️ No disponible para esta marca/turno.</p>';const data=MEMB[marca]&&MEMB[marca][pk]?MEMB[marca][pk][turno]:null;const ci=DIAS_A_COL[dias];let html='<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+dias+'d/sem</strong></div><div class="price-hero"><div class="ph-label">Precio por servicio c/IVA'+(esGuardiaCorta()?' · Guardia corta (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div>';if(ci===null){const sb=data&&data.sd?data.sd[1]:null;const sa=data&&data.sd?data.sd[2]:null;html+='<div class="price-breakdown"><div class="pb-head">Referencia mensual</div><div class="pb-row"><span class="pb-l">~8.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sb)+' MXN</span></div><div class="pb-row"><span class="pb-l">~21.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sa)+' MXN</span></div></div>';return html;}const dm=COL_DIAS_MES[ci];const cl=COL_LABEL[ci];const pSD=data&&data.sd?data.sd[ci]:null;const pCD=data&&data.cd?data.cd[ci]:null;const td=pCD!=null&&pCD!==pSD;const dp=td?Math.round((1-pCD/pSD)*100):0;html+='<div class="price-breakdown"><div class="pb-head">Precio mensual · '+cl+'</div><div class="pb-row"><span class="pb-l">Días al mes</span><span class="pb-v">'+dm+'</span></div><div class="pb-row"><span class="pb-l">Precio unitario'+(esGuardiaCorta()?' (lista base)':'')+'</span><span class="pb-v">$'+fmt(base)+'</span></div><div class="pb-row"><span class="pb-l">Mensual sin dto.</span><span class="pb-v">$'+fmt(pSD)+'</span></div>';if(td)html+='<div class="pb-row"><span class="pb-l">Dto. frecuencia</span><span class="pb-v" style="color:var(--teal)">−'+dp+'% (−$'+fmt(pSD-pCD)+')</span></div><div class="pb-row"><span class="pb-l"><strong>Mensual con dto.</strong></span><span class="pb-v hi">$'+fmt(pCD)+' MXN</span></div>';else html+='<div class="pb-row"><span class="pb-l"><strong>Precio mensual</strong></span><span class="pb-v hi">$'+fmt(pSD)+' MXN</span></div>';html+='</div>';return html;}
+function precioBlock(pk,pl){const esp=precioServicio(pk,turno),base=ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][turno]:null;if(!esp)return'<p style="font-size:.7rem;color:var(--muted);margin-top:8px">⚠️ No disponible para esta marca/turno.</p>';
+if(contrato==='jornadas')return'<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+jornadas+' jornada'+(jornadas>1?'s':'')+'</strong></div><div class="price-hero"><div class="ph-label">Precio por jornada c/IVA'+(esGuardiaCorta()?' · lista de urgencia (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div><div class="price-breakdown"><div class="pb-head">Por jornadas · días seguidos</div><div class="pb-row"><span class="pb-l">Jornadas</span><span class="pb-v">'+jornadas+'</span></div><div class="pb-row"><span class="pb-l">Precio por jornada</span><span class="pb-v">$'+fmt(esp)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total c/IVA</strong></span><span class="pb-v hi">$'+fmt(Math.round(esp*jornadas*100)/100)+' MXN</span></div></div>';const data=MEMB[marca]&&MEMB[marca][pk]?MEMB[marca][pk][turno]:null;const ci=DIAS_A_COL[dias];let html='<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+dias+'d/sem ('+diasTexto(diasSel)+')</strong></div><div class="price-hero"><div class="ph-label">Precio por servicio c/IVA'+(esGuardiaCorta()?' · Guardia corta (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div>';if(ci===null){const sb=data&&data.sd?data.sd[1]:null;const sa=data&&data.sd?data.sd[2]:null;html+='<div class="price-breakdown"><div class="pb-head">Referencia mensual</div><div class="pb-row"><span class="pb-l">~8.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sb)+' MXN</span></div><div class="pb-row"><span class="pb-l">~21.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sa)+' MXN</span></div></div>';return html;}const dm=COL_DIAS_MES[ci];const cl=COL_LABEL[ci];const pSD=data&&data.sd?data.sd[ci]:null;const pCD=data&&data.cd?data.cd[ci]:null;const td=pCD!=null&&pCD!==pSD;const dp=td?Math.round((1-pCD/pSD)*100):0;html+='<div class="price-breakdown"><div class="pb-head">Precio mensual · '+cl+'</div><div class="pb-row"><span class="pb-l">Días al mes</span><span class="pb-v">'+dm+'</span></div><div class="pb-row"><span class="pb-l">Precio unitario'+(esGuardiaCorta()?' (lista base)':'')+'</span><span class="pb-v">$'+fmt(base)+'</span></div><div class="pb-row"><span class="pb-l">Mensual sin dto.</span><span class="pb-v">$'+fmt(pSD)+'</span></div>';if(td)html+='<div class="pb-row"><span class="pb-l">Dto. frecuencia</span><span class="pb-v" style="color:var(--teal)">−'+dp+'% (−$'+fmt(pSD-pCD)+')</span></div><div class="pb-row"><span class="pb-l"><strong>Mensual con dto.</strong></span><span class="pb-v hi">$'+fmt(pCD)+' MXN</span></div>';else html+='<div class="pb-row"><span class="pb-l"><strong>Precio mensual</strong></span><span class="pb-v hi">$'+fmt(pSD)+' MXN</span></div>';html+='</div>';return html;}
 function prodLabel(){if(producto==='match')return'Salus Match';if(producto==='select')return'Salus Select '+(variante==='basico'?'Básico':'Plus')+(memb?' · '+membLabel():'');if(producto==='premium')return'Salus Premium';return'—';}
 function membLabel(){return{trim:'Trimestral',sem:'Semestral',anual:'Anual'}[memb]||'—';}
-function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;tipoSvc=null;document.querySelectorAll('.tsvc-card,.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');var ft=document.getElementById('fi-inicio-top');if(ft)ft.value='';var b0=document.getElementById('btn0');if(b0)b0.disabled=true;renderPerfil();updateBtns();step=0;goStep(0);}
+function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;tipoSvc=null;contrato=null;jornadas=null;diasSel=[];var jn=document.getElementById('jorn-num');if(jn)jn.value='';['dsem-wrap','jorn-wrap'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});document.querySelectorAll('.tsvc-card,.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');var ft=document.getElementById('fi-inicio-top');if(ft)ft.value='';var b0=document.getElementById('btn0');if(b0)b0.disabled=true;renderPerfil();updateBtns();step=0;goStep(0);}
 function setMode(m){document.getElementById('mode-p').style.display=m==='p'?'block':'none';document.getElementById('mode-c').style.display=m==='c'?'block':'none';document.getElementById('mode-h').style.display=m==='h'?'block':'none';document.getElementById('mt-p').classList.toggle('active',m==='p');document.getElementById('mt-c').classList.toggle('active',m==='c');document.getElementById('mt-h').classList.toggle('active',m==='h');if(m==='c')clUpdAll();if(m==='h')renderHistorial();}
 var CL={},clM=null,clObj=null,clPS=[];
 var clSvcN=Math.floor(Math.random()*90000)+10000;
@@ -1356,7 +1395,7 @@ function exportCSV(){var arr=getAllPacientes();if(!arr.length){showToast('No hay
 async function dsCall(action,data){if(!APPS_SCRIPT_URL)return null;try{var r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,data:data})});var j=await r.json();return j.success?j.result:null;}catch(e){return null;}}
 function setDriveStatus(state,msg){var dot=document.getElementById('ds-dot');var txt=document.getElementById('ds-txt');if(dot)dot.className='ds-dot'+(state?' '+state:'');if(txt)txt.textContent='Drive: '+msg;}
 async function pingDrive(){if(!APPS_SCRIPT_URL){setDriveStatus('','pendiente de configurar');return;}setDriveStatus('loading','conectando…');var r=await dsCall('ping',{});if(r)setDriveStatus('ok','conectado ✓');else setDriveStatus('err','sin conexión');}
-async function saveCotizacion(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var profile=getProfile();var pk=profile;var esp=precioServicio(pk,turno);var data={asesor:gv('fi-asesor'),marca:MARCA_L[marca]||'',tipoServicio:tipoSvc?TIPO_SVC_L[tipoSvc]:'',fechaInicio:gv('fi-inicio-top')||gv('fi-inicio'),perfil:PM[profile]?PM[profile].name:'',producto:prodLabel(),turno:turno+'h',dias:dias+' días/sem',membresia:membLabel(),precioUnitario:'$'+fmt(esp),nombrePaciente:gv('fi-nombre'),contacto:gv('fi-contacto')};setDriveStatus('loading','guardando…');var r=await dsCall('saveCotizacion',data);if(r){showToast('✓ Cotización guardada en Drive');setDriveStatus('ok','conectado ✓');}else{showToast('Error guardando cotización','err');setDriveStatus('err','error');}}
+async function saveCotizacion(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var profile=getProfile();var pk=profile;var esp=precioServicio(pk,turno);var data={asesor:gv('fi-asesor'),marca:MARCA_L[marca]||'',tipoServicio:tipoSvc?TIPO_SVC_L[tipoSvc]:'',fechaInicio:gv('fi-inicio-top')||gv('fi-inicio'),perfil:PM[profile]?PM[profile].name:'',producto:prodLabel(),turno:turno+'h',dias:contrato==='jornadas'?jornadas+' jornadas':dias+' días/sem ('+diasTexto(diasSel)+')',membresia:membLabel(),precioUnitario:'$'+fmt(esp),nombrePaciente:gv('fi-nombre'),contacto:gv('fi-contacto')};setDriveStatus('loading','guardando…');var r=await dsCall('saveCotizacion',data);if(r){showToast('✓ Cotización guardada en Drive');setDriveStatus('ok','conectado ✓');}else{showToast('Error guardando cotización','err');setDriveStatus('err','error');}}
 async function saveChecklist(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var tot=0;clEC.forEach(function(cfg){tot+=cfg.c.filter(function(c){return!!CL[c];}).length;});var nivel=tot<10?'Básico':tot<20?'Aceptable':tot<28?'Sólido':'Cinta Negra';var desglose=clEC.map(function(cfg){var d=cfg.c.filter(function(c){return!!CL[c];}).length;return cfg.l+': '+d+'/'+cfg.m;}).join(' | ');var data={asesor:gv('fi-asesor'),marca:clM?clMD[clM].label:'',score:tot,nivel:nivel,desglose:desglose,nombrePaciente:gv('fi-nombre'),objecion:clObj?clOBJ.find(function(o){return o.k===clObj;}).t:''};setDriveStatus('loading','guardando…');var r=await dsCall('saveChecklist',data);if(r){showToast('✓ Checklist guardado en Drive');setDriveStatus('ok','conectado ✓');}else{showToast('Error guardando checklist','err');setDriveStatus('err','error');}}
 async function syncDrive(){if(!APPS_SCRIPT_URL){showToast('⚠️ Configura la URL del Apps Script primero','err');return;}var recs=getAllPacientes();var ok=0;setDriveStatus('loading','sincronizando…');for(var i=0;i<recs.length;i++){var r=await dsCall('savePaciente',recs[i]);if(r)ok++;}showToast('✓ '+ok+' registros sincronizados a Drive');setDriveStatus('ok','conectado ✓');}
 // ══ LOGIN / SESIÓN ══
@@ -1701,12 +1740,14 @@ function cqLlenarCatalogos(){
 
 // ── Cálculo con las tablas del código (misma lógica que renderCotiz / precioBlock) ──
 function cqCalculo(){
-  var profile=getProfile();if(!profile||!marca||!turno||!dias)return null;
-  var pk=profile;
+  var profile=getProfile();if(!profile||!marca||!turno||!canLeave(4))return null;
+  var pk=profile,porJ=contrato==='jornadas';
   var esp=precioServicio(pk,turno),lista=esGuardiaCorta()?'GUARDIA_CORTA':'ESTANDAR';
   var data=MEMB[marca]&&MEMB[marca][pk]?MEMB[marca][pk][turno]:null;
-  var ci=DIAS_A_COL[dias];
-  var r={marca:marca,perfil:profile,perfil_precio:pk,turno:turno,dias:dias,producto:isSCS()?producto:null,variante:isSCS()?variante:null,memb:isSCS()?memb:null,
+  // Por jornadas no hay mensualidad: se cobra cada jornada con la lista de urgencia.
+  var ci=porJ?null:DIAS_A_COL[dias];
+  var r={marca:marca,perfil:profile,perfil_precio:pk,turno:turno,dias:porJ?null:dias,contratacion:contrato,jornadas:porJ?jornadas:null,
+    dias_lista:porJ?null:diasSel.slice(),producto:isSCS()?producto:null,variante:isSCS()?variante:null,memb:isSCS()?memb:null,
     precio_servicio:esp==null?null:esp,lista_servicio:lista,columna:ci==null?null:ci,dias_mes:ci==null?null:COL_DIAS_MES[ci],
     mensual_sin_dto:ci!=null&&data&&data.sd?data.sd[ci]:null,mensual_con_dto:ci!=null&&data&&data.cd?data.cd[ci]:null};
   if(r.mensual_sin_dto!=null&&r.mensual_con_dto!=null&&r.mensual_con_dto!==r.mensual_sin_dto)r.dto_frecuencia_pct=Math.round((1-r.mensual_con_dto/r.mensual_sin_dto)*100);
@@ -1716,6 +1757,8 @@ function cqCalculo(){
   return r;
 }
 function cqModalidadSugerida(c){if(!c)return'';if(c.producto==='match')return'pago_unico_match';if(c.producto==='select')return'select_membresia';
+  // Por jornadas: el total de las jornadas (Médica Sur lo expresa como precio por día × días del periodo).
+  if(c.contratacion==='jornadas')return marca==='ms'?'por_jornada':'paquete_jornadas';
   // La guardia es un servicio corto: se cobra por jornada (en Salus, con la lista +15 %).
   if(tipoSvc==='guardia'||c.lista_servicio==='GUARDIA_CORTA')return'por_jornada';
   // Con mensualidad en la lista para esos días (las dos marcas, lista 2026), se sugiere la mensualidad; si no, por jornada.
@@ -1734,15 +1777,16 @@ function cqPrecioLista(c,mod,jornadas){
 }
 function cqTextosAuto(c,mod,precio,tipo,jornadas){
   var jornada=c.turno+' horas'+(tipo==='nocturno'?' nocturnas':tipo==='diurno'?' diurnas':'');
-  var dsem=c.dias+' día'+(c.dias>1?'s':'')+'/semana';
+  var porJ=c.contratacion==='jornadas';
+  var dsem=porJ?(c.jornadas||'—')+' jornadas seguidas':c.dias+' día'+(c.dias>1?'s':'')+'/semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':'');
   var servicio={mensualidad:(c.producto==='premium'?'Membresía mensual':'Mensualidad')+' · '+dsem,por_jornada:'Por jornada · '+dsem,
-    paquete_jornadas:'Paquete de '+(jornadas||'—')+' jornadas',pago_unico_match:'Salus Match · pago único',select_membresia:prodLabel()}[mod]||'';
-  var suf={mensualidad:' mensuales',por_jornada:' por jornada',paquete_jornadas:' por el paquete',pago_unico_match:' pago único',select_membresia:' total'}[mod]||'';
+    paquete_jornadas:(porJ?'':'Paquete de ')+(jornadas||'—')+' jornadas'+(porJ?' seguidas':''),pago_unico_match:'Salus Match · pago único',select_membresia:prodLabel()}[mod]||'';
+  var suf={mensualidad:' mensuales',por_jornada:' por jornada',paquete_jornadas:porJ?' por las '+(jornadas||'—')+' jornadas':' por el paquete',pago_unico_match:' pago único',select_membresia:' total'}[mod]||'';
   var t={'cq-tx-perfil':PM[c.perfil].name,'cq-tx-jornada':jornada,'cq-tx-servicio':servicio,'cq-tx-precio':precio!=null?'$'+cqMoneda(precio)+' MXN'+suf+' (IVA incluido)':''};
   // Médica Sur, como envía sus cotizaciones: SERVICIO = días de servicio y PRECIO = total del periodo (precio por día × días),
   // con "Con descuento" si lo hay. La nota de festivos va en la línea bajo la tabla.
   if(marca==='ms'&&mod==='por_jornada'){
-    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio · '+c.dias+' día'+(c.dias>1?'s':'')+' por semana';
+    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio · '+(porJ?'días seguidos':c.dias+' día'+(c.dias>1?'s':'')+' por semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':''));
     t['cq-tx-precio']=precio!=null&&jornadas?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(cqR2(precio*jornadas))+' MXN (IVA incluido)':'';
   }
   return t;
@@ -1816,6 +1860,8 @@ function cqRecalcular(){
   var sm=document.getElementById('cq-modalidad');
   if(sm&&(!CQ.modalidadManual||!sm.value))sm.value=cqModalidadSugerida(c);
   var mod=sm?sm.value:'';
+  // Por jornadas: las jornadas de la pestaña Turno son los días del periodo / jornadas del paquete.
+  if(c.contratacion==='jornadas'&&(mod==='paquete_jornadas'||mod==='por_jornada')&&cqNum(gv('cq-dias-periodo'))!==c.jornadas&&!CQ.cargando)cqSet('cq-dias-periodo',c.jornadas);
   // Días del periodo: para paquetes y para la plantilla de Médica Sur (precio por día × días = total del periodo).
   var dw=document.getElementById('cq-dias-wrap');if(dw){dw.style.visibility=(mod==='paquete_jornadas'||(marca==='ms'&&mod==='por_jornada'))?'visible':'hidden';
     var lb=dw.querySelector('label');if(lb)lb.textContent=marca==='ms'&&mod==='por_jornada'?'Días del periodo *':'Jornadas del paquete';}
@@ -1858,7 +1904,8 @@ function cqPayload(){
     paciente:{nombre:gv('cq-pac-nombre'),fecha_nacimiento:gv('cq-pac-fnac'),diagnostico:gv('cq-pac-dx')},
     cliente_extra:{rfc:gv('cq-cli-rfc'),curp:gv('cq-cli-curp'),dom_cp:gv('cq-cli-cp'),dom_alcaldia_municipio:gv('cq-cli-alcaldia')},
     perfilador:{tipo_servicio:tipoSvc,fecha_inicio_probable:gv('fi-inicio-top'),marca:marca,perfil:getProfile(),producto:isSCS()?producto:null,
-      select_variante:isSCS()?variante:null,membresia_plan:isSCS()?memb:null,turno_horas:turno,turno_tipo:gv('cq-turno-tipo')||null,dias_semana:dias,
+      select_variante:isSCS()?variante:null,membresia_plan:isSCS()?memb:null,turno_horas:turno,turno_tipo:gv('cq-turno-tipo')||null,dias_semana:contrato==='jornadas'?null:dias,
+      contratacion:contrato,dias_semana_lista:contrato==='membresia'?diasSel.slice():null,
       necesidades:Object.keys(sel).map(function(k){return{codigo:k,nivel:sel[k].lv,etiqueta:sel[k].label};})},
     precio:{modalidad_cobro:gv('cq-modalidad')||null,dias_periodo:cqNum(gv('cq-dias-periodo')),precio_lista:CQ.precioLista?CQ.precioLista.v:null,
       precio_lista_origen:CQ.precioLista?CQ.precioLista.o:null,descuento_pct:cqNum(gv('cq-descuento')),precio_acordado:cqNum(gv('cq-precio-acordado')),
@@ -1869,7 +1916,7 @@ function cqPayload(){
     observaciones:gv('cq-observaciones'),calculo:c};
 }
 async function cqGuardar(){
-  if(!getProfile()||!marca||!turno||!dias){showToast('⚠️ Completa el Perfilador hasta el turno','err');return;}
+  if(!getProfile()||!marca||!canLeave(4)){showToast('⚠️ Completa el Perfilador hasta el turno','err');return;}
   if(CQ.id&&CQ.estado&&CQ.estado!=='borrador'){return cqNuevaVersion();}
   var b=document.getElementById('cq-btn-guardar');b.disabled=true;cqMsg('Guardando…');
   try{
@@ -2043,7 +2090,12 @@ function cqCargar(r){
   (c.necesidades||[]).forEach(function(n){var el=document.querySelector('.ci[onclick*="\''+n.codigo+'\'"]');if(el&&!el.classList.contains('on'))el.click();});
   if(c.marca)setMarca(c.marca);
   if(c.producto){setProd(c.producto);if(c.select_variante)setVariant(c.select_variante);if(c.membresia_plan)setMemb(c.membresia_plan);}
-  if(c.turno_horas)setTurno(c.turno_horas);if(c.dias_semana)setDias(c.dias_semana);
+  if(c.turno_horas)setTurno(c.turno_horas);
+  // Forma de contratación (4-nov-2026); las anteriores solo traen cuántos días por semana, o la guardia por jornada.
+  if(c.contratacion==='jornadas'||(!c.contratacion&&c.tipo_servicio==='guardia')){contrato='jornadas';jornadas=Math.max(1,Math.round(Number(c.dias_periodo||c.dias_semana||1)));dias=null;pintarContrato();}
+  else if(c.dias_semana_lista&&c.dias_semana_lista.length){contrato='membresia';diasSel=c.dias_semana_lista.slice();dias=diasSel.length;pintarContrato();}
+  else if(c.dias_semana)setDias(c.dias_semana);
+  updateBtns();
   cqSet('cq-dest-nombres',c.dest_nombres);cqSet('cq-dest-nombre2',c.dest_segundo_nombre);
   cqSet('cq-dest-ap',c.dest_apellido_paterno||(c.dest_apellido_materno?'':c.dest_apellidos));cqSet('cq-dest-am',c.dest_apellido_materno);cqSet('cq-dest-correo',c.dest_correo);telSet('cq-dest-tel',c.dest_telefono);
   cqSet('cq-asesor-nombre',c.asesor_nombre);cqSet('cq-asesor-correo',c.asesor_correo);cqSet('cq-turno-tipo',c.turno_tipo);
@@ -2219,7 +2271,7 @@ async function cqVerDetalle(id){
   document.getElementById('cq-modal-title').textContent=c.folio;
   var kv=[['Etapa',etapaBadge(c)+(c.vigente===false?' <span class="cq-msg">· versión anterior</span>':'')],['Caso',cqEsc(c.caso_folio)],['Marca',cqEsc(c.marca_nombre||'—')],['Plantilla',cqEsc(c.plantilla||'sin plantilla')],
     ['Destinatario',cqEsc([c.dest_nombres,c.dest_segundo_nombre,c.dest_apellidos].filter(Boolean).join(' ')||'—')],['Correo',cqEsc(c.dest_correo||'—')],['Asesor',cqEsc((c.asesor_nombre||'—')+(c.asesor_correo?' · '+c.asesor_correo:''))],['Emisión',cqEsc(c.fecha_emision)],
-    ['Perfil',cqEsc(c.perfil_nombre||'—')],['Turno · días',cqEsc((c.turno_horas||'—')+' h · '+(c.dias_semana||'—')+' días/sem')],['Modalidad',cqEsc(c.modalidad_cobro||'—')],
+    ['Perfil',cqEsc(c.perfil_nombre||'—')],['Turno · días',cqEsc((c.turno_horas||'—')+' h · '+(c.contratacion==='jornadas'?(c.dias_periodo!=null?Number(c.dias_periodo):'—')+' jornadas':(c.dias_semana||'—')+' días/sem'+(c.dias_semana_lista&&c.dias_semana_lista.length?' ('+diasTexto(c.dias_semana_lista)+')':'')))],['Modalidad',cqEsc(c.modalidad_cobro||'—')],
     ['Precio de lista',c.precio_lista!=null?'$'+cqMoneda(c.precio_lista)+' <span class="cq-msg">('+cqEsc(c.precio_lista_origen||'')+')</span>':'—'],
     ['Descuento',c.descuento_pct!=null?c.descuento_pct+' %':'—'],['Precio acordado',c.precio_acordado!=null?'<strong>$'+cqMoneda(c.precio_acordado)+'</strong>':'—']];
   if(c.firma_estado)kv.push(['Firma electrónica',cqFirmaTexto(c).replace(/^✍️ <strong>Firma:<\/strong> /,'')]);
