@@ -89,6 +89,8 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 .prod-card:hover{border-color:var(--teal-l)}.prod-card.on{border-color:var(--teal);background:#E6F5F7}
 .prod-card.on .prod-radio{background:var(--teal);border-color:var(--teal)}
 .prod-card.on .prod-radio::after{content:'';width:5px;height:5px;background:#fff;border-radius:50%;display:block}
+.prod-card.disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed;pointer-events:none;position:relative}
+.prod-card.disabled::before{content:'No disponible por ahora';position:absolute;top:10px;right:10px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:2px 8px;background:#fff}
 .prod-radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
 .prod-title{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--teal-d);margin-bottom:3px}
 .prod-sub{font-size:.72rem;color:var(--muted);margin-bottom:8px;line-height:1.4}
@@ -561,8 +563,8 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div id="step3" style="display:none">
 <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px">Elige el producto Salus Care Solutions que mejor se adapta al cliente.</p>
 <div class="product-grid">
-<div class="prod-card" id="pc-match" onclick="setProd('match')"><div class="prod-radio" id="pr-match"></div><div class="prod-title">Salus Match</div><div class="prod-sub">Reclutamiento + Plan de Cuidados. <strong>Pago único</strong>.</div><div class="prod-tag">Pago único · Garantía 30 días</div><div class="prod-features"><div class="pf-row"><span class="pf-y">✓</span>Reclutamiento y selección profesional</div><div class="pf-row"><span class="pf-y">✓</span>Expediente completo</div><div class="pf-row"><span class="pf-y">✓</span>Valoración clínica + Plan de cuidados</div><div class="pf-row"><span class="pf-n">—</span>Membresía mensual</div><div class="pf-row"><span class="pf-n">—</span>Guardias incluidas</div></div></div>
-<div class="prod-card" id="pc-select" onclick="setProd('select')"><div class="prod-radio" id="pr-select"></div><div class="prod-title">Salus Select</div><div class="prod-sub">Pago único + <strong>membresía mensual</strong>.</div><div class="prod-tag">Pago único + Membresía</div><div class="prod-features"><div class="pf-row"><span class="pf-y">✓</span>Todo lo de Match</div><div class="pf-row"><span class="pf-y">✓</span>Plataforma Serenity</div><div class="pf-row"><span class="pf-y">✓</span>Pláticas SOFIA</div><div class="pf-row"><span class="pf-y">✓</span>Guardias de respaldo incluidas</div><div class="pf-row"><span class="pf-y">✓</span>Descuento re-reclutamiento</div></div></div>
+<div class="prod-card disabled" id="pc-match" onclick="setProd('match')" aria-disabled="true"><div class="prod-radio" id="pr-match"></div><div class="prod-title">Salus Match</div><div class="prod-sub">Reclutamiento + Plan de Cuidados. <strong>Pago único</strong>.</div><div class="prod-tag">Pago único · Garantía 30 días</div><div class="prod-features"><div class="pf-row"><span class="pf-y">✓</span>Reclutamiento y selección profesional</div><div class="pf-row"><span class="pf-y">✓</span>Expediente completo</div><div class="pf-row"><span class="pf-y">✓</span>Valoración clínica + Plan de cuidados</div><div class="pf-row"><span class="pf-n">—</span>Membresía mensual</div><div class="pf-row"><span class="pf-n">—</span>Guardias incluidas</div></div></div>
+<div class="prod-card disabled" id="pc-select" onclick="setProd('select')" aria-disabled="true"><div class="prod-radio" id="pr-select"></div><div class="prod-title">Salus Select</div><div class="prod-sub">Pago único + <strong>membresía mensual</strong>.</div><div class="prod-tag">Pago único + Membresía</div><div class="prod-features"><div class="pf-row"><span class="pf-y">✓</span>Todo lo de Match</div><div class="pf-row"><span class="pf-y">✓</span>Plataforma Serenity</div><div class="pf-row"><span class="pf-y">✓</span>Pláticas SOFIA</div><div class="pf-row"><span class="pf-y">✓</span>Guardias de respaldo incluidas</div><div class="pf-row"><span class="pf-y">✓</span>Descuento re-reclutamiento</div></div></div>
 <div class="prod-card" id="pc-premium" onclick="setProd('premium')"><div class="prod-radio" id="pr-premium"></div><div class="prod-title">Salus Premium</div><div class="prod-sub">Todo incluido. Salus <strong>emplea y gestiona</strong>.</div><div class="prod-tag">Mensual · Todo incluido</div><div class="prod-features"><div class="pf-row"><span class="pf-y">✓</span>Reclutamiento profesional</div><div class="pf-row"><span class="pf-y">✓</span>Personal empleado por Salus</div><div class="pf-row"><span class="pf-y">✓</span>Gestión clínica continua</div><div class="pf-row"><span class="pf-y">✓</span>Cobertura completa</div><div class="pf-row"><span class="pf-y">✓</span>Riesgo laboral 100% Salus</div></div></div>
 </div>
 <div id="select-options" style="display:none">
@@ -1291,7 +1293,7 @@ function validateStep0(){var fecha=document.getElementById('fi-inicio-top').valu
 function syncFechaToTop(){var fi=document.getElementById('fi-inicio');var ft=document.getElementById('fi-inicio-top');if(fi&&ft){ft.value=fi.value;}validateStep0();}
 function isSCS(){return marca==='scs';}
 function goStep(n){if(n>step){for(let s=step;s<n;s++){if(s===3&&!isSCS())continue;if(!canLeave(s))return;}}step=n;[0,1,2,3,4,5].forEach(i=>document.getElementById('step'+i).style.display=i===n?'block':'none');updateWizardTabs();if(n===4)prepTurnoStep();if(n===5)renderCotiz();}
-function marcaNext(){if(!marca)return;goStep(isSCS()?3:4);}
+function marcaNext(){if(!marca)return;if(isSCS()&&!producto&&PRODUCTOS_ACTIVOS.length===1)setProd(PRODUCTOS_ACTIVOS[0]);goStep(isSCS()?3:4);}
 function turnoBack(){goStep(isSCS()?3:2);}
 function canLeave(s){if(s===0){var f=document.getElementById('fi-inicio-top');return tipoSvc!==null&&f&&f.value!=='';}if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&(contrato==='jornadas'?jornadas>=1:contrato==='membresia'&&dias!==null);return true;}
 function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[0,1,2,3,4,5].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
@@ -1300,7 +1302,10 @@ function tog(el,id,lv,label){el.classList.toggle('on');if(el.classList.contains(
 function getProfile(){const lvs=Object.values(sel).map(v=>v.lv);let max=-1;for(const l of lvs){const i=HIERARCHY.indexOf(l);if(i>max)max=i;}return max>=0?HIERARCHY[max]:null;}
 function renderPerfil(){const profile=getProfile();const nc=Object.keys(sel).length;const nb=document.getElementById('nbar');if(!nc){nb.style.display='none';}else{nb.style.display='flex';const cnt={};Object.values(sel).forEach(v=>cnt[v.lv]=(cnt[v.lv]||0)+1);const cm={c:'np-c',a:'np-a',e:'np-e'};nb.innerHTML=HIERARCHY.filter(l=>cnt[l]).map(l=>'<span class="npill '+cm[l]+'">'+PM[l].name+': '+cnt[l]+'</span>').join('')+'<span class="ntotal">'+nc+' necesidades</span>';}const pc=document.getElementById('pcard');const pcc=document.getElementById('pcard-content');pc.className='pcard'+(profile?' '+PM[profile].acls:'');if(!profile){pcc.innerHTML='<div class="nosel">Selecciona las necesidades del paciente.</div>';return;}const m=PM[profile];const reasons=Object.values(sel).filter(v=>HIERARCHY.indexOf(v.lv)>=HIERARCHY.indexOf(profile)).map(v=>'<span class="rtag">✓ '+v.label+'</span>').join('');const pills=HIERARCHY.map(l=>'<span class="lp '+PM[l].pcls+' '+(l===profile?'on':'')+'">'+PM[l].name+'</span>').join('');pcc.innerHTML='<div class="ptop"><div class="picon '+m.cls+'">'+m.icon+'</div><div class="pname">'+m.name+'<small>'+m.sub+'</small></div></div><div class="ppills">'+pills+'</div><div class="preasons"><h4>Necesidades que justifican este perfil</h4>'+(reasons||'—')+'</div>';}
 function setMarca(m){marca=m;['scs','ms','polar'].forEach(x=>{document.getElementById('mc-'+x).classList.toggle('on',x===m);document.getElementById('mr-'+x).classList.toggle('on',x===m);});if(m!=='scs'){producto=null;variante=null;memb=null;}updateBtns();}
-function setProd(p){producto=p;variante=null;memb=null;['match','select','premium'].forEach(x=>{document.getElementById('pc-'+x).classList.toggle('on',x===p);document.getElementById('pr-'+x).classList.toggle('on',x===p);});document.getElementById('select-options').style.display=p==='select'?'block':'none';if(p==='select')document.querySelectorAll('.var-btn,.memb-btn').forEach(b=>b.classList.remove('on'));updateBtns();}
+// Salus Match y Salus Select todavía no operan (4-nov-2026): solo se vende Salus Premium. Una cotización vieja con
+// Match o Select se sigue abriendo (cqCargar pasa forzar).
+const PRODUCTOS_ACTIVOS=['premium'];
+function setProd(p,forzar){if(!forzar&&PRODUCTOS_ACTIVOS.indexOf(p)<0)return;producto=p;variante=null;memb=null;['match','select','premium'].forEach(x=>{document.getElementById('pc-'+x).classList.toggle('on',x===p);document.getElementById('pr-'+x).classList.toggle('on',x===p);});document.getElementById('select-options').style.display=p==='select'?'block':'none';if(p==='select')document.querySelectorAll('.var-btn,.memb-btn').forEach(b=>b.classList.remove('on'));updateBtns();}
 function setVariant(v){variante=v;document.getElementById('vb-basico').classList.toggle('on',v==='basico');document.getElementById('vb-plus').classList.toggle('on',v==='plus');updateBtns();}
 function setMemb(m){memb=m;['trim','sem','anual'].forEach(x=>document.getElementById('mb-'+x).classList.toggle('on',x===m));updateBtns();}
 // Turno de 24 h: Salus y las marcas con precio de 24 h en ESTANDAR. Salus y Médica Sur: 2 × el de 12 h; Médica Sur,
@@ -1858,6 +1863,8 @@ function cqModalidadCambio(){CQ.modalidadManual=true;cqRecalcular(true);}
 function cqRecalcular(){
   var c=cqCalculo();if(!c)return;
   var sm=document.getElementById('cq-modalidad');
+  // Las modalidades de Match y Select solo se pueden elegir en una cotización vieja de ese producto.
+  if(sm)Array.prototype.forEach.call(sm.options,function(o){if(o.value==='pago_unico_match')o.disabled=c.producto!=='match';if(o.value==='select_membresia')o.disabled=c.producto!=='select';});
   if(sm&&(!CQ.modalidadManual||!sm.value))sm.value=cqModalidadSugerida(c);
   var mod=sm?sm.value:'';
   // Por jornadas: las jornadas de la pestaña Turno son los días del periodo / jornadas del paquete.
@@ -2089,7 +2096,7 @@ function cqCargar(r){
   var ft=document.getElementById('fi-inicio-top');if(ft&&c.fecha_inicio_probable){ft.value=c.fecha_inicio_probable;onFechaInicioTop();}
   (c.necesidades||[]).forEach(function(n){var el=document.querySelector('.ci[onclick*="\''+n.codigo+'\'"]');if(el&&!el.classList.contains('on'))el.click();});
   if(c.marca)setMarca(c.marca);
-  if(c.producto){setProd(c.producto);if(c.select_variante)setVariant(c.select_variante);if(c.membresia_plan)setMemb(c.membresia_plan);}
+  if(c.producto){setProd(c.producto,true);if(c.select_variante)setVariant(c.select_variante);if(c.membresia_plan)setMemb(c.membresia_plan);}
   if(c.turno_horas)setTurno(c.turno_horas);
   // Forma de contratación (4-nov-2026); las anteriores solo traen cuántos días por semana, o la guardia por jornada.
   if(c.contratacion==='jornadas'||(!c.contratacion&&c.tipo_servicio==='guardia')){contrato='jornadas';jornadas=Math.max(1,Math.round(Number(c.dias_periodo||c.dias_semana||1)));dias=null;pintarContrato();}
