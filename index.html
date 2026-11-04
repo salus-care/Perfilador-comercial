@@ -694,7 +694,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="cq-hint" id="cq-total-periodo" style="display:none;margin-top:6px"></div>
 <label class="cq-check" id="cq-festivos-wrap"><input type="checkbox" id="cq-festivos" checked onchange="cqMarcarCambio()"> Incluir la nota de días festivos</label>
 <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="cqRegenerarTextos()">↺ Regenerar textos</button>
-<div class="sec-lbl">Protocolo que se anexa *</div>
+<div class="sec-lbl" id="cq-protos-lbl">Protocolo que se anexa *</div>
 <div id="cq-protocolos" class="cq-protos"><span class="cq-msg">Conecta la base de datos para ver los protocolos.</span></div>
 <div class="aviso-regla" id="cq-protos-aviso" style="display:none"></div>
 <details class="cq-opcionales"><summary>Datos adicionales (opcionales, solo si el cliente ya los dio)</summary>
@@ -1867,6 +1867,8 @@ function cqProtocoloSugerido(){
 }
 function cqRenderProtocolos(){
   var box=document.getElementById('cq-protocolos');if(!box)return;
+  // Canalización / administración de medicamentos no lleva protocolo: deja de ser obligatorio.
+  var lbl=document.getElementById('cq-protos-lbl');if(lbl)lbl.textContent=esCanal()?'Protocolo que se anexa (no aplica en canalización y administración de medicamentos)':'Protocolo que se anexa *';
   var lista=(CQ.catalogos&&CQ.catalogos.protocolos||[]).filter(function(x){return x.marca===marca;});
   if(!lista.length){box.innerHTML='<span class="cq-msg">'+(CQ.catalogos?'No hay protocolos para esta marca.':'Conecta la base de datos para ver los protocolos.')+'</span>';return;}
   var sug=cqProtocoloSugerido();
