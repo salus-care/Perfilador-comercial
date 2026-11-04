@@ -1844,12 +1844,13 @@ function cqTextosAuto(c,mod,precio,tipo,jornadas){
     t['cq-tx-servicio']=(jornadas||'—')+' días de servicio · '+(porJ?'días seguidos':c.dias+' día'+(c.dias>1?'s':'')+' por semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':''));
     t['cq-tx-precio']=precio!=null&&jornadas?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(cqR2(precio*jornadas))+' MXN (IVA incluido)':'';
   }
-  // Canalización / administración de medicamentos: una visita; SERVICIO = el procedimiento y el día.
+  // Canalización / administración de medicamentos: JORNADA = solo el turno (Diurna, Nocturna o Mixta; sin horas: si no se
+  // elige turno queda vacía y sale en faltantes); SERVICIO = el procedimiento y el día; PRECIO = solo el monto con IVA.
   if(esCanal()){
     var f=gv('fi-inicio-top'),ftx=f?new Date(f+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}):'';
-    t['cq-tx-jornada']='Visita de un día'+(tipo==='nocturno'?' · nocturna':tipo==='diurno'?' · diurna':'');
+    t['cq-tx-jornada']={diurno:'Diurna',nocturno:'Nocturna',mixto:'Mixta'}[tipo]||'';
     t['cq-tx-servicio']=(sel.canalizacion?'Canalización de paciente':'Administración de medicamentos')+(ftx?' · '+ftx:'');
-    t['cq-tx-precio']=precio!=null?'$'+cqMoneda(marca==='ms'&&mod==='por_jornada'&&jornadas?cqR2(precio*jornadas):precio)+' MXN por la visita (IVA incluido)':'';
+    t['cq-tx-precio']=precio!=null?'$'+cqMoneda(marca==='ms'&&mod==='por_jornada'&&jornadas?cqR2(precio*jornadas):precio)+' MXN (IVA incluido)':'';
   }
   return t;
 }
