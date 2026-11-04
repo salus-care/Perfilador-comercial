@@ -466,6 +466,12 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="job-tags"><span class="job-tag">Reserva anticipada</span><span class="job-tag">20 días – 3 meses+</span><span class="job-tag">Ticket alto</span></div>
 <div class="job-valora">La familia valora: <strong>confianza, seguridad y profesionalismo</strong></div>
 </div>
+<div class="job-card" id="ts-canalizacion" onclick="setTipoSvc('canalizacion')">
+<div class="job-head"><span class="job-ico">💉</span><span class="job-name">Canalización y administración de medicamentos</span></div>
+<div class="job-desc">Visita de <strong>un solo día</strong>: una enfermera titulada va a canalizar al paciente o a administrarle un medicamento.</div>
+<div class="job-tags"><span class="job-tag">Un día</span><span class="job-tag">Enfermera titulada</span><span class="job-tag">Procedimiento invasivo</span></div>
+<div class="job-valora">La familia valora: <strong>rapidez, seguridad y profesionalismo</strong></div>
+</div>
 </div>
 <div class="step-nav">
 <button class="btn btn-ghost" onclick="resetAll()">🔄 Reiniciar</button>
@@ -476,6 +482,15 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="s1-layout">
 <div>
 <div id="nbar" class="nbar" style="display:none"></div>
+<div id="nec-canal" style="display:none">
+<div class="sec-lbl">💉 Procedimiento</div>
+<p style="font-size:.78rem;color:var(--muted);margin:-4px 0 10px">Elige uno. Solo lo puede hacer una enfermera titulada.</p>
+<div class="check-grid">
+<label class="ci" onclick="tog(this,'canalizacion','e','Canalización de paciente')"><div class="chk"></div><span class="cl">Canalización</span><span class="lv lv-e">Enf.</span></label>
+<label class="ci" onclick="tog(this,'admin_medicamentos','e','Administración de medicamentos')"><div class="chk"></div><span class="cl">Administrar medicamentos</span><span class="lv lv-e">Enf.</span></label>
+</div>
+</div>
+<div id="nec-regular">
 <div class="sec-lbl">📍 Sitio del servicio</div>
 <div class="check-grid">
 <label class="ci" onclick="tog(this,'sitio_dom','c','Cuidados en domicilio')"><div class="chk"></div><span class="cl">Cuidados en domicilio</span><span class="lv lv-c">Cuid.</span></label>
@@ -538,6 +553,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="check-grid c1">
 <label class="ci" onclick="tog(this,'neonatal','e','Paciente neonatal')"><div class="chk"></div><span class="cl">Paciente recién nacido o lactante</span><span class="lv lv-e">Enf.</span></label>
 <label class="ci" onclick="tog(this,'estimulacion_temprana','a','Estimulación temprana')"><div class="chk"></div><span class="cl">Estimulación temprana</span><span class="lv lv-a">Aux.</span></label>
+</div>
 </div>
 </div>
 <div class="perfil-sticky"><div class="pcard" id="pcard"><div id="pcard-content"><div class="nosel">Selecciona las necesidades del paciente para ver el perfil recomendado.</div></div></div></div>
@@ -616,6 +632,11 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="sec-lbl">🔢 Jornadas contratadas</div>
 <div class="fl" style="max-width:260px"><label>Número de jornadas *</label><input type="number" id="jorn-num" min="1" step="1" placeholder="Ej. 10" oninput="setJornadas(this.value)"></div>
 <div class="cq-hint" id="jorn-hint">Días seguidos desde la fecha de inicio. Cada jornada se cobra con la lista de urgencia.</div>
+</div>
+<div style="margin-top:6px;display:none" id="canal-wrap">
+<div class="sec-lbl">📅 Día de la visita</div>
+<div class="fl" style="max-width:260px"><label>Fecha *</label><input type="date" id="canal-fecha" onchange="setCanalFecha(this.value)"></div>
+<div class="cq-hint">Visita de un solo día de una enfermera titulada. Se cobra como una jornada de enfermería esporádica de 8 horas.</div>
 </div>
 <div class="step-nav">
 <button class="btn btn-ghost" id="btn4-back" onclick="turnoBack()">← Atrás</button>
@@ -737,7 +758,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>Diagnóstico</label><input type="text" id="fi-diag" placeholder="Ej. Post-op colectomía" oninput="updF()"></div>
 </div>
 <div class="g2">
-<div class="fl"><label>Tipo de servicio / motivo de ingreso</label><select id="fi-tiposvc" onchange="updF()"><option value="">— Selecciona —</option><option>Guardia Hospitalaria / Urgencia</option><option>Post-Hospitalario / Post-Operatorio</option><option>Adulto Mayor</option><option>Bebé (Neonatal)</option></select></div>
+<div class="fl"><label>Tipo de servicio / motivo de ingreso</label><select id="fi-tiposvc" onchange="updF()"><option value="">— Selecciona —</option><option>Guardia Hospitalaria / Urgencia</option><option>Post-Hospitalario / Post-Operatorio</option><option>Adulto Mayor</option><option>Bebé (Neonatal)</option><option>Canalización y administración de medicamentos</option></select></div>
 <div class="fl"><label></label><div style="height:32px"></div></div>
 </div>
 <div class="sec-lbl">Médico tratante</div>
@@ -1286,8 +1307,17 @@ const sel={};let marca=null,producto=null,variante=null,memb=null,turno=null,dia
 let contrato=null,jornadas=null,diasSel=[];
 const DIAS_SEMANA=['lun','mar','mie','jue','vie','sab','dom'];
 const DIA_CORTO={lun:'lun',mar:'mar',mie:'mié',jue:'jue',vie:'vie',sab:'sáb',dom:'dom'};
-const TIPO_SVC_L={guardia:'Guardia Hospitalaria / Urgencia',posthosp:'Post-Hospitalario / Post-Operatorio',adultomayor:'Adulto Mayor',bebe:'Bebé (Neonatal)'};
-function setTipoSvc(t){tipoSvc=t;['guardia','posthosp','adultomayor','bebe'].forEach(x=>document.getElementById('ts-'+x).classList.toggle('on',x===t));var fs=document.getElementById('fi-tiposvc');if(fs&&TIPO_SVC_L[t]){fs.value=TIPO_SVC_L[t];if(typeof updF==='function')updF();}validateStep0();}
+const TIPO_SVC_L={guardia:'Guardia Hospitalaria / Urgencia',posthosp:'Post-Hospitalario / Post-Operatorio',adultomayor:'Adulto Mayor',bebe:'Bebé (Neonatal)',canalizacion:'Canalización y administración de medicamentos'};
+// Canalización y administración de medicamentos (4-nov-2026): visita de un día de una enfermera titulada. En Necesidades
+// solo se elige uno de los dos procedimientos; en Turno, el día. Se cobra como una jornada de enfermería esporádica de 8 h
+// (lista de urgencia). La cotización no lleva protocolo de home care y el contrato lleva el anexo de procedimientos invasivos.
+const NEC_CANAL=['canalizacion','admin_medicamentos'];
+function esCanal(){return tipoSvc==='canalizacion';}
+function setTipoSvc(t){var antes=esCanal();tipoSvc=t;['guardia','posthosp','adultomayor','bebe','canalizacion'].forEach(x=>document.getElementById('ts-'+x).classList.toggle('on',x===t));
+  // Al entrar o salir de canalización cambian las necesidades que se pueden elegir: se limpian las marcadas.
+  if(antes!==esCanal()){document.querySelectorAll('#step1 .ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];renderPerfil();
+    if(esCanal()){contrato='jornadas';jornadas=1;turno=8;diasSel=[];dias=null;}else{contrato=null;jornadas=null;turno=null;}}
+  document.getElementById('nec-canal').style.display=esCanal()?'':'none';document.getElementById('nec-regular').style.display=esCanal()?'none':'';var fs=document.getElementById('fi-tiposvc');if(fs&&TIPO_SVC_L[t]){fs.value=TIPO_SVC_L[t];if(typeof updF==='function')updF();}validateStep0();}
 function onFechaInicioTop(){var v=document.getElementById('fi-inicio-top').value;var fi=document.getElementById('fi-inicio');if(fi){fi.value=v;}if(typeof updF==='function')updF();validateStep0();}
 function validateStep0(){var fecha=document.getElementById('fi-inicio-top').value;var b=document.getElementById('btn0');if(b)b.disabled=!(tipoSvc&&fecha);}
 function syncFechaToTop(){var fi=document.getElementById('fi-inicio');var ft=document.getElementById('fi-inicio-top');if(fi&&ft){ft.value=fi.value;}validateStep0();}
@@ -1298,7 +1328,10 @@ function turnoBack(){goStep(isSCS()?3:2);}
 function canLeave(s){if(s===0){var f=document.getElementById('fi-inicio-top');return tipoSvc!==null&&f&&f.value!=='';}if(s===1)return getProfile()!==null;if(s===2)return marca!==null;if(s===3){if(!producto)return false;if(producto==='select')return variante!==null&&memb!==null;return true;}if(s===4)return turno!==null&&(contrato==='jornadas'?jornadas>=1:contrato==='membresia'&&dias!==null);return true;}
 function updateWizardTabs(){document.getElementById('ws3').className='wstep'+(isSCS()?'':' hidden');[0,1,2,3,4,5].forEach(s=>{const ws=document.getElementById('ws'+s);if(!ws)return;ws.className='wstep'+(s===step?' active':s<step?' done':'')+(s===3&&!isSCS()?' hidden':'');});}
 function updateBtns(){['btn1','btn2','btn3','btn4'].forEach((id,i)=>{const b=document.getElementById(id);if(b)b.disabled=!canLeave(i+1);});}
-function tog(el,id,lv,label){el.classList.toggle('on');if(el.classList.contains('on'))sel[id]={lv,label};else delete sel[id];renderPerfil();updateBtns();}
+function tog(el,id,lv,label){el.classList.toggle('on');if(el.classList.contains('on'))sel[id]={lv,label};else delete sel[id];
+  // Canalización o administración de medicamentos: uno u otro.
+  if(NEC_CANAL.indexOf(id)>=0&&sel[id])NEC_CANAL.forEach(function(o){if(o!==id&&sel[o]){delete sel[o];var e=document.querySelector('#nec-canal .ci[onclick*="\''+o+'\'"]');if(e)e.classList.remove('on');}});
+  renderPerfil();updateBtns();}
 function getProfile(){const lvs=Object.values(sel).map(v=>v.lv);let max=-1;for(const l of lvs){const i=HIERARCHY.indexOf(l);if(i>max)max=i;}return max>=0?HIERARCHY[max]:null;}
 function renderPerfil(){const profile=getProfile();const nc=Object.keys(sel).length;const nb=document.getElementById('nbar');if(!nc){nb.style.display='none';}else{nb.style.display='flex';const cnt={};Object.values(sel).forEach(v=>cnt[v.lv]=(cnt[v.lv]||0)+1);const cm={c:'np-c',a:'np-a',e:'np-e'};nb.innerHTML=HIERARCHY.filter(l=>cnt[l]).map(l=>'<span class="npill '+cm[l]+'">'+PM[l].name+': '+cnt[l]+'</span>').join('')+'<span class="ntotal">'+nc+' necesidades</span>';}const pc=document.getElementById('pcard');const pcc=document.getElementById('pcard-content');pc.className='pcard'+(profile?' '+PM[profile].acls:'');if(!profile){pcc.innerHTML='<div class="nosel">Selecciona las necesidades del paciente.</div>';return;}const m=PM[profile];const reasons=Object.values(sel).filter(v=>HIERARCHY.indexOf(v.lv)>=HIERARCHY.indexOf(profile)).map(v=>'<span class="rtag">✓ '+v.label+'</span>').join('');const pills=HIERARCHY.map(l=>'<span class="lp '+PM[l].pcls+' '+(l===profile?'on':'')+'">'+PM[l].name+'</span>').join('');pcc.innerHTML='<div class="ptop"><div class="picon '+m.cls+'">'+m.icon+'</div><div class="pname">'+m.name+'<small>'+m.sub+'</small></div></div><div class="ppills">'+pills+'</div><div class="preasons"><h4>Necesidades que justifican este perfil</h4>'+(reasons||'—')+'</div>';}
 function setMarca(m){marca=m;['scs','ms','polar'].forEach(x=>{document.getElementById('mc-'+x).classList.toggle('on',x===m);document.getElementById('mr-'+x).classList.toggle('on',x===m);});if(m!=='scs'){producto=null;variante=null;memb=null;}updateBtns();}
@@ -1316,15 +1349,20 @@ function esGuardiaCorta(){return(tipoSvc==='guardia'||contrato==='jornadas')&&!!
 function precioServicio(pk,h){var t=esGuardiaCorta()?GUARDIA_CORTA:ESTANDAR;return t[marca]&&t[marca][pk]?t[marca][pk][h]:null;}
 function con24(){return isSCS()||Object.values(ESTANDAR[marca]||{}).some(p=>p[24]!=null);}
 function prepTurnoStep(){const t24=document.getElementById('tc24');if(!con24()){t24.classList.add('disabled');if(turno===24){turno=null;t24.classList.remove('on');}}else t24.classList.remove('disabled');
+  if(esCanal()){contrato='jornadas';jornadas=1;turno=8;var cf=document.getElementById('canal-fecha');if(cf)cf.value=gv('fi-inicio-top');pintarContrato();renderTurnoCards();updateBtns();return;}
   if(tipoSvc==='guardia'&&contrato!=='jornadas')setContrato('jornadas');else pintarContrato();renderTurnoCards();}
+// El día de la visita es la fecha de inicio del servicio (la del paso 1).
+function setCanalFecha(v){var ft=document.getElementById('fi-inicio-top');if(ft&&v){ft.value=v;onFechaInicioTop();}updateBtns();}
 function setContrato(m){if(tipoSvc==='guardia')m='jornadas';contrato=m;dias=m==='membresia'&&diasSel.length?diasSel.length:null;pintarContrato();renderTurnoCards();updateBtns();}
 function pintarContrato(){
-  var g=tipoSvc==='guardia';
-  document.getElementById('contrato-wrap').style.display=g?'none':'';
+  var g=tipoSvc==='guardia',cn=esCanal();
+  document.getElementById('contrato-wrap').style.display=g||cn?'none':'';
+  document.querySelector('#step4 .turno-grid').style.display=cn?'none':'';
+  document.getElementById('canal-wrap').style.display=cn?'':'none';
   document.getElementById('ct-memb').classList.toggle('on',contrato==='membresia');
   document.getElementById('ct-jorn').classList.toggle('on',contrato==='jornadas');
-  document.getElementById('dsem-wrap').style.display=contrato==='membresia'?'':'none';
-  document.getElementById('jorn-wrap').style.display=contrato==='jornadas'?'':'none';
+  document.getElementById('dsem-wrap').style.display=!cn&&contrato==='membresia'?'':'none';
+  document.getElementById('jorn-wrap').style.display=!cn&&contrato==='jornadas'?'':'none';
   DIAS_SEMANA.forEach(function(d){document.getElementById('dw-'+d).classList.toggle('on',diasSel.indexOf(d)>=0);});
   var n=diasSel.length;document.getElementById('dsem-cuenta').textContent=n?'· '+n+' día'+(n>1?'s':'')+' por semana':'';
   var ji=document.getElementById('jorn-num');if(ji&&String(jornadas||'')!==ji.value)ji.value=jornadas||'';
@@ -1336,7 +1374,8 @@ function setJornadas(v){var n=parseInt(v,10);jornadas=n>=1?n:null;updateBtns();}
 function diasTexto(lista){var l=(lista||[]).map(function(d){return DIA_CORTO[d]||d;});return l.length>1?l.slice(0,-1).join(', ')+' y '+l[l.length-1]:l.join('');}
 function fmt(n){return n!=null?Number(n).toLocaleString('es-MX',{minimumFractionDigits:0,maximumFractionDigits:2}):'N/D';}
 function renderTurnoCards(){const profile=getProfile();const pk=profile;const hint=document.getElementById('turno-hint');const perfiles=[{k:'c',label:'Cuidadora'},{k:'a',label:'Auxiliar Enf.'},{k:'e',label:'Enfermera'}];const ts=[8,12,18,24];let tabla='<div style="overflow-x:auto;margin-bottom:18px"><table style="width:100%;border-collapse:collapse;font-size:.76rem"><thead><tr style="background:var(--tag-bg)"><th style="padding:7px 11px;text-align:left;border:1px solid var(--border);color:var(--muted);font-weight:600;font-size:.64rem;text-transform:uppercase">Perfil</th>'+ts.map(h=>{const av=con24()||(h!==24);return'<th style="padding:7px 11px;text-align:center;border:1px solid var(--border);color:'+(av?'var(--teal-d)':'var(--muted)')+';font-weight:600;font-size:.64rem;text-transform:uppercase">'+h+'h'+(!av?' *':'')+'</th>';}).join('')+'</tr></thead><tbody>'+perfiles.map(p=>'<tr style="'+(p.k===pk?'background:#E6F5F7;font-weight:600':'')+'"><td style="padding:7px 11px;border:1px solid var(--border)">'+(p.k===pk?'<span style="color:var(--teal);margin-right:3px">★</span>':'')+p.label+'</td>'+ts.map(h=>{const av=con24()||(h!==24);const price=av?precioServicio(p.k,h):null;return'<td style="padding:7px 11px;text-align:center;border:1px solid var(--border);color:'+(!av?'var(--muted)':p.k===pk?'var(--teal-d)':'var(--text)')+'">'+(price!=null?'$'+fmt(price):'—')+'</td>';}).join('')+'</tr>').join('')+'</tbody></table>'+(!isSCS()?'<p style="font-size:.63rem;color:var(--muted);margin-top:3px">* Turno 24h no disponible en esta marca.</p>':'')+'</div>';
-if(!isSCS())hint.innerHTML='<strong>'+MARCA_L[marca]+'</strong> · Precios c/IVA. Selecciona turno:'+tabla;else hint.innerHTML='<strong>SCS</strong> · Producto: <strong>'+prodLabel()+'</strong>.'+(esGuardiaCorta()?' <strong>Guardia corta: lista +15%</strong>.':'')+' Selecciona turno:'+tabla;
+if(esCanal()){var pc=precioServicio('e',8);hint.innerHTML='<strong>'+MARCA_L[marca]+'</strong>'+(isSCS()?' · <strong>'+prodLabel()+'</strong>':'')+' · '+(sel.canalizacion?'Canalización de paciente':'Administración de medicamentos')+' · Enfermera Titulada: <strong>$'+fmt(pc)+' MXN</strong> c/IVA por la visita (jornada de enfermería esporádica de 8 h). Elige el día:';}
+else if(!isSCS())hint.innerHTML='<strong>'+MARCA_L[marca]+'</strong> · Precios c/IVA. Selecciona turno:'+tabla;else hint.innerHTML='<strong>SCS</strong> · Producto: <strong>'+prodLabel()+'</strong>.'+(esGuardiaCorta()?' <strong>Guardia corta: lista +15%</strong>.':'')+' Selecciona turno:'+tabla;
 ts.forEach(h=>{const av=con24()||(h!==24);const price=av?precioServicio(pk,h):null;const card=document.getElementById('tc'+h);card.querySelector('.th').innerHTML=price!=null?'$'+fmt(price)+' MXN':'N/D';});}
 function setTurno(h){turno=h;[8,12,18,24].forEach(x=>document.getElementById('tc'+x).classList.toggle('on',x===h));updateBtns();}
 // Cotizaciones guardadas antes del 4-nov-2026: solo traen cuántos días por semana (sin cuáles).
@@ -1348,7 +1387,7 @@ function precioBlock(pk,pl){const esp=precioServicio(pk,turno),base=ESTANDAR[mar
 if(contrato==='jornadas')return'<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+jornadas+' jornada'+(jornadas>1?'s':'')+'</strong></div><div class="price-hero"><div class="ph-label">Precio por jornada c/IVA'+(esGuardiaCorta()?' · lista de urgencia (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div><div class="price-breakdown"><div class="pb-head">Por jornadas · días seguidos</div><div class="pb-row"><span class="pb-l">Jornadas</span><span class="pb-v">'+jornadas+'</span></div><div class="pb-row"><span class="pb-l">Precio por jornada</span><span class="pb-v">$'+fmt(esp)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total c/IVA</strong></span><span class="pb-v hi">$'+fmt(Math.round(esp*jornadas*100)/100)+' MXN</span></div></div>';const data=MEMB[marca]&&MEMB[marca][pk]?MEMB[marca][pk][turno]:null;const ci=DIAS_A_COL[dias];let html='<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+dias+'d/sem ('+diasTexto(diasSel)+')</strong></div><div class="price-hero"><div class="ph-label">Precio por servicio c/IVA'+(esGuardiaCorta()?' · Guardia corta (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div>';if(ci===null){const sb=data&&data.sd?data.sd[1]:null;const sa=data&&data.sd?data.sd[2]:null;html+='<div class="price-breakdown"><div class="pb-head">Referencia mensual</div><div class="pb-row"><span class="pb-l">~8.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sb)+' MXN</span></div><div class="pb-row"><span class="pb-l">~21.7 días/mes sin dto.</span><span class="pb-v">$'+fmt(sa)+' MXN</span></div></div>';return html;}const dm=COL_DIAS_MES[ci];const cl=COL_LABEL[ci];const pSD=data&&data.sd?data.sd[ci]:null;const pCD=data&&data.cd?data.cd[ci]:null;const td=pCD!=null&&pCD!==pSD;const dp=td?Math.round((1-pCD/pSD)*100):0;html+='<div class="price-breakdown"><div class="pb-head">Precio mensual · '+cl+'</div><div class="pb-row"><span class="pb-l">Días al mes</span><span class="pb-v">'+dm+'</span></div><div class="pb-row"><span class="pb-l">Precio unitario'+(esGuardiaCorta()?' (lista base)':'')+'</span><span class="pb-v">$'+fmt(base)+'</span></div><div class="pb-row"><span class="pb-l">Mensual sin dto.</span><span class="pb-v">$'+fmt(pSD)+'</span></div>';if(td)html+='<div class="pb-row"><span class="pb-l">Dto. frecuencia</span><span class="pb-v" style="color:var(--teal)">−'+dp+'% (−$'+fmt(pSD-pCD)+')</span></div><div class="pb-row"><span class="pb-l"><strong>Mensual con dto.</strong></span><span class="pb-v hi">$'+fmt(pCD)+' MXN</span></div>';else html+='<div class="pb-row"><span class="pb-l"><strong>Precio mensual</strong></span><span class="pb-v hi">$'+fmt(pSD)+' MXN</span></div>';html+='</div>';return html;}
 function prodLabel(){if(producto==='match')return'Salus Match';if(producto==='select')return'Salus Select '+(variante==='basico'?'Básico':'Plus')+(memb?' · '+membLabel():'');if(producto==='premium')return'Salus Premium';return'—';}
 function membLabel(){return{trim:'Trimestral',sem:'Semestral',anual:'Anual'}[memb]||'—';}
-function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;tipoSvc=null;contrato=null;jornadas=null;diasSel=[];var jn=document.getElementById('jorn-num');if(jn)jn.value='';['dsem-wrap','jorn-wrap'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});document.querySelectorAll('.tsvc-card,.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');var ft=document.getElementById('fi-inicio-top');if(ft)ft.value='';var b0=document.getElementById('btn0');if(b0)b0.disabled=true;renderPerfil();updateBtns();step=0;goStep(0);}
+function resetAll(){document.querySelectorAll('.ci.on').forEach(el=>el.classList.remove('on'));for(const k in sel)delete sel[k];marca=null;producto=null;variante=null;memb=null;turno=null;dias=null;tipoSvc=null;contrato=null;jornadas=null;diasSel=[];var jn=document.getElementById('jorn-num');if(jn)jn.value='';['dsem-wrap','jorn-wrap','canal-wrap','nec-canal'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});var nr=document.getElementById('nec-regular');if(nr)nr.style.display='';var tg=document.querySelector('#step4 .turno-grid');if(tg)tg.style.display='';document.querySelectorAll('.tsvc-card,.mcard,.prod-card,.var-btn,.memb-btn,.tcard').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.mcard-radio,.prod-radio').forEach(b=>b.classList.remove('on'));document.getElementById('select-options').style.display='none';document.getElementById('tc24').classList.remove('disabled');var ft=document.getElementById('fi-inicio-top');if(ft)ft.value='';var b0=document.getElementById('btn0');if(b0)b0.disabled=true;renderPerfil();updateBtns();step=0;goStep(0);}
 function setMode(m){document.getElementById('mode-p').style.display=m==='p'?'block':'none';document.getElementById('mode-c').style.display=m==='c'?'block':'none';document.getElementById('mode-h').style.display=m==='h'?'block':'none';document.getElementById('mt-p').classList.toggle('active',m==='p');document.getElementById('mt-c').classList.toggle('active',m==='c');document.getElementById('mt-h').classList.toggle('active',m==='h');if(m==='c')clUpdAll();if(m==='h')renderHistorial();}
 var CL={},clM=null,clObj=null,clPS=[];
 var clSvcN=Math.floor(Math.random()*90000)+10000;
@@ -1805,6 +1844,13 @@ function cqTextosAuto(c,mod,precio,tipo,jornadas){
     t['cq-tx-servicio']=(jornadas||'—')+' días de servicio · '+(porJ?'días seguidos':c.dias+' día'+(c.dias>1?'s':'')+' por semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':''));
     t['cq-tx-precio']=precio!=null&&jornadas?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(cqR2(precio*jornadas))+' MXN (IVA incluido)':'';
   }
+  // Canalización / administración de medicamentos: una visita; SERVICIO = el procedimiento y el día.
+  if(esCanal()){
+    var f=gv('fi-inicio-top'),ftx=f?new Date(f+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}):'';
+    t['cq-tx-jornada']='Visita de un día'+(tipo==='nocturno'?' · nocturna':tipo==='diurno'?' · diurna':'');
+    t['cq-tx-servicio']=(sel.canalizacion?'Canalización de paciente':'Administración de medicamentos')+(ftx?' · '+ftx:'');
+    t['cq-tx-precio']=precio!=null?'$'+cqMoneda(marca==='ms'&&mod==='por_jornada'&&jornadas?cqR2(precio*jornadas):precio)+' MXN por la visita (IVA incluido)':'';
+  }
   return t;
 }
 function cqPediatrico(){
@@ -1813,7 +1859,8 @@ function cqPediatrico(){
   return false;
 }
 function cqProtocoloSugerido(){
-  var p=getProfile();if(!p||!marca)return null;var ped=cqPediatrico();
+  // Canalización / administración de medicamentos no lleva protocolo de home care.
+  var p=getProfile();if(!p||!marca||esCanal())return null;var ped=cqPediatrico();
   // Reglas de la hoja "Artículos y anexos" (Inventario de PandaDoc): protocolo del perfil; cuidadora de bebé o niño sano = Nana.
   var tipo={c:ped?'nana':'cuidador',a:ped?'auxiliar_infantil':'auxiliar',e:ped?'enfermeria_infantil':'enfermeria'}[p];
   return marca+'_'+tipo;
@@ -1833,6 +1880,7 @@ function cqAvisoProtocolo(){
   var d=document.getElementById('cq-protos-aviso');if(!d)return;
   var lista=(CQ.catalogos&&CQ.catalogos.protocolos)||[],sug=cqProtocoloSugerido(),existe=lista.some(function(x){return x.codigo===sug;});
   var nom=function(c){var x=lista.filter(function(y){return y.codigo===c;})[0];return x?x.nombre:c;};
+  if(esCanal()){d.style.display=CQ.protos.size?'':'none';d.innerHTML=CQ.protos.size?'⚠️ Canalización y administración de medicamentos no lleva protocolo de home care: quítalo si no corresponde.':'';return;}
   var msg=!lista.length?'':!CQ.protos.size?'La cotización va sin protocolo. Según las reglas siempre se anexa el del perfil'+(existe?': <strong>'+cqEsc(nom(sug))+'</strong>':'')+'.':
     existe&&!CQ.protos.has(sug)?'Según las reglas, para este perfil va el <strong>'+cqEsc(nom(sug))+'</strong> y lo quitaste. Revisa antes de enviar.':'';
   d.style.display=msg?'':'none';d.innerHTML=msg?'⚠️ '+msg:'';
