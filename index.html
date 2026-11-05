@@ -691,6 +691,11 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>IVA 16 %</label><input type="text" id="cq-iva" readonly></div>
 <div class="fl"><label>&nbsp;</label><button class="btn btn-ghost btn-sm" onclick="cqPrecioAuto()">↺ Usar precio calculado</button></div>
 </div>
+<div class="g4" id="cq-adic-wrap">
+<div class="fl"><label class="cq-check"><input type="checkbox" id="cq-bono-aplica" onchange="cqAdicionalesCambio()"> Aplica bono</label><input type="number" id="cq-bono-monto" min="0" step="0.01" placeholder="Monto por jornada" style="display:none" oninput="cqRecalcular(true)"></div>
+<div class="fl"><label class="cq-check"><input type="checkbox" id="cq-viaticos-aplica" onchange="cqAdicionalesCambio()"> Aplica viáticos</label><input type="number" id="cq-viaticos-monto" min="0" step="0.01" placeholder="Monto por jornada" style="display:none" oninput="cqRecalcular(true)"></div>
+<div class="fl" style="grid-column:span 2"><label>Bono y viáticos (por jornada)</label><div class="cq-hint" id="cq-adic-hint">Monto por jornada (diario), IVA incluido. Se suma al precio acordado: la cotización y el contrato llevan un solo total.</div></div>
+</div>
 <div class="sec-lbl">Así queda la tabla de la propuesta económica</div>
 <div class="cq-tabla">
 <div class="th">Perfil</div><div class="th">Jornada</div><div class="th">Servicio</div><div class="th">Precio</div>
@@ -1940,8 +1945,34 @@ function cqTextosAuto(c,mod,precio,tipo,jornadas){
     t['cq-tx-servicio']=(sel.canalizacion?'Canalización de paciente':'Administración de medicamentos')+(ftx?' · '+ftx:'');
     t['cq-tx-precio']=precio!=null?'$'+cqMoneda(marca==='ms'&&mod==='por_jornada'&&jornadas?cqR2(precio*jornadas):precio)+' MXN (IVA incluido)':'';
   }
+  // Bono y viáticos: el precio ya los incluye (un solo total); SERVICIO lleva la leyenda.
+  var ley=cqLeyendaAdicionales(cqAdicionales());if(ley&&t['cq-tx-servicio'])t['cq-tx-servicio']+=' · '+ley;
   return t;
 }
+// Bono y viáticos (5-nov-2026, reunión del 4-nov): casilla «aplica» con monto manual POR JORNADA (diario). Se multiplica
+// por las jornadas de la modalidad (mensualidad: jornadas al mes, p. ej. 8.7 con 2 días/semana; paquete: sus jornadas;
+// por jornada: 1) y se suma al precio acordado después del descuento. En cotización y contrato va un solo total; el texto
+// de SERVICIO dice «Incluye bono», «Incluye viáticos» o «Incluye bono y viáticos» (_leyenda_adicionales en la BD).
+function cqAdicionales(){
+  var b=document.getElementById('cq-bono-aplica'),v=document.getElementById('cq-viaticos-aplica');
+  var bono=b&&b.checked?cqNum(gv('cq-bono-monto')):null,via=v&&v.checked?cqNum(gv('cq-viaticos-monto')):null;
+  return{bono:bono>0?bono:null,viaticos:via>0?via:null,bonoMarcado:!!(b&&b.checked),viaticosMarcado:!!(v&&v.checked)};}
+function cqJornadasAdicionales(c,mod,dp){if(!c)return null;
+  if(mod==='mensualidad')return c.dias_mes||null;if(mod==='paquete_jornadas')return dp||null;if(mod==='por_jornada')return 1;return null;}
+function cqLeyendaAdicionales(a){return a.bono&&a.viaticos?'Incluye bono y viáticos':a.bono?'Incluye bono':a.viaticos?'Incluye viáticos':'';}
+function cqAdicionalesCambio(){
+  ['bono','viaticos'].forEach(function(k){var on=document.getElementById('cq-'+k+'-aplica').checked,m=document.getElementById('cq-'+k+'-monto');
+    m.style.display=on?'':'none';if(!on)m.value='';});
+  cqRecalcular(true);}
+function cqPintarAdicionales(c,mod,nj,total){
+  var h=document.getElementById('cq-adic-hint');if(!h)return;var a=cqAdicionales(),pj=(a.bono||0)+(a.viaticos||0);
+  if((a.bonoMarcado&&!a.bono)||(a.viaticosMarcado&&!a.viaticos)){h.innerHTML='<span class="sev-media">Pon el monto por jornada de lo que marcaste.</span>';return;}
+  if(!pj){h.textContent='Monto por jornada (diario), IVA incluido. Se suma al precio acordado: la cotización y el contrato llevan un solo total.';return;}
+  if(!nj){h.innerHTML='<span class="sev-media">El bono y los viáticos no aplican a esta modalidad de cobro.</span>';return;}
+  var partes=[];if(a.bono)partes.push('bono $'+cqMoneda(a.bono));if(a.viaticos)partes.push('viáticos $'+cqMoneda(a.viaticos));
+  var u=mod==='mensualidad'?' jornadas al mes':mod==='por_jornada'?' jornada':' jornadas';
+  h.innerHTML=partes.join(' + ')+(partes.length>1?' = $'+cqMoneda(pj):'')+' por jornada × '+fmt(nj)+u+' = <strong>$'+cqMoneda(total)+'</strong>'+
+    (CQ.precioManual?' · <span class="sev-media">precio editado a mano: inclúyelo tú en el precio acordado</span>':' · ya sumado al precio acordado');}
 function cqPediatrico(){
   if(tipoSvc==='bebe'||sel.neonatal||sel.estimulacion_temprana)return true;
   var f=gv('cq-pac-fnac');if(f){var e=(Date.now()-new Date(f+'T12:00:00'))/31557600000;if(e<18)return true;}
@@ -2031,7 +2062,11 @@ function cqRecalcular(){
   var po=document.getElementById('cq-precio-origen');
   if(po){po.textContent=lista.o;
     if(c.lista_servicio==='GUARDIA_CORTA'&&mod==='mensualidad')po.innerHTML=cqEsc(lista.o)+' · <span class="sev-media">la mensualidad no lleva el +15 % de guardia corta</span>';}
-  if(!CQ.precioManual){var d=cqNum(gv('cq-descuento'))||0;cqSet('cq-precio-acordado',lista.v!=null?cqR2(lista.v*(1-d/100)):'');}
+  // Bono y viáticos por jornada × jornadas de la modalidad, sumados después del descuento.
+  var ad=cqAdicionales(),nj=cqJornadasAdicionales(c,mod,cqNum(gv('cq-dias-periodo'))),pj=(ad.bono||0)+(ad.viaticos||0);
+  CQ.adicionalesTotal=pj&&nj?cqR2(pj*nj):0;
+  if(!CQ.precioManual){var d=cqNum(gv('cq-descuento'))||0;cqSet('cq-precio-acordado',lista.v!=null?cqR2(cqR2(lista.v*(1-d/100))+CQ.adicionalesTotal):'');}
+  cqPintarAdicionales(c,mod,nj,CQ.adicionalesTotal);
   cqDesglose();
   var auto=cqTextosAuto(c,mod,cqNum(gv('cq-precio-acordado')),gv('cq-turno-tipo'),cqNum(gv('cq-dias-periodo')));
   Object.keys(auto).forEach(function(k){if(!CQ.manualTextos[k]){cqSet(k,auto[k]);var el=document.getElementById(k);if(el)el.classList.remove('manual');}});
@@ -2070,7 +2105,8 @@ function cqPayload(){
       necesidades:Object.keys(sel).map(function(k){return{codigo:k,nivel:sel[k].lv,etiqueta:sel[k].label};})},
     precio:{modalidad_cobro:gv('cq-modalidad')||null,dias_periodo:cqNum(gv('cq-dias-periodo')),precio_lista:CQ.precioLista?CQ.precioLista.v:null,
       precio_lista_origen:CQ.precioLista?CQ.precioLista.o:null,descuento_pct:cqNum(gv('cq-descuento')),precio_acordado:cqNum(gv('cq-precio-acordado')),
-      precio_acordado_manual:CQ.precioManual},
+      precio_acordado_manual:CQ.precioManual,
+      bono_jornada:cqAdicionales().bono,viaticos_jornada:cqAdicionales().viaticos,adicionales_total:CQ.adicionalesTotal||0},
     textos:{perfil:gv('cq-tx-perfil'),jornada:gv('cq-tx-jornada'),servicio:gv('cq-tx-servicio'),precio:gv('cq-tx-precio'),
       incluir_nota_festivos:document.getElementById('cq-festivos').checked},
     protocolos:Array.from(CQ.protos).map(function(k){return{codigo:k,origen:k===cqProtocoloSugerido()?'derivado':'manual'};}),
@@ -2079,6 +2115,7 @@ function cqPayload(){
 async function cqGuardar(){
   if(!getProfile()||!marca||!canLeave(4)){showToast('⚠️ Completa el Perfilador hasta el turno','err');return;}
   if(CQ.id&&CQ.estado&&CQ.estado!=='borrador'){return cqNuevaVersion();}
+  var ad=cqAdicionales();if((ad.bonoMarcado&&!ad.bono)||(ad.viaticosMarcado&&!ad.viaticos)){showToast('⚠️ Pon el monto por jornada del '+(ad.bonoMarcado&&!ad.bono?'bono':'viático')+' o desmarca la casilla','err');return;}
   // Por jornadas: no se guarda sin haber revisado los festivos del periodo (el precio iría sin su recargo).
   var fe=festEstado();if(fe!=='na'&&fe!=='ok'){if(fe!=='cargando')cargarFestivos();
     showToast(fe==='error'?'⚠️ No se pudieron revisar los días festivos: se reintenta; guarda en un momento':'⏳ Revisando los días festivos del periodo; guarda en un momento','err');return;}
@@ -2235,6 +2272,7 @@ function cqLimpiar(){
    'cq-tx-perfil','cq-tx-jornada','cq-tx-servicio','cq-tx-precio','cq-pac-nombre','cq-pac-fnac','cq-pac-dx','cq-cli-rfc','cq-cli-curp','cq-cli-cp','cq-cli-alcaldia','cq-observaciones'].forEach(function(id){cqSet(id,'');var el=document.getElementById(id);if(el)el.classList.remove('manual');});
   telSet('cq-dest-tel','');
   var f=document.getElementById('cq-festivos');if(f)f.checked=true;
+  CQ.adicionalesTotal=0;['bono','viaticos'].forEach(function(k){var a=document.getElementById('cq-'+k+'-aplica'),m=document.getElementById('cq-'+k+'-monto');if(a)a.checked=false;if(m){m.value='';m.style.display='none';}});
   var fo=document.getElementById('cq-folio');if(fo)fo.textContent='Nueva · sin guardar';
   var es=document.getElementById('cq-estado');if(es)es.style.display='none';
   ['cq-btn-enviada','cq-btn-version','cq-btn-pdf','cq-btn-firma','cq-btn-borrar'].forEach(function(id){var b=document.getElementById(id);if(b){b.style.display='none';b.disabled=false;}});
@@ -2266,6 +2304,8 @@ function cqCargar(r){
   cqSet('cq-asesor-nombre',c.asesor_nombre);cqSet('cq-asesor-correo',c.asesor_correo);cqSet('cq-turno-tipo',c.turno_tipo);
   cqSet('cq-modalidad',c.modalidad_cobro);CQ.modalidadManual=!!c.modalidad_cobro;CQ.modalidadGuardada=c.modalidad_cobro||null;CQ.firmaTurnoGuardada=firmaTurno();
   cqSet('cq-dias-periodo',c.dias_periodo);cqSet('cq-descuento',c.descuento_pct);
+  [['bono',c.bono_jornada],['viaticos',c.viaticos_jornada]].forEach(function(x){var on=x[1]!=null&&Number(x[1])>0;
+    document.getElementById('cq-'+x[0]+'-aplica').checked=on;var m=document.getElementById('cq-'+x[0]+'-monto');m.value=on?x[1]:'';m.style.display=on?'':'none';});
   CQ.precioManual=!!c.precio_acordado_manual;if(CQ.precioManual)cqSet('cq-precio-acordado',c.precio_acordado);
   CQ.protos=new Set((c.protocolos||[]).map(function(x){return x.codigo;}));CQ.protosManual=true;
   cqSet('cq-pac-nombre',pa.nombre_capturado||[pa.nombres,pa.apellidos].filter(Boolean).join(' '));cqSet('cq-pac-fnac',pa.fecha_nacimiento);cqSet('cq-pac-dx',pa.diagnostico);
