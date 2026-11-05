@@ -1041,7 +1041,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="g4">
 <div class="fl"><label>1. Nombre completo *</label><input type="text" id="ct-pac-nombre"></div>
 <div class="fl"><label>Fecha de nacimiento *</label><input type="date" id="ct-pac-fnac"></div>
-<div class="fl ct-solo-salus"><label>2. Edad</label><input type="text" id="ct-pac-edad" readonly tabindex="-1" class="ct-calculado" placeholder="Se calcula con la fecha de nacimiento"></div>
+<div class="fl"><label>2. Edad</label><input type="text" id="ct-pac-edad" readonly tabindex="-1" class="ct-calculado" placeholder="Se calcula con la fecha de nacimiento"></div>
 <div class="fl"><label>3. Diagnóstico *</label><input type="text" id="ct-pac-dx"></div>
 </div>
 <div class="g2">
@@ -1056,9 +1056,9 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>Segundo apellido</label><input type="text" id="ct-cli-am"></div>
 </div>
 <div class="g4">
-<div class="fl ct-solo-salus"><label>R.F.C.</label><input type="text" id="ct-cli-rfc" maxlength="13" oninput="this.value=this.value.toUpperCase()">
+<div class="fl"><label>R.F.C.</label><input type="text" id="ct-cli-rfc" maxlength="13" oninput="this.value=this.value.toUpperCase()">
 <label class="cq-check" style="margin:5px 0 0"><input type="checkbox" id="ct-cli-ext" onchange="ctExtranjero()"> Cliente extranjero (RFC genérico)</label></div>
-<div class="fl ct-solo-salus"><label>C.U.R.P.</label><input type="text" id="ct-cli-curp" maxlength="18" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Basta con uno de los dos.</div></div>
+<div class="fl"><label>C.U.R.P.</label><input type="text" id="ct-cli-curp" maxlength="18" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Basta con uno de los dos.</div></div>
 <div class="fl"><label>Teléfono *</label><div class="tel-dos" data-tel="ct-cli-tel"></div></div>
 <div class="fl"><label>Correo (para la firma) *</label><input type="email" id="ct-cli-correo"></div>
 </div>
@@ -1066,7 +1066,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>En calidad de *</label><select id="ct-cli-calidad" onchange="ctVisibilidad()"></select></div>
 <div class="fl" id="ct-parentesco-wrap"><label>Parentesco con el paciente *</label><input type="text" id="ct-cli-parentesco" placeholder="Ej. hija, esposo"></div>
 </div>
-<div class="ct-solo-salus"><!-- Médica Sur no imprime el domicilio del cliente: en su aviso va el del paciente (el del servicio) -->
+<div><!-- Domicilio del cliente: renglón 12 de la carátula (las dos marcas) -->
 <label class="cq-check"><input type="checkbox" id="ct-cli-igual" onchange="ctVisibilidad()"> El domicilio del cliente es el mismo que el del servicio</label>
 <div id="ct-cli-dom">
 <div class="g3">
@@ -1081,20 +1081,19 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 </div>
 </div>
 </div>
-<!-- Fechas: en las dos marcas (la de término es obligatoria en ambas, 4-nov-2026). Lo demás es la carátula de Salus:
-     Médica Sur no la usa (su documento es el aviso y el consentimiento). -->
-<div class="sec-lbl">Servicio<span class="ct-solo-salus"> (carátula)</span></div>
+<!-- Carátula: la misma en las dos marcas (Médica Sur envía su contrato completo desde el 5-nov-2026; antes solo el aviso
+     y el consentimiento). La fecha de término es obligatoria en ambas y no se imprime. -->
+<div class="sec-lbl">Servicio (carátula)</div>
 <div class="g4">
-<div class="fl"><label><span class="ct-solo-salus">4. </span>Fecha de inicio<span class="ct-solo-salus"> *</span></label><input type="date" id="ct-fini" oninput="ctAutoFechas('inicio')"></div>
+<div class="fl"><label>4. Fecha de inicio *</label><input type="date" id="ct-fini" oninput="ctAutoFechas('inicio')"></div>
 <div class="fl"><label>Fecha de término *</label><input type="date" id="ct-ffin" oninput="ctAutoFechas('termino')"><div class="cq-hint" id="ct-ffin-hint">Obligatoria; no se imprime en el contrato</div></div>
-<div class="fl ct-solo-salus"><label>5. Jornadas contratadas *</label><input type="number" id="ct-jornadas" min="0" step="0.5"><div class="cq-hint" id="ct-jornadas-hint"></div></div>
-<div class="fl ct-solo-salus"><label>7. Perfil del profesional *</label><input type="text" id="ct-perfil"></div>
+<div class="fl"><label>5. Jornadas contratadas *</label><input type="number" id="ct-jornadas" min="0" step="0.5"><div class="cq-hint" id="ct-jornadas-hint"></div></div>
+<div class="fl"><label>7. Perfil del profesional *</label><input type="text" id="ct-perfil"></div>
 </div>
-<div class="ct-solo-salus">
+<div>
 <div class="fl"><label>8. Servicio solicitado *</label><textarea id="ct-servicio" rows="2"></textarea></div>
 <div class="fl"><label>6. Horario(s) del servicio *</label><div id="ct-horarios"></div><button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="ctAgregarHorario()">+ Agregar horario</button></div>
 </div>
-<div class="sec-lbl ct-solo-ms" style="display:none">Domicilio del paciente (donde se da el servicio)</div>
 <div class="g3">
 <div class="fl"><label>9. Domicilio del servicio: calle *</label><input type="text" id="ct-srv-calle"></div>
 <div class="fl"><label>Número *</label><input type="text" id="ct-srv-numero"></div>
@@ -1106,7 +1105,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>C.P.</label><input type="text" id="ct-srv-cp" maxlength="5"></div>
 <div class="fl"><label>Referencias</label><input type="text" id="ct-srv-ref"></div>
 </div>
-<div class="ct-solo-salus">
+<div>
 <div class="fl"><label>10. Otros conceptos y/o consideraciones</label><textarea id="ct-otros" rows="2"></textarea></div>
 <div class="sec-lbl">Precio</div>
 <div class="g4">
@@ -1929,13 +1928,17 @@ function cqTextosAuto(c,mod,precio,tipo,jornadas){
   var t={'cq-tx-perfil':PM[c.perfil].name,'cq-tx-jornada':jornada,'cq-tx-servicio':servicio,'cq-tx-precio':precio!=null?'$'+cqMoneda(precio)+' MXN'+suf+' (IVA incluido)':''};
   // Médica Sur, como envía sus cotizaciones: SERVICIO = días de servicio y PRECIO = total del periodo (precio por día × días),
   // con "Con descuento" si lo hay. La nota de festivos va en la línea bajo la tabla.
-  // Por jornadas en Médica Sur (con o sin festivos): mismos textos, con el total de las jornadas en PRECIO.
+  // Médica Sur, con sus textos originales (5-nov-2026: sin «días seguidos» ni la lista de días, que no usa):
+  // por jornadas = «N días de servicio»; membresía por jornada = «N días de servicio · D días por semana»;
+  // mensualidad = «Mensualidad · D días/semana». PRECIO = total de las jornadas (con el recargo de festivos, si hay).
+  var dsMS=c.dias+' día'+(c.dias>1?'s':'');
+  if(marca==='ms'&&mod==='mensualidad')t['cq-tx-servicio']='Mensualidad · '+dsMS+'/semana';
   if(marca==='ms'&&porJ&&mod==='paquete_jornadas'){
-    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio · días seguidos';
+    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio';
     t['cq-tx-precio']=precio!=null?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(precio)+' MXN (IVA incluido)':'';
   }
   if(marca==='ms'&&mod==='por_jornada'){
-    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio · '+(porJ?'días seguidos':c.dias+' día'+(c.dias>1?'s':'')+' por semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':''));
+    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio'+(porJ?'':' · '+dsMS+' por semana');
     t['cq-tx-precio']=precio!=null&&jornadas?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(cqR2(precio*jornadas))+' MXN (IVA incluido)':'';
   }
   // Canalización / administración de medicamentos: JORNADA = solo el turno (Diurna, Nocturna o Mixta; sin horas: si no se
@@ -2541,8 +2544,8 @@ const CT_CAMPOS={pac_nombre:['ct-pac-nombre'],pac_edad:['ct-pac-edad','ct-pac-fn
 // el PDF hace la revisión exacta y, si algo no cabe, la vista previa lo avisa y el envío se bloquea.
 // Generadas por lambda/enviar_cotizacion/herramientas/limites_campos.py: tope de caracteres, recuadros reales
 // [ancho útil, alto, renglones, tamaño máximo] y anchos de Helvetica, para medir igual que el PDF.
-const LIMITES_TEXTO={"cot.texto_perfil":81,"cot.texto_jornada":61,"cot.texto_servicio":200,"cot.texto_precio":105,"ai.comentarios":1323,"ai.cuenta_expediente":26,"ai.enfermeria_nombre":194,"ai.firmante_nombre":299,"ai.medico_autoriza":303,"ai.otro":310,"ai.pac_nombre":266,"ai.profesional_salud_nombre":194,"ai.testigo1_nombre":194,"ai.testigo2_nombre":194,"aut1_nombre":204,"aut1_parentesco":103,"aut2_nombre":202,"aut2_parentesco":103,"aut3_nombre":202,"aut3_parentesco":103,"cli_calidad_nombre":145,"cli_domicilio":383,"cli_nombre":150,"cli_parentesco":108,"cli_telefono":43,"cuenta_expediente":14,"decisor_nombre":174,"decisor_parentesco":107,"horarios":195,"nr.cuenta_expediente":18,"nr.decisor_nombre":244,"nr.decisor_paciente":87,"nr.decisor_parentesco":61,"nr.medico_nombre":152,"nr.pac_nombre":110,"nr.testigo_medico_nombre":89,"nr.testigo_nombre":90,"nr.yo_paciente":104,"otros_conceptos":151,"pac_diagnostico":205,"pac_estado_clinico":148,"pac_nombre":94,"servicio_solicitado":195,"srv_domicilio":380,"testigo_nombre":155,"texto_perfil":195};
-const LIMITES_CAJAS={"cot.texto_perfil":[[104.25,26.5,3,9.5],[104.25,26.5,3,9.5],[108,38.0,4,9.5]],"cot.texto_jornada":[[91.5,26.5,3,9.5],[86.25,26.5,3,9.5],[98,38.0,4,9.5]],"cot.texto_servicio":[[231.75,26.5,3,9.5],[225.0,26.5,3,9.5],[170,38.0,4,9.5]],"cot.texto_precio":[[124.5,26.5,3,9.5],[118.5,26.5,3,9.5],[108,38.0,4,9.5]],"ai.comentarios":[[577.64,92.0,8,10.0,[577.64,577.64,577.64,577.64,577.64,577.64,577.64,577.64]],[551.2,92.0,8,10.0,[551.2,551.2,551.2,551.2,551.2,551.2,551.2,551.2]]],"ai.cuenta_expediente":[[119.56,18.13,1,10.0],[116.5,18.1,1,10.0]],"ai.enfermeria_nombre":[[225.97,22.63,3,10.0],[215.5,22.6,3,10.0]],"ai.firmante_nombre":[[343.78,22.63,3,10.0],[327.8,22.6,3,10.0]],"ai.medico_autoriza":[[348.81,22.63,3,10.0],[336.8,22.6,3,10.0]],"ai.otro":[[511.4,14.36,2,10.0],[503.2,14.3,2,10.0]],"ai.pac_nombre":[[319.72,22.63,3,10.0],[307.2,22.6,3,10.0]],"ai.profesional_salud_nombre":[[225.76,22.63,3,10.0],[215.5,22.6,3,10.0]],"ai.testigo1_nombre":[[225.76,22.63,3,10.0],[215.5,22.6,3,10.0]],"ai.testigo2_nombre":[[225.97,22.63,3,10.0],[215.5,22.6,3,10.0]],"aut1_nombre":[[236.95,22.63,3,10.0],[222.2,22.6,3,10.0]],"aut1_parentesco":[[180.24,19.6,2,10.0],[170.0,19.6,2,10.0]],"aut2_nombre":[[234.13,22.63,3,10.0],[219.5,22.6,3,10.0]],"aut2_parentesco":[[180.24,19.6,2,10.0],[169.8,19.6,2,10.0]],"aut3_nombre":[[234.13,22.63,3,10.0],[219.5,22.6,3,10.0]],"aut3_parentesco":[[180.24,19.6,2,10.0],[170.1,19.6,2,10.0]],"cli_calidad_nombre":[[464.74,10.7,1,10.0],[201.07,22.63,3,10.0],[464.2,9.9,1,10.0],[196.5,22.6,3,10.0]],"cli_domicilio":[[317.3,32.0,4,10.0],[371.3,34.5,3,10.0,[371.3,465.16,465.16]]],"cli_nombre":[[317.3,29.3,3,10.0],[373.81,15.72,2,10.0],[197.72,22.63,3,10.0],[234.97,22.63,3,10.0],[232.2,22.6,3,10.0],[226.0,22.6,3,10.0],[162.5,22.6,3,10.0]],"cli_parentesco":[[193.74,17.4,2,10.0],[185.3,17.3,2,10.0]],"cli_telefono":[[317.3,29.3,1,10.0],[152.62,14.26,1,10.0],[145.2,13.3,1,10.0]],"cuenta_expediente":[[157.23,14.26,1,10.0],[62.01,15.83,1,10.0],[148.0,13.3,1,10.0],[59.0,15.9,1,10.0]],"decisor_nombre":[[205.04,22.63,3,10.0],[207.5,22.6,3,10.0]],"decisor_parentesco":[[193.74,17.4,2,10.0],[182.8,17.3,2,10.0]],"horarios":[[318.8,22.0,2,10.0]],"nr.cuenta_expediente":[[85.66,14.36,1,10.0],[82.0,14.3,1,10.0]],"nr.decisor_nombre":[[279.96,22.63,3,10.0],[274.2,22.6,3,10.0]],"nr.decisor_paciente":[[128.66,23.0,2,10.0,[192.28,128.66]],[122.5,23.0,2,10.0,[183.5,122.5]]],"nr.decisor_parentesco":[[199.39,11.02,1,10.0],[198.5,10.3,1,10.0]],"nr.medico_nombre":[[266.46,14.36,2,10.0],[262.0,14.3,2,10.0]],"nr.pac_nombre":[[370.78,14.05,1,10.0],[354.2,13.0,1,10.0]],"nr.testigo_medico_nombre":[[315.53,12.27,1,10.0],[293.2,11.8,1,10.0]],"nr.testigo_nombre":[[311.24,14.36,2,10.0],[297.2,13.8,1,10.0]],"nr.yo_paciente":[[351.53,12.06,1,10.0],[337.6,11.5,1,10.0]],"otros_conceptos":[[258.0,22.0,2,10.0]],"pac_diagnostico":[[339.0,22.0,2,10.0]],"pac_estado_clinico":[[158.38,22.63,3,10.0]],"pac_nombre":[[339.0,22.0,2,10.0],[157.23,15.72,2,10.0],[373.5,15.1,2,10.0],[157.2,22.6,3,10.0]],"servicio_solicitado":[[318.8,22.0,2,10.0]],"srv_domicilio":[[454.5,47.0,6,10.0],[371.5,34.5,3,10.0,[371.5,443.9,443.9]]],"testigo_nombre":[[170.72,22.63,3,10.0],[184.8,22.6,3,10.0],[195.5,22.6,3,10.0]],"texto_perfil":[[318.8,22.0,2,10.0]]};
+const LIMITES_TEXTO={"cot.texto_perfil":81,"cot.texto_jornada":61,"cot.texto_servicio":200,"cot.texto_precio":105,"ai.comentarios":1323,"ai.cuenta_expediente":26,"ai.enfermeria_nombre":194,"ai.firmante_nombre":299,"ai.medico_autoriza":303,"ai.otro":310,"ai.pac_nombre":266,"ai.profesional_salud_nombre":194,"ai.testigo1_nombre":194,"ai.testigo2_nombre":194,"aut1_nombre":204,"aut1_parentesco":103,"aut2_nombre":202,"aut2_parentesco":103,"aut3_nombre":202,"aut3_parentesco":103,"cli_calidad_nombre":145,"cli_domicilio":383,"cli_nombre":150,"cli_parentesco":108,"cli_telefono":43,"cuenta_expediente":14,"decisor_nombre":174,"decisor_parentesco":107,"fecha_firma":70,"horarios":195,"nr.cuenta_expediente":18,"nr.decisor_nombre":244,"nr.decisor_paciente":87,"nr.decisor_parentesco":61,"nr.medico_nombre":152,"nr.pac_nombre":110,"nr.testigo_medico_nombre":89,"nr.testigo_nombre":90,"nr.yo_paciente":104,"otros_conceptos":151,"pac_diagnostico":204,"pac_estado_clinico":148,"pac_nombre":94,"servicio_solicitado":195,"srv_domicilio":380,"testigo_nombre":155,"texto_perfil":195};
+const LIMITES_CAJAS={"cot.texto_perfil":[[104.25,26.5,3,9.5],[104.25,26.5,3,9.5],[108,38.0,4,9.5]],"cot.texto_jornada":[[91.5,26.5,3,9.5],[86.25,26.5,3,9.5],[98,38.0,4,9.5]],"cot.texto_servicio":[[231.75,26.5,3,9.5],[225.0,26.5,3,9.5],[170,38.0,4,9.5]],"cot.texto_precio":[[124.5,26.5,3,9.5],[118.5,26.5,3,9.5],[108,38.0,4,9.5]],"ai.comentarios":[[577.64,92.0,8,10.0,[577.64,577.64,577.64,577.64,577.64,577.64,577.64,577.64]],[551.2,92.0,8,10.0,[551.2,551.2,551.2,551.2,551.2,551.2,551.2,551.2]]],"ai.cuenta_expediente":[[119.56,18.13,1,10.0],[116.5,18.1,1,10.0]],"ai.enfermeria_nombre":[[225.97,22.63,3,10.0],[215.5,22.6,3,10.0]],"ai.firmante_nombre":[[343.78,22.63,3,10.0],[327.8,22.6,3,10.0]],"ai.medico_autoriza":[[348.81,22.63,3,10.0],[336.8,22.6,3,10.0]],"ai.otro":[[511.4,14.36,2,10.0],[503.2,14.3,2,10.0]],"ai.pac_nombre":[[319.72,22.63,3,10.0],[307.2,22.6,3,10.0]],"ai.profesional_salud_nombre":[[225.76,22.63,3,10.0],[215.5,22.6,3,10.0]],"ai.testigo1_nombre":[[225.76,22.63,3,10.0],[215.5,22.6,3,10.0]],"ai.testigo2_nombre":[[225.97,22.63,3,10.0],[215.5,22.6,3,10.0]],"aut1_nombre":[[236.95,22.63,3,10.0],[222.2,22.6,3,10.0]],"aut1_parentesco":[[180.24,19.6,2,10.0],[170.0,19.6,2,10.0]],"aut2_nombre":[[234.13,22.63,3,10.0],[219.5,22.6,3,10.0]],"aut2_parentesco":[[180.24,19.6,2,10.0],[169.8,19.6,2,10.0]],"aut3_nombre":[[234.13,22.63,3,10.0],[219.5,22.6,3,10.0]],"aut3_parentesco":[[180.24,19.6,2,10.0],[170.1,19.6,2,10.0]],"cli_calidad_nombre":[[464.74,10.7,1,10.0],[201.07,22.63,3,10.0],[464.2,9.9,1,10.0],[196.5,22.6,3,10.0]],"cli_domicilio":[[317.3,32.0,4,10.0],[371.3,34.5,3,10.0,[371.3,465.16,465.16]],[317.3,51.0,6,10.0]],"cli_nombre":[[317.3,29.3,3,10.0],[373.81,15.72,2,10.0],[197.72,22.63,3,10.0],[234.97,22.63,3,10.0],[317.3,32.0,4,10.0],[232.2,22.6,3,10.0],[226.0,22.6,3,10.0],[162.5,22.6,3,10.0]],"cli_parentesco":[[193.74,17.4,2,10.0],[185.3,17.3,2,10.0]],"cli_telefono":[[317.3,29.3,1,10.0],[152.62,14.26,1,10.0],[317.3,33.5,1,10.0],[145.2,13.3,1,10.0]],"cuenta_expediente":[[157.23,14.26,1,10.0],[62.01,15.83,1,10.0],[148.0,13.3,1,10.0],[59.0,15.9,1,10.0]],"decisor_nombre":[[205.04,22.63,3,10.0],[207.5,22.6,3,10.0]],"decisor_parentesco":[[193.74,17.4,2,10.0],[182.8,17.3,2,10.0]],"fecha_firma":[[231.8,20.0,1,10.0]],"horarios":[[318.8,22.0,2,10.0],[336.2,20.5,2,10.0]],"nr.cuenta_expediente":[[85.66,14.36,1,10.0],[82.0,14.3,1,10.0]],"nr.decisor_nombre":[[279.96,22.63,3,10.0],[274.2,22.6,3,10.0]],"nr.decisor_paciente":[[128.66,23.0,2,10.0,[192.28,128.66]],[122.5,23.0,2,10.0,[183.5,122.5]]],"nr.decisor_parentesco":[[199.39,11.02,1,10.0],[198.5,10.3,1,10.0]],"nr.medico_nombre":[[266.46,14.36,2,10.0],[262.0,14.3,2,10.0]],"nr.pac_nombre":[[370.78,14.05,1,10.0],[354.2,13.0,1,10.0]],"nr.testigo_medico_nombre":[[315.53,12.27,1,10.0],[293.2,11.8,1,10.0]],"nr.testigo_nombre":[[311.24,14.36,2,10.0],[297.2,13.8,1,10.0]],"nr.yo_paciente":[[351.53,12.06,1,10.0],[337.6,11.5,1,10.0]],"otros_conceptos":[[258.0,22.0,2,10.0],[262.0,20.5,2,10.0]],"pac_diagnostico":[[339.0,22.0,2,10.0],[336.2,20.5,2,10.0]],"pac_estado_clinico":[[158.38,22.63,3,10.0]],"pac_nombre":[[339.0,22.0,2,10.0],[157.23,15.72,2,10.0],[336.2,20.5,2,10.0],[373.5,15.1,2,10.0],[157.2,22.6,3,10.0]],"servicio_solicitado":[[318.8,22.0,2,10.0],[336.2,20.5,2,10.0]],"srv_domicilio":[[454.5,47.0,6,10.0],[451.7,29.0,3,10.0],[371.5,34.5,3,10.0,[371.5,443.9,443.9]]],"testigo_nombre":[[170.72,22.63,3,10.0],[184.8,22.6,3,10.0],[195.5,22.6,3,10.0]],"texto_perfil":[[318.8,22.0,2,10.0],[336.2,20.5,2,10.0]]};
 const ANCHOS_HELVETICA=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],ANCHOS_HELVETICA_EXTRA={"–":556,"—":1000,"‘":222,"’":222,"“":333,"”":333,"…":1000,"•":350,"€":556};
 function limiteTexto(claves){return Math.min.apply(null,claves.map(function(k){return LIMITES_TEXTO[k]||9999;}));}
 // Campo de la app → campos del documento donde se imprime (manda el recuadro más chico).
@@ -2844,7 +2847,8 @@ function soloConsulta(panel,excepto){
   document.querySelectorAll('#'+panel+' input,#'+panel+' select,#'+panel+' textarea').forEach(function(e){if(!excepto||!e.closest(excepto))e.disabled=true;});
 }
 function ctVisibilidad(){
-  // Médica Sur: su documento es el aviso de privacidad y el consentimiento; no pide la carátula ni el precio de Salus.
+  // Médica Sur: misma carátula que Salus; no pide «cómo se encuentra hoy» (su consentimiento lleva el nombre del paciente)
+  // ni el lugar de firma («Ciudad de México» viene impreso).
   var ms=gv('ct-marca')==='ms';
   document.querySelectorAll('#ct-panel .ct-solo-salus').forEach(function(e){e.style.display=ms?'none':'';});
   document.querySelectorAll('#ct-panel .ct-solo-ms').forEach(function(e){e.style.display=ms?'':'none';});
