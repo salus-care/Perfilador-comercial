@@ -694,7 +694,8 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="g4" id="cq-adic-wrap">
 <div class="fl"><label class="cq-check"><input type="checkbox" id="cq-bono-aplica" onchange="cqAdicionalesCambio()"> Aplica bono</label><input type="number" id="cq-bono-monto" min="0" step="0.01" placeholder="Monto por jornada" style="display:none" oninput="cqRecalcular(true)"></div>
 <div class="fl"><label class="cq-check"><input type="checkbox" id="cq-viaticos-aplica" onchange="cqAdicionalesCambio()"> Aplica viáticos</label><input type="number" id="cq-viaticos-monto" min="0" step="0.01" placeholder="Monto por jornada" style="display:none" oninput="cqRecalcular(true)"></div>
-<div class="fl" style="grid-column:span 2"><label>Bono y viáticos (por jornada)</label><div class="cq-hint" id="cq-adic-hint">Monto por jornada (diario), IVA incluido. Se suma al precio acordado: la cotización y el contrato llevan un solo total.</div></div>
+<div class="fl" id="cq-total-adic-wrap" style="display:none"><label>Total con bono y viáticos (IVA incluido)</label><input type="text" id="cq-total-adic" readonly class="ct-calculado"><div class="cq-hint">Precio acordado + bono y viáticos: va en la cotización y el contrato</div></div>
+<div class="fl"><label>Bono y viáticos (por jornada)</label><div class="cq-hint" id="cq-adic-hint">Monto por jornada (diario), IVA incluido. Se suma al precio acordado: la cotización y el contrato llevan un solo total.</div></div>
 </div>
 <div class="sec-lbl">Así queda la tabla de la propuesta económica</div>
 <div class="cq-tabla">
@@ -1349,7 +1350,7 @@ async function cargarFestivos(){
     // Cotización recién abierta: el recálculo con los festivos es parte de la carga (no la marca como cambiada)
     var carga=typeof CQ!=='undefined'&&CQ.precioGuardadoPendiente!=null,sucio=carga?CQ.sucio:null;if(carga)CQ.cargando=true;
     renderCotiz();if(typeof cqRecalcular==='function')cqRecalcular();
-    if(carga){CQ.cargando=false;CQ.sucio=sucio;if(!CQ.precioManual&&cqNum(gv('cq-precio-acordado'))!==Number(CQ.precioGuardadoPendiente))
+    if(carga){CQ.cargando=false;CQ.sucio=sucio;if(!CQ.precioManual&&cqTotal()!==Number(CQ.precioGuardadoPendiente))
       showToast('ℹ️ El precio calculado hoy por el código difiere del guardado ('+cqMoneda(CQ.precioGuardadoPendiente)+')');CQ.precioGuardadoPendiente=null;}}}
 function fechaCorta(iso){return new Date(iso+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'});}
 // Texto del recargo: «2 días — 16 nov 2026 (Día de la Revolución) y 25 dic 2026 (Navidad) · $585 c/u = $1,170».
@@ -1972,7 +1973,7 @@ function cqPintarAdicionales(c,mod,nj,total){
   var partes=[];if(a.bono)partes.push('bono $'+cqMoneda(a.bono));if(a.viaticos)partes.push('viáticos $'+cqMoneda(a.viaticos));
   var u=mod==='mensualidad'?' jornadas al mes':mod==='por_jornada'?' jornada':' jornadas';
   h.innerHTML=partes.join(' + ')+(partes.length>1?' = $'+cqMoneda(pj):'')+' por jornada × '+fmt(nj)+u+' = <strong>$'+cqMoneda(total)+'</strong>'+
-    (CQ.precioManual?' · <span class="sev-media">precio editado a mano: inclúyelo tú en el precio acordado</span>':' · ya sumado al precio acordado');}
+    ' · se suma encima del precio acordado'+(CQ.precioManual?' (aunque esté escrito a mano)':'');}
 function cqPediatrico(){
   if(tipoSvc==='bebe'||sel.neonatal||sel.estimulacion_temprana)return true;
   var f=gv('cq-pac-fnac');if(f){var e=(Date.now()-new Date(f+'T12:00:00'))/31557600000;if(e<18)return true;}
@@ -2065,28 +2066,34 @@ function cqRecalcular(){
   // Bono y viáticos por jornada × jornadas de la modalidad, sumados después del descuento.
   var ad=cqAdicionales(),nj=cqJornadasAdicionales(c,mod,cqNum(gv('cq-dias-periodo'))),pj=(ad.bono||0)+(ad.viaticos||0);
   CQ.adicionalesTotal=pj&&nj?cqR2(pj*nj):0;
-  if(!CQ.precioManual){var d=cqNum(gv('cq-descuento'))||0;cqSet('cq-precio-acordado',lista.v!=null?cqR2(cqR2(lista.v*(1-d/100))+CQ.adicionalesTotal):'');}
+  // El precio acordado es el del servicio (calculado o escrito a mano); el bono y los viáticos se suman encima (cqTotal).
+  if(!CQ.precioManual){var d=cqNum(gv('cq-descuento'))||0;cqSet('cq-precio-acordado',lista.v!=null?cqR2(lista.v*(1-d/100)):'');}
   cqPintarAdicionales(c,mod,nj,CQ.adicionalesTotal);
   cqDesglose();
-  var auto=cqTextosAuto(c,mod,cqNum(gv('cq-precio-acordado')),gv('cq-turno-tipo'),cqNum(gv('cq-dias-periodo')));
+  var auto=cqTextosAuto(c,mod,cqTotal(),gv('cq-turno-tipo'),cqNum(gv('cq-dias-periodo')));
   Object.keys(auto).forEach(function(k){if(!CQ.manualTextos[k]){cqSet(k,auto[k]);var el=document.getElementById(k);if(el)el.classList.remove('manual');}});
   CQ.textosAuto=auto;
   // Médica Sur: en PRECIO va el total del periodo (la BD lo calcula igual); la nota de festivos va en la línea bajo la tabla.
   var fl=document.querySelector('#cq-festivos-wrap');if(fl&&fl.lastChild)fl.lastChild.textContent=marca==='ms'?' Incluir la nota de días festivos (en la línea bajo la tabla)':' Incluir la nota de días festivos';
-  var tp=document.getElementById('cq-total-periodo'),pa=cqNum(gv('cq-precio-acordado')),dp=cqNum(gv('cq-dias-periodo'));
+  var tp=document.getElementById('cq-total-periodo'),pa=cqTotal(),dp=cqNum(gv('cq-dias-periodo'));
   if(tp){var ver=marca==='ms'&&mod==='por_jornada'&&pa!=null&&dp;tp.style.display=marca==='ms'&&mod==='por_jornada'?'':'none';
     tp.textContent=marca!=='ms'?'':ver?'PRECIO = total del periodo: $'+cqMoneda(pa)+' por día × '+dp+' días = $'+cqMoneda(cqR2(pa*dp))+' IVA incluido':'Falta el precio por día o los días del periodo para el total';}
   cqRenderProtocolos();
   pintarFestivos();
   cqMarcarCambio();
 }
+// Total de la cotización = precio acordado (calculado o a mano) + bono y viáticos. Es lo que se guarda como precio
+// acordado en la BD y lo que llevan la cotización y el contrato (un solo total).
+function cqTotal(){var b=cqNum(gv('cq-precio-acordado'));return b==null?null:cqR2(b+(CQ.adicionalesTotal||0));}
 function cqDesglose(){
-  var t=cqNum(gv('cq-precio-acordado'));
+  var t=cqTotal(),ad=CQ.adicionalesTotal||0;
   if(t==null){cqSet('cq-subtotal','');cqSet('cq-iva','');}
   else{var sub=cqR2(t/1.16);cqSet('cq-subtotal','$'+cqMoneda(sub));cqSet('cq-iva','$'+cqMoneda(cqR2(t-sub)));}
-  var m=document.getElementById('cq-precio-modo');if(m)m.textContent=CQ.precioManual?'Editado a mano':'Lista − descuento';
+  var w=document.getElementById('cq-total-adic-wrap');if(w)w.style.display=ad?'':'none';cqSet('cq-total-adic',ad&&t!=null?'$'+cqMoneda(t):'');
+  var m=document.getElementById('cq-precio-modo');if(m)m.textContent=(CQ.precioManual?'Editado a mano':'Lista − descuento')+(ad?' · sin bono ni viáticos':'');
 }
-function cqPrecioManual(){CQ.precioManual=true;cqDesglose();var c=cqCalculo();if(c&&!CQ.manualTextos['cq-tx-precio']){var a=cqTextosAuto(c,gv('cq-modalidad'),cqNum(gv('cq-precio-acordado')),gv('cq-turno-tipo'),cqNum(gv('cq-dias-periodo')));cqSet('cq-tx-precio',a['cq-tx-precio']);}cqMarcarCambio();}
+function cqPrecioManual(){CQ.precioManual=true;cqDesglose();var c=cqCalculo();if(c&&!CQ.manualTextos['cq-tx-precio']){var a=cqTextosAuto(c,gv('cq-modalidad'),cqTotal(),gv('cq-turno-tipo'),cqNum(gv('cq-dias-periodo')));cqSet('cq-tx-precio',a['cq-tx-precio']);}
+  cqPintarAdicionales(c,gv('cq-modalidad'),c?cqJornadasAdicionales(c,gv('cq-modalidad'),cqNum(gv('cq-dias-periodo'))):null,CQ.adicionalesTotal||0);cqMarcarCambio();}
 function cqPrecioAuto(){CQ.precioManual=false;cqRecalcular();}
 function cqTextoManual(el){CQ.manualTextos[el.id]=true;el.classList.add('manual');cqMarcarCambio();}
 function cqRegenerarTextos(){CQ.manualTextos={};cqRecalcular();}
@@ -2104,7 +2111,7 @@ function cqPayload(){
       contratacion:contrato,dias_semana_lista:contrato==='membresia'?diasSel.slice():null,
       necesidades:Object.keys(sel).map(function(k){return{codigo:k,nivel:sel[k].lv,etiqueta:sel[k].label};})},
     precio:{modalidad_cobro:gv('cq-modalidad')||null,dias_periodo:cqNum(gv('cq-dias-periodo')),precio_lista:CQ.precioLista?CQ.precioLista.v:null,
-      precio_lista_origen:CQ.precioLista?CQ.precioLista.o:null,descuento_pct:cqNum(gv('cq-descuento')),precio_acordado:cqNum(gv('cq-precio-acordado')),
+      precio_lista_origen:CQ.precioLista?CQ.precioLista.o:null,descuento_pct:cqNum(gv('cq-descuento')),precio_acordado:cqTotal(),
       precio_acordado_manual:CQ.precioManual,
       bono_jornada:cqAdicionales().bono,viaticos_jornada:cqAdicionales().viaticos,adicionales_total:CQ.adicionalesTotal||0},
     textos:{perfil:gv('cq-tx-perfil'),jornada:gv('cq-tx-jornada'),servicio:gv('cq-tx-servicio'),precio:gv('cq-tx-precio'),
@@ -2272,7 +2279,7 @@ function cqLimpiar(){
    'cq-tx-perfil','cq-tx-jornada','cq-tx-servicio','cq-tx-precio','cq-pac-nombre','cq-pac-fnac','cq-pac-dx','cq-cli-rfc','cq-cli-curp','cq-cli-cp','cq-cli-alcaldia','cq-observaciones'].forEach(function(id){cqSet(id,'');var el=document.getElementById(id);if(el)el.classList.remove('manual');});
   telSet('cq-dest-tel','');
   var f=document.getElementById('cq-festivos');if(f)f.checked=true;
-  CQ.adicionalesTotal=0;['bono','viaticos'].forEach(function(k){var a=document.getElementById('cq-'+k+'-aplica'),m=document.getElementById('cq-'+k+'-monto');if(a)a.checked=false;if(m){m.value='';m.style.display='none';}});
+  CQ.adicionalesTotal=0;var ta=document.getElementById('cq-total-adic-wrap');if(ta)ta.style.display='none';cqSet('cq-total-adic','');['bono','viaticos'].forEach(function(k){var a=document.getElementById('cq-'+k+'-aplica'),m=document.getElementById('cq-'+k+'-monto');if(a)a.checked=false;if(m){m.value='';m.style.display='none';}});
   var fo=document.getElementById('cq-folio');if(fo)fo.textContent='Nueva · sin guardar';
   var es=document.getElementById('cq-estado');if(es)es.style.display='none';
   ['cq-btn-enviada','cq-btn-version','cq-btn-pdf','cq-btn-firma','cq-btn-borrar'].forEach(function(id){var b=document.getElementById(id);if(b){b.style.display='none';b.disabled=false;}});
@@ -2306,7 +2313,8 @@ function cqCargar(r){
   cqSet('cq-dias-periodo',c.dias_periodo);cqSet('cq-descuento',c.descuento_pct);
   [['bono',c.bono_jornada],['viaticos',c.viaticos_jornada]].forEach(function(x){var on=x[1]!=null&&Number(x[1])>0;
     document.getElementById('cq-'+x[0]+'-aplica').checked=on;var m=document.getElementById('cq-'+x[0]+'-monto');m.value=on?x[1]:'';m.style.display=on?'':'none';});
-  CQ.precioManual=!!c.precio_acordado_manual;if(CQ.precioManual)cqSet('cq-precio-acordado',c.precio_acordado);
+  // En la BD el precio acordado ya trae el bono y los viáticos: en pantalla va sin ellos (se suman en cqTotal).
+  CQ.precioManual=!!c.precio_acordado_manual;if(CQ.precioManual)cqSet('cq-precio-acordado',c.precio_acordado==null?'':cqR2(Number(c.precio_acordado)-Number(c.adicionales_total||0)));
   CQ.protos=new Set((c.protocolos||[]).map(function(x){return x.codigo;}));CQ.protosManual=true;
   cqSet('cq-pac-nombre',pa.nombre_capturado||[pa.nombres,pa.apellidos].filter(Boolean).join(' '));cqSet('cq-pac-fnac',pa.fecha_nacimiento);cqSet('cq-pac-dx',pa.diagnostico);
   cqSet('cq-cli-rfc',cl.rfc);cqSet('cq-cli-curp',cl.curp);cqSet('cq-cli-cp',cl.dom_cp);cqSet('cq-cli-alcaldia',cl.dom_alcaldia_municipio);
@@ -2320,7 +2328,7 @@ function cqCargar(r){
     cqSet(t[0],t[1]);CQ.manualTextos[t[0]]=true;document.getElementById(t[0]).classList.add('manual');});
   // Por jornadas con los festivos aún en consulta: la comparación se hace cuando llegan (cargarFestivos).
   var fe=festEstado();if(fe==='cargando'||fe==='pendiente')CQ.precioGuardadoPendiente=c.precio_acordado;
-  else if(!CQ.precioManual&&c.precio_acordado!=null&&cqNum(gv('cq-precio-acordado'))!==Number(c.precio_acordado)){
+  else if(!CQ.precioManual&&c.precio_acordado!=null&&cqTotal()!==Number(c.precio_acordado)){
     showToast('ℹ️ El precio calculado hoy por el código difiere del guardado ('+cqMoneda(c.precio_acordado)+')');}
   cqAplicar(r);CQ.cargando=false;CQ.sucio=false;cqMsg('Cargada desde la BD');
 }
