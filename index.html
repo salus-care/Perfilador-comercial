@@ -635,7 +635,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>Fecha de inicio *</label><input type="date" id="jorn-fini" onchange="setCanalFecha(this.value)"></div>
 <div class="fl"><label>Fecha final</label><input type="date" id="jorn-ffin" readonly tabindex="-1" class="ct-calculado"><div class="cq-hint">Se calcula: inicio + jornadas</div></div>
 </div>
-<div class="cq-hint" id="jorn-hint">Días seguidos desde la fecha de inicio. Cada jornada se cobra con la lista de urgencia.</div>
+<div class="cq-hint" id="jorn-hint">Días a partir de la fecha de inicio. Cada jornada se cobra con la lista de urgencia.</div>
 <div class="aviso-regla" id="jorn-festivos" style="display:none;margin-top:8px"></div>
 </div>
 <div style="margin-top:6px;display:none" id="canal-wrap">
@@ -1436,7 +1436,7 @@ function pintarContrato(){
   DIAS_SEMANA.forEach(function(d){document.getElementById('dw-'+d).classList.toggle('on',diasSel.indexOf(d)>=0);});
   var n=diasSel.length;document.getElementById('dsem-cuenta').textContent=n?'· '+n+' día'+(n>1?'s':'')+' por semana':'';
   var ji=document.getElementById('jorn-num');if(ji&&String(jornadas||'')!==ji.value)ji.value=jornadas||'';
-  var h=document.getElementById('jorn-hint');if(h)h.textContent=(g?'Urgencia / Guardia se contrata solo por jornadas. ':'')+'Días seguidos desde la fecha de inicio. Cada jornada se cobra con la lista de urgencia'+(GUARDIA_CORTA[marca]?' (+15 %)':'')+'; las que caen en día festivo llevan su recargo.';
+  var h=document.getElementById('jorn-hint');if(h)h.textContent=(g?'Urgencia / Guardia se contrata solo por jornadas. ':'')+'Días a partir de la fecha de inicio. Cada jornada se cobra con la lista de urgencia'+(GUARDIA_CORTA[marca]?' (+15 %)':'')+'; las que caen en día festivo llevan su recargo.';
   if(contrato==='jornadas')cargarFestivos();else pintarFestivos();}
 function togDia(d){var i=diasSel.indexOf(d);if(i>=0)diasSel.splice(i,1);else diasSel.push(d);diasSel.sort(function(a,b){return DIAS_SEMANA.indexOf(a)-DIAS_SEMANA.indexOf(b);});
   dias=diasSel.length||null;pintarContrato();updateBtns();}
@@ -1455,7 +1455,7 @@ function renderCotiz(){const profile=getProfile();const pk=profile;const main=do
 aside.innerHTML='<div class="cotiz-destacado">'+(tipoSvc?'<div class="cd-row"><span class="cd-ico">🔖</span><div><div class="cd-l">Tipo de servicio (Job)</div><div class="cd-v">'+TIPO_SVC_L[tipoSvc]+'</div></div></div>':'')+'<div class="cd-row"><span class="cd-ico">📅</span><div><div class="cd-l">Fecha probable de inicio</div><div class="cd-v">'+fIniFmt+'</div></div></div></div><div class="summary-box"><div class="sb-title">Resumen</div><div class="sb-row"><span class="sb-l">Perfil</span><span class="sb-v">'+PM[profile].icon+' '+PM[profile].name+'</span></div><div class="sb-row"><span class="sb-l">Marca</span><span class="sb-v">'+MARCA_L[marca]+'</span></div>'+(isSCS()?'<div class="sb-row"><span class="sb-l">Producto</span><span class="sb-v">'+prodLabel()+'</span></div>':'')+'<div class="sb-row"><span class="sb-l">Turno</span><span class="sb-v">'+turno+'h</span></div>'+(contrato==='jornadas'?'<div class="sb-row"><span class="sb-l">Contratación</span><span class="sb-v">'+jornadas+' jornada'+(jornadas>1?'s':'')+'</span></div>':'<div class="sb-row"><span class="sb-l">Días/sem</span><span class="sb-v">'+dias+' · '+diasTexto(diasSel)+'</span></div>')+'</div><div class="guardias-box"><strong>Guardias adicionales c/IVA</strong><br>Cuidadora: $928 (8-12h)/$1,392 (18-24h)<br>Auxiliar: $1,160 (8-12h)/$1,624 (18-24h)<br>Enfermería: $1,392 (8-12h)/$2,088 (18-24h)</div><div style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="saveCotizacion()">☁️ Guardar cotización en Drive</button></div>';
 let html='';if(!isSCS()){html+=precioBlock(pk,PM[profile].name);}else if(producto==='match'){const recl=MATCH_PRICES[pk],plan=2900,total=recl+plan;html+='<div class="match-note note-green"><strong>Salus Match — Pago único · Garantía 30 días</strong><br>Reclutamiento + Valoración + Plan de cuidados + Seguridad del hogar.</div><div class="price-breakdown"><div class="pb-head">Desglose pago único</div><div class="pb-row"><span class="pb-l">Reclutamiento ('+PM[profile].name+')</span><span class="pb-v">$'+fmt(recl)+'</span></div><div class="pb-row"><span class="pb-l">Valoración + Plan + Seguridad</span><span class="pb-v">$'+fmt(plan)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total c/IVA</strong></span><span class="pb-v hi">$'+fmt(total)+' MXN</span></div></div>';html+=precioBlock(pk,PM[profile].name);}else if(producto==='select'){const isB=variante==='basico';const up=isB?SELECT_BASICO:MATCH_PRICES[pk];const disc=MEMB_DISC[memb];const mML=MEMB_MENSUAL[pk]['trim'];const mMD=MEMB_MENSUAL[pk][memb];const meses=MEMB_MES[memb];const tM=mMD*meses;const tC=up+tM;html+='<div class="match-note note-green"><strong>Salus Select '+(isB?'Básico':'Plus')+' · '+membLabel()+'</strong><br>'+(isB?'Solo valoración clínica + membresía.':'Reclutamiento + valoración + membresía.')+(disc>0?' <strong>'+(disc*100)+'% dto.</strong> en membresía.':'')+'</div><div class="price-breakdown"><div class="pb-head">Desglose</div><div class="pb-row"><span class="pb-l">'+(isB?'Valoración + Plan':'Reclutamiento + Valoración + Plan')+'</span><span class="pb-v">$'+fmt(up)+'</span></div><div class="pb-row"><span class="pb-l">Membresía '+(disc>0?'($'+fmt(mML)+'/mes → $'+fmt(mMD)+'/mes)':'')+' × '+meses+' meses</span><span class="pb-v">$'+fmt(tM)+'</span></div><div class="pb-row"><span class="pb-l"><strong>Total '+meses+' meses c/IVA</strong></span><span class="pb-v hi">$'+fmt(tC)+' MXN</span></div></div><div class="memb-breakdown"><div class="mb-head"><span>Beneficios '+membLabel()+'</span></div><div class="mb-row"><span class="mb-l">Guardias incluidas</span><span class="mb-v">'+GUARDIAS_INC[memb]+' día(s)</span></div><div class="mb-row"><span class="mb-l">Serenity + SOFIA</span><span class="mb-v">✓</span></div><div class="mb-row"><span class="mb-l">Dto. re-reclutamiento</span><span class="mb-v">'+(memb==='trim'?'15%':memb==='sem'?'25%':'50%')+'</span></div><div class="mb-row"><span class="mb-l">Dto. guardias adicionales</span><span class="mb-v">'+(memb==='trim'?'10%':memb==='sem'?'15%':'20%')+'</span></div></div>';html+=precioBlock(pk,PM[profile].name);}else if(producto==='premium'){html+='<div class="match-note note-purple"><strong>Salus Premium — Todo incluido</strong><br>Salus emplea, supervisa y gestiona. Riesgo laboral 100% Salus.</div>';html+=precioBlock(pk,PM[profile].name);}main.innerHTML=html;}
 function precioBlock(pk,pl){const esp=precioServicio(pk,turno),base=ESTANDAR[marca]&&ESTANDAR[marca][pk]?ESTANDAR[marca][pk][turno]:null;if(!esp)return'<p style="font-size:.7rem;color:var(--muted);margin-top:8px">⚠️ No disponible para esta marca/turno.</p>';
-if(contrato==='jornadas')return'<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+jornadas+' jornada'+(jornadas>1?'s':'')+'</strong></div><div class="price-hero"><div class="ph-label">Precio por jornada c/IVA'+(esGuardiaCorta()?' · lista de urgencia (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div><div class="price-breakdown"><div class="pb-head">Por jornadas · días seguidos</div><div class="pb-row"><span class="pb-l">Jornadas</span><span class="pb-v">'+jornadas+'</span></div><div class="pb-row"><span class="pb-l">Precio por jornada</span><span class="pb-v">$'+fmt(esp)+'</span></div>'+(function(){var rg=jornRango(),l=festivosDelRango(),rc=recargoFestivo(pk,turno),s='';
+if(contrato==='jornadas')return'<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+jornadas+' jornada'+(jornadas>1?'s':'')+'</strong></div><div class="price-hero"><div class="ph-label">Precio por jornada c/IVA'+(esGuardiaCorta()?' · lista de urgencia (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div><div class="price-breakdown"><div class="pb-head">Por jornadas</div><div class="pb-row"><span class="pb-l">Jornadas</span><span class="pb-v">'+jornadas+'</span></div><div class="pb-row"><span class="pb-l">Precio por jornada</span><span class="pb-v">$'+fmt(esp)+'</span></div>'+(function(){var rg=jornRango(),l=festivosDelRango(),rc=recargoFestivo(pk,turno),s='';
   if(rg)s+='<div class="pb-row"><span class="pb-l">Del '+fechaCorta(rg.desde)+' al</span><span class="pb-v">'+fechaCorta(rg.fin)+'</span></div>';
   if(l.length&&rc!=null)s+='<div class="pb-row"><span class="pb-l">Recargo por festivos ('+l.length+' × $'+fmt(rc)+')</span><span class="pb-v">$'+fmt(Math.round(rc*l.length*100)/100)+'</span></div>';
   return s;})()+'<div class="pb-row"><span class="pb-l"><strong>Total c/IVA</strong></span><span class="pb-v hi">$'+fmt(Math.round((esp*jornadas+(function(){var rc=recargoFestivo(pk,turno);return rc!=null?rc*festivosDelRango().length:0;})())*100)/100)+' MXN</span></div></div>'+(function(){var t=festivosTexto(pk,turno);return t?'<div class="aviso-regla" style="margin-top:8px">'+t+'</div>':'';})();const data=MEMB[marca]&&MEMB[marca][pk]?MEMB[marca][pk][turno]:null;const ci=DIAS_A_COL[dias];let html='<div class="match-note note-blue"><strong>'+MARCA_L[marca]+' · '+pl+' · '+turno+'h · '+dias+'d/sem ('+diasTexto(diasSel)+')</strong></div><div class="price-hero"><div class="ph-label">Precio por servicio c/IVA'+(esGuardiaCorta()?' · Guardia corta (+15%)':'')+'</div><div class="ph-price">$'+fmt(esp)+' MXN</div><div class="ph-sub">'+turno+' horas · '+pl+'</div></div>';const x1=ci===null?mensualX1Dia(pk,turno,dias):null;
@@ -1919,26 +1919,25 @@ function cqPrecioLista(c,mod,jornadas){
   return{v:null,o:''};
 }
 function cqTextosAuto(c,mod,precio,tipo,jornadas){
-  var jornada=c.turno+' horas'+(tipo==='nocturno'?' nocturnas':tipo==='diurno'?' diurnas':'');
+  // Un turno de 24 h no es diurno ni nocturno: no lleva el tipo (5-nov-2026)
+  var jornada=c.turno+' horas'+(+c.turno===24?'':tipo==='nocturno'?' nocturnas':tipo==='diurno'?' diurnas':'');
   var porJ=c.contratacion==='jornadas';
-  var dsem=porJ?(c.jornadas||'—')+' jornadas seguidas':c.dias+' día'+(c.dias>1?'s':'')+'/semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':'');
+  // SERVICIO, igual en las dos marcas (5-nov-2026): por jornadas = «N días de servicio» (sin «seguidos»);
+  // membresía = días por semana con los días marcados, p. ej. «2 días/semana (lun y mié)».
+  var dsem=porJ?(c.jornadas||'—')+' días de servicio':c.dias+' día'+(c.dias>1?'s':'')+'/semana'+(c.dias_lista&&c.dias_lista.length?' ('+diasTexto(c.dias_lista)+')':'');
   var servicio={mensualidad:(c.producto==='premium'?'Membresía mensual':'Mensualidad')+' · '+dsem,por_jornada:'Por jornada · '+dsem,
-    paquete_jornadas:(porJ?'':'Paquete de ')+(jornadas||'—')+' jornadas'+(porJ?' seguidas':''),pago_unico_match:'Salus Match · pago único',select_membresia:prodLabel()}[mod]||'';
+    paquete_jornadas:porJ?(jornadas||'—')+' días de servicio':'Paquete de '+(jornadas||'—')+' jornadas',pago_unico_match:'Salus Match · pago único',select_membresia:prodLabel()}[mod]||'';
   var suf={mensualidad:' mensuales',por_jornada:' por jornada',paquete_jornadas:porJ?' por las '+(jornadas||'—')+' jornadas':' por el paquete',pago_unico_match:' pago único',select_membresia:' total'}[mod]||'';
   var t={'cq-tx-perfil':PM[c.perfil].name,'cq-tx-jornada':jornada,'cq-tx-servicio':servicio,'cq-tx-precio':precio!=null?'$'+cqMoneda(precio)+' MXN'+suf+' (IVA incluido)':''};
   // Médica Sur, como envía sus cotizaciones: SERVICIO = días de servicio y PRECIO = total del periodo (precio por día × días),
   // con "Con descuento" si lo hay. La nota de festivos va en la línea bajo la tabla.
-  // Médica Sur, con sus textos originales (5-nov-2026: sin «días seguidos» ni la lista de días, que no usa):
-  // por jornadas = «N días de servicio»; membresía por jornada = «N días de servicio · D días por semana»;
-  // mensualidad = «Mensualidad · D días/semana». PRECIO = total de las jornadas (con el recargo de festivos, si hay).
-  var dsMS=c.dias+' día'+(c.dias>1?'s':'');
-  if(marca==='ms'&&mod==='mensualidad')t['cq-tx-servicio']='Mensualidad · '+dsMS+'/semana';
+  // Por jornadas en Médica Sur: PRECIO = total de las jornadas (con el recargo de festivos, si hay).
   if(marca==='ms'&&porJ&&mod==='paquete_jornadas'){
-    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio';
     t['cq-tx-precio']=precio!=null?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(precio)+' MXN (IVA incluido)':'';
   }
+  // Médica Sur por jornada (membresía): SERVICIO = «N días de servicio · 2 días/semana (lun y mié)» y PRECIO = el total.
   if(marca==='ms'&&mod==='por_jornada'){
-    t['cq-tx-servicio']=(jornadas||'—')+' días de servicio'+(porJ?'':' · '+dsMS+' por semana');
+    t['cq-tx-servicio']=porJ?(jornadas||'—')+' días de servicio':(jornadas||'—')+' días de servicio · '+dsem;
     t['cq-tx-precio']=precio!=null&&jornadas?((cqNum(gv('cq-descuento'))||0)>0?'Con descuento ':'')+'$'+cqMoneda(cqR2(precio*jornadas))+' MXN (IVA incluido)':'';
   }
   // Canalización / administración de medicamentos: JORNADA = solo el turno (Diurna, Nocturna o Mixta; sin horas: si no se
@@ -2915,7 +2914,7 @@ function ctHintsFechas(){
   if(jor){
     var canal=t.tipo_servicio==='canalizacion';
     hf.textContent=canal?'Canalización: el mismo día del inicio. No se imprime.':'Inicio + '+Number(t.dias_periodo)+' jornadas de la cotización. No se imprime.';
-    hj.textContent='De la cotización: '+Number(t.dias_periodo)+(canal?' visita':' jornadas seguidas');
+    hj.textContent='De la cotización: '+Number(t.dias_periodo)+(canal?' visita':' jornadas');
   }else if(mem){
     var ini=gv('ct-fini'),fin=gv('ct-ffin');
     hf.textContent='La pone el asesor; con ella se calculan las jornadas. No se imprime.';
