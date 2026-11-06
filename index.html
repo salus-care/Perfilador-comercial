@@ -2323,8 +2323,12 @@ function cqCargar(r){
   cqSet('cq-observaciones',c.observaciones);document.getElementById('cq-festivos').checked=c.incluir_nota_festivos!==false;
   CQ.id=c.id;
   goStep(5);
+  var textoViejo=false;
   [['cq-tx-perfil',c.texto_perfil],['cq-tx-jornada',c.texto_jornada],['cq-tx-servicio',c.texto_servicio],['cq-tx-precio',c.texto_precio]].forEach(function(t){
     if(t[1]==null||!CQ.textosAuto||t[1]===CQ.textosAuto[t[0]])return;
+    // Textos automáticos de versiones anteriores (4 y 5-nov: «jornadas seguidas», «días seguidos»): no los escribió el
+    // asesor, así que se regeneran con el texto de hoy en vez de quedar como manuales.
+    if(/seguid[oa]s/i.test(String(t[1]))){textoViejo=true;return;}
     // El texto de PRECIO se considera automático si su cifra es el precio guardado (solo cambió el formato).
     if(t[0]==='cq-tx-precio'&&c.precio_acordado!=null){var m=String(t[1]).match(/[\d,]+(\.\d+)?/);if(m&&Math.abs(cqNum(m[0])-Number(c.precio_acordado))<0.01)return;}
     cqSet(t[0],t[1]);CQ.manualTextos[t[0]]=true;document.getElementById(t[0]).classList.add('manual');});
@@ -2333,6 +2337,8 @@ function cqCargar(r){
   else if(!CQ.precioManual&&c.precio_acordado!=null&&cqTotal()!==Number(c.precio_acordado)){
     showToast('ℹ️ El precio calculado hoy por el código difiere del guardado ('+cqMoneda(c.precio_acordado)+')');}
   cqAplicar(r);CQ.cargando=false;CQ.sucio=false;cqMsg('Cargada desde la BD');
+  // Con el texto regenerado, lo guardado ya no es lo que se ve: queda por guardar (la vista previa y el envío guardan antes).
+  if(textoViejo&&c.estado==='borrador'){CQ.sucio=true;cqMsg('Se actualizó el texto del servicio: guarda la cotización');}
 }
 
 // ── Apartado Cotizaciones ──
