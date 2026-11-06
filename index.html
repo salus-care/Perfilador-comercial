@@ -236,6 +236,7 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 /* Aviso de regla (protocolo o anexo quitado): que se vea */
 .aviso-regla{margin:8px 0;padding:10px 12px;border-radius:10px;border:2px solid #E5484D;background:#FFF0EF;color:#A4161A;font-size:.78rem;font-weight:600;line-height:1.4}
 .aviso-regla.ok{border-color:var(--teal);background:#EAF7F6;color:var(--teal-d);font-weight:500}
+.aviso-regla.media{border-color:#F5A11C;background:#FFF7E6;color:#8A5300;font-weight:500}
 .hst-search{flex:1;min-width:200px}
 .pac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .pac-card{border:1px solid var(--border);border-radius:10px;background:#FAFCFD;padding:13px 15px;cursor:pointer;transition:all .13s}
@@ -1087,7 +1088,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="g4">
 <div class="fl"><label>4. Fecha de inicio *</label><input type="date" id="ct-fini" oninput="ctAutoFechas('inicio')"></div>
 <div class="fl"><label>Fecha de término *</label><input type="date" id="ct-ffin" oninput="ctAutoFechas('termino')"><div class="cq-hint" id="ct-ffin-hint">Obligatoria; no se imprime en el contrato</div></div>
-<div class="fl"><label>5. Jornadas contratadas *</label><input type="number" id="ct-jornadas" min="0" step="0.5"><div class="cq-hint" id="ct-jornadas-hint"></div></div>
+<div class="fl"><label>5. Jornadas contratadas *</label><input type="number" id="ct-jornadas" min="0" step="0.5" oninput="ctAutoFechas('jornadas')"><div class="cq-hint" id="ct-jornadas-hint"></div></div>
 <div class="fl"><label>7. Perfil del profesional *</label><input type="text" id="ct-perfil"></div>
 </div>
 <div>
@@ -1114,6 +1115,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="fl"><label>Subtotal</label><input type="text" id="ct-subtotal" readonly></div>
 <div class="fl"><label>I.V.A. 16 %</label><input type="text" id="ct-iva" readonly></div>
 </div>
+<div class="aviso-regla media" id="ct-precio-aviso" style="display:none"></div>
 </div>
 <div class="sec-lbl">Aviso de privacidad y consentimiento</div>
 <div class="g4">
@@ -2874,7 +2876,7 @@ function ctAvisoAnexos(){
     '⚠️ La cotización incluye procedimientos invasivos ('+txt+'). Según las reglas va el <strong>consentimiento de procedimientos invasivos</strong> y lo quitaste.';
 }
 function ctLimpiar(){
-  CT={id:null,cotizacion:null,sucio:false,cargando:false};ctLlenarCatalogos();
+  CT={id:null,cotizacion:null,sucio:false,cargando:false,cotId:null,precioSeq:0};ctLlenarCatalogos();ctPintarPrecioAviso(null);
   ctCampos().forEach(function(e){if(e.type==='checkbox')e.checked=false;else e.value='';e.classList.remove('ct-de-cot','ct-falta','ct-invalido');});
   ctEdad();ctExtranjero('');telSet('ct-cli-tel','');ctRenderHorarios([]);cqSet('ct-marca',authMarcas()[0]||'scs');document.getElementById('ct-marca').disabled=false;
   cqSet('ct-lugar','Ciudad de México');cqSet('ct-femision',new Date().toISOString().slice(0,10));cqSet('ct-testigo',cqSesion()||'');
@@ -2901,26 +2903,54 @@ function ctJornadasMembresia(ini,fin,lista){
 }
 function ctTurnoJornadas(t){return !!t&&t.contratacion==='jornadas'&&Number(t.dias_periodo)>=1;}
 function ctTurnoMembresia(t){return !!t&&t.contratacion==='membresia'&&!!(t.dias_semana_lista&&t.dias_semana_lista.length);}
+// Por jornadas (6-nov-2026): las jornadas del contrato se pueden cambiar (de inicio salen las de la cotización); el término es
+// inicio + jornadas. Canalización: una visita, el mismo día. Cada cambio de inicio, jornadas o término rehace el precio.
 function ctAutoFechas(origen){
   var t=CT.turno;if(CT.cargando||!t)return;
   var ini=gv('ct-fini');
   if(ctTurnoJornadas(t)){
-    if(ini)cqSet('ct-ffin',sumarDias(ini,t.tipo_servicio==='canalizacion'?0:Math.ceil(Number(t.dias_periodo))));
-    cqSet('ct-jornadas',t.dias_periodo);
+    var canal=t.tipo_servicio==='canalizacion',n=cqNum(gv('ct-jornadas'));
+    if(canal||!(n>=1)){n=Number(t.dias_periodo);cqSet('ct-jornadas',n);}
+    if(ini)cqSet('ct-ffin',sumarDias(ini,canal?0:Math.ceil(n)));
   }else if(ctTurnoMembresia(t)){
-    var n=ctJornadasMembresia(ini,gv('ct-ffin'),t.dias_semana_lista);cqSet('ct-jornadas',n==null?'':n);
+    var m=ctJornadasMembresia(ini,gv('ct-ffin'),t.dias_semana_lista);cqSet('ct-jornadas',m==null?'':m);
   }
-  ctHintsFechas();
+  ctHintsFechas();ctPrecioContrato(origen);
+}
+// Precio del contrato con sus fechas y jornadas (rpc_contrato_precio → _contrato_precio_calculado en la BD): por jornadas
+// y por jornada con días del periodo. Con las de la cotización da su mismo precio; si cambian, se rehace y sale el letrero.
+async function ctPrecioContrato(origen){
+  if(!CT.cotId){ctPintarPrecioAviso(null);return;}
+  var seq=++CT.precioSeq,n=cqNum(gv('ct-jornadas'));
+  try{var r=await execSP('rpc_contrato_precio',{cotizacion:CT.cotId,inicio:gv('ct-fini')||null,jornadas:n>=1?n:null});}
+  catch(e){if(seq===CT.precioSeq)ctPintarPrecioAviso({error:e.message});return;}
+  if(seq!==CT.precioSeq)return;
+  ctPintarPrecioAviso(r);
+  if(!r||!r.aplica)return;
+  var p=Number(r.precio);
+  if(cqNum(gv('ct-precio'))!==p||cqNum(gv('ct-total'))!==p){
+    cqSet('ct-precio',p);cqSet('ct-total',p);ctDesglose();CT.sucio=true;
+    ctMsg('Precio recalculado con las fechas del contrato: guarda para conservarlo');}
+}
+function ctPintarPrecioAviso(r){
+  var d=document.getElementById('ct-precio-aviso');if(!d)return;
+  if(r&&r.error){d.style.display='';d.innerHTML='⚠️ No se pudo recalcular el precio con las fechas del contrato: '+cqEsc(r.error);return;}
+  if(!r||!r.aplica||!r.cambia){d.style.display='none';d.innerHTML='';return;}
+  var fx=function(n,l){if(n==null)return'';var s=' ('+n+' festivo'+(Number(n)===1?'':'s');
+    if(l&&l.length)s+=': '+l.map(function(f){return fechaCorta(f.fecha)+' '+cqEsc(f.nombre);}).join(', ');return s+')';};
+  d.style.display='';
+  d.innerHTML='⚠️ <strong>Precio recalculado con las fechas del contrato.</strong> La cotización '+cqEsc(r.cotizacion||'')+' cobraba $'+cqMoneda(Number(r.precio_cotizacion))+
+    ' por '+r.jornadas_cotizacion+' jornada'+(Number(r.jornadas_cotizacion)===1?'':'s')+fx(r.festivos_cotizacion)+'; el contrato cobra <strong>$'+cqMoneda(Number(r.precio))+'</strong> por '+
+    r.jornadas+' jornada'+(Number(r.jornadas)===1?'':'s')+fx(r.festivos,r.festivos_lista)+'. Se envía con este precio.';
 }
 function ctHintsFechas(){
   var t=CT.turno,hj=document.getElementById('ct-jornadas-hint'),hf=document.getElementById('ct-ffin-hint');if(!hj||!hf)return;
-  var jor=ctTurnoJornadas(t),mem=ctTurnoMembresia(t);
-  document.getElementById('ct-jornadas').readOnly=jor||mem;document.getElementById('ct-ffin').readOnly=jor;
-  document.getElementById('ct-jornadas').classList.toggle('ct-calculado',jor||mem);document.getElementById('ct-ffin').classList.toggle('ct-calculado',jor);
+  var jor=ctTurnoJornadas(t),mem=ctTurnoMembresia(t),canal=jor&&t.tipo_servicio==='canalizacion';
+  document.getElementById('ct-jornadas').readOnly=mem||canal;document.getElementById('ct-ffin').readOnly=jor;
+  document.getElementById('ct-jornadas').classList.toggle('ct-calculado',mem||canal);document.getElementById('ct-ffin').classList.toggle('ct-calculado',jor);
   if(jor){
-    var canal=t.tipo_servicio==='canalizacion';
-    hf.textContent=canal?'Canalización: el mismo día del inicio. No se imprime.':'Inicio + '+Number(t.dias_periodo)+' jornadas de la cotización. No se imprime.';
-    hj.textContent='De la cotización: '+Number(t.dias_periodo)+(canal?' visita':' jornadas');
+    hf.textContent=canal?'Canalización: el mismo día del inicio. No se imprime.':'Inicio + jornadas. No se imprime.';
+    hj.textContent=canal?'De la cotización: 1 visita':'La cotización trae '+Number(t.dias_periodo)+' jornadas. Si cambias las jornadas o el inicio, el precio se recalcula.';
   }else if(mem){
     var ini=gv('ct-fini'),fin=gv('ct-ffin');
     hf.textContent='La pone el asesor; con ella se calculan las jornadas. No se imprime.';
@@ -2932,7 +2962,7 @@ function ctNuevo(){ctLimpiar();ciRenderLista(null);NR.sucio=false;nrMsg('');docu
 function ctCerrar(){if(CT.sucio&&!confirm('Hay cambios sin guardar. ¿Cerrar de todos modos?'))return;document.getElementById('ct-panel').style.display='none';CT.sucio=false;ciRenderLista(null);}
 function ctCargar(r){
   var k=r.contrato,cl=k.cliente||{},pa=k.paciente||{},ai=k.anexo_invasivo||{},nr=k.anexo_no_reanimacion||{},d=r.documento||{};
-  ctLimpiar();CT.cargando=true;CT.id=k.id;CT.cotizacion=k.cotizacion_folio||null;CT.turno=k.cotizacion_turno||null;
+  ctLimpiar();CT.cargando=true;CT.id=k.id;CT.cotizacion=k.cotizacion_folio||null;CT.turno=k.cotizacion_turno||null;CT.cotId=k.cotizacion_id||null;
   cqSet('ct-cot',k.cotizacion_folio);cqSet('ct-marca',k.marca);
   cqSet('ct-pac-nombre',d.pac_nombre);cqSet('ct-pac-fnac',pa.fecha_nacimiento);CT.edadCapturada=pa.fecha_nacimiento?null:(pa.edad_capturada==null?null:pa.edad_capturada);ctEdad();
   cqSet('ct-pac-dx',pa.diagnostico);cqSet('ct-pac-ec',pa.estado_clinico);cqSet('ct-pac-decide',pa.capacidad_decidir==null?'':String(pa.capacidad_decidir));
@@ -2961,6 +2991,7 @@ function ctCargar(r){
   if(k.estado==='borrador'||k.estado==='listo_para_firma'){
     var antes=gv('ct-jornadas')+'|'+gv('ct-ffin');ctAutoFechas('carga');
     if(gv('ct-jornadas')+'|'+gv('ct-ffin')!==antes){CT.sucio=true;ctMsg('Jornadas o fecha de término calculadas: guarda para conservarlas');}}
+  else ctPintarPrecioAviso(r.precio_calculado);
   ctHintsFechas();ctMedir();
 }
 function ctAplicar(r){
