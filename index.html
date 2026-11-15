@@ -3412,7 +3412,7 @@ async function svListar(){
 }
 async function svIniciar(id){
   if(!confirm('Se crea el pagador (con los datos del contratante), la configuración del servicio y el primer servicio de este contrato. ¿Iniciar?'))return;
-  try{var r=await execSP('rpc_servicio_iniciar',{id:id});svMostrarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+  try{var r=await execSP('rpc_servicio_iniciar',{id:id});svMostrarContrato(r);alegraBarrer(svRefrescar);}catch(e){alert('⚠️ '+e.message);}
 }
 
 // ── Contrato: configuración, pagadores y servicios ──
@@ -3455,7 +3455,7 @@ function svMostrarContrato(r,servicioId){
   // Pagadores
   h+='<div class="sec-lbl">Pagadores · a quién se factura (puede no ser quien firmó)</div>'+
     '<table class="cq-lista"><thead><tr><th>Nombre o razón social</th><th>RFC</th><th>Régimen</th><th>C.P.</th><th>Uso CFDI</th><th>Correo</th><th>Origen</th><th></th></tr></thead><tbody>'+
-    r.pagadores.map(function(p){return'<tr><td><strong>'+cqEsc(p.nombre)+'</strong>'+(p.faltantes.length?'<div class="sev-media" style="font-size:.66rem">Falta: '+cqEsc(p.faltantes.join(', '))+'</div>':'')+(p.id===g.pagador_id?' <span class="sv-chip">por omisión</span>':'')+'</td><td>'+cqEsc(p.rfc)+'</td><td>'+cqEsc(p.regimen_fiscal||'—')+'</td><td>'+cqEsc(p.cp_fiscal||'—')+'</td><td>'+cqEsc(p.uso_cfdi||'—')+'</td><td>'+cqEsc(p.correo||'—')+'</td><td class="cq-msg">'+(p.origen==='contrato'?'Contratante':'Agregado por '+cqEsc(p.creado_por||'—'))+'</td><td><button class="btn btn-ghost btn-sm solo-edita" onclick="svPagadorForm(\''+p.id+'\')">✏️ Editar</button></td></tr>';}).join('')+
+    r.pagadores.map(function(p){return'<tr><td><strong>'+cqEsc(p.nombre)+'</strong>'+(p.faltantes.length?'<div class="sev-media" style="font-size:.66rem">Falta: '+cqEsc(p.faltantes.join(', '))+'</div>':'')+(p.alegra_error?'<div class="sev-alta" style="font-size:.66rem">'+cqEsc(p.alegra_error)+'</div>':'')+(p.alegra_contacto_id?'<div class="cq-msg">Alegra #'+cqEsc(p.alegra_contacto_id)+'</div>':'')+(p.id===g.pagador_id?' <span class="sv-chip">por omisión</span>':'')+'</td><td>'+cqEsc(p.rfc)+'</td><td>'+cqEsc(p.regimen_fiscal||'—')+'</td><td>'+cqEsc(p.cp_fiscal||'—')+'</td><td>'+cqEsc(p.uso_cfdi||'—')+'</td><td>'+cqEsc(p.correo||'—')+'</td><td class="cq-msg">'+(p.origen==='contrato'?'Contratante':'Agregado por '+cqEsc(p.creado_por||'—'))+'</td><td><button class="btn btn-ghost btn-sm solo-edita" onclick="svPagadorForm(\''+p.id+'\')">✏️ Editar</button></td></tr>';}).join('')+
     '</tbody></table><div style="margin-top:8px"><button class="btn btn-ghost btn-sm solo-edita" onclick="svPagadorForm(null)">➕ Nuevo pagador</button></div><div id="sv-pag-form"></div>';
   // Servicios
   h+='<div class="sec-lbl">Servicios del contrato</div>'+(r.servicios.length?'<table class="cq-lista"><thead><tr><th>Servicio</th><th>Periodo</th><th>Concepto</th><th>Cant. × precio</th><th>Total</th><th>Cobrado</th><th>Saldo</th><th>Cobro</th><th>Factura</th></tr></thead><tbody>'+
@@ -3486,7 +3486,7 @@ async function svGenerar(){
   var sinPeriodo=!g.proximo_inicio||(g.hasta&&g.proximo_inicio>g.hasta);
   if(sinPeriodo){var f=prompt('Ya no quedan periodos con la configuración actual. Fecha de inicio del nuevo servicio (AAAA-MM-DD):',svHoy());if(!f)return;p.inicio=f.trim();}
   else if(!confirm('Se genera ya el servicio que empieza el '+svF(g.proximo_inicio)+' con la configuración vigente. ¿Continuar?'))return;
-  try{var r=await execSP('rpc_servicio_generar',p);svMostrarContrato(r,r.servicio_id);}catch(e){alert('⚠️ '+e.message);}
+  try{var r=await execSP('rpc_servicio_generar',p);svMostrarContrato(r,r.servicio_id);alegraBarrer(svRefrescar);}catch(e){alert('⚠️ '+e.message);}
 }
 
 // ── Pagadores ──
@@ -3549,7 +3549,7 @@ function svMostrarServicio(r){
     (s.factura_url?'<a class="btn btn-ghost btn-sm" href="'+cqEsc(s.factura_url)+'" target="_blank" rel="noopener">📄 Ver factura</a>':'')+
     (['por_enviar','cotizacion','error'].indexOf(s.factura_estado)>=0&&s.estado!=='cancelado'?'<button class="btn btn-ghost btn-sm solo-conta" onclick="svFacturar(\''+s.id+'\')">🧾 '+(s.estado==='pagado'?'Facturar':'Facturar sin cobro')+'</button>':'')+
     (s.factura_estado==='borrador'?'<button class="btn btn-primary btn-sm solo-conta" onclick="svTimbrar(\''+s.id+'\')">✅ Revisada: timbrar</button>':'')+
-    '</div>'+(s.factura_error?'<div class="aviso-regla">'+cqEsc(s.factura_error)+'</div>':'')+
+    '</div>'+(s.factura_error?'<div class="aviso-regla">'+cqEsc(s.factura_error)+' <button class="btn btn-ghost btn-sm solo-edita" onclick="svReintentarAlegra(\''+s.id+'\')">↻ Reintentar en Alegra</button></div>':'')+
     // Cobros
     '<div class="sec-lbl">Cobros · cobrado '+svM(s.cobrado)+(Number(s.por_revisar)?' · por revisar '+svM(s.por_revisar):'')+' · saldo '+svM(s.saldo)+'</div>'+
     (s.cobros.length?'<table class="cq-lista"><thead><tr><th>Cobro</th><th>Fecha de pago</th><th>Forma</th><th>Monto</th><th>Pagó</th><th>Referencia · comprobante</th><th>Estado</th><th>Registró · revisó</th><th></th></tr></thead><tbody>'+
@@ -3601,6 +3601,26 @@ async function svServicioCancelar(){
 }
 async function svRecargarContrato(r){
   var c=await execSP('rpc_servicio_contrato',{id:r.servicio.contrato_id});svMostrarContrato(c,r.servicio.id);
+  // Lo que quedó pendiente en Alegra (cotización, factura borrador, timbrado) se hace ya y se vuelve a pintar
+  if(/^por_/.test(r.servicio.factura_estado||'')){var a=await alegraSync({servicio_id:r.servicio.id});
+    if(a&&a.procesados){c=await execSP('rpc_servicio_contrato',{id:r.servicio.contrato_id});svMostrarContrato(c,r.servicio.id);}}
+}
+// ── Alegra: la Lambda hace lo pendiente (alegra.py) y la BD guarda el resultado ──
+var AL={corriendo:null};
+async function alegraSync(o){
+  if(!LAMBDA_URL||!AUTH.token)return null;
+  try{return await execLambda('alegra',null,o||{});}catch(e){console.warn('Alegra:',e.message);return{ok:false,error:e.message};}
+}
+// Barrido al abrir Servicios o Cobranza: si hizo algo, se vuelve a pintar la vista abierta.
+function alegraBarrer(repintar){
+  if(AL.corriendo)return AL.corriendo;
+  AL.corriendo=alegraSync({}).then(function(a){AL.corriendo=null;if(a&&a.procesados&&repintar)repintar();return a;});
+  return AL.corriendo;
+}
+async function svReintentarAlegra(id){
+  var r=await alegraSync({servicio_id:id,forzar:true});
+  if(r&&r.ok===false)alert('⚠️ '+r.error);
+  await svRecargarContrato({servicio:{id:id,contrato_id:SV.contrato.contrato.id,factura_estado:''}});
 }
 async function svCobroRegistrar(){
   var s=SV.servicio,url=gv('sv-c-evid');
@@ -3614,7 +3634,7 @@ async function svCobroRevisar(id,decision,origen){
   if(decision==='rechazar'){motivo=prompt('Motivo del rechazo (lo ve el asesor):');if(motivo==null)return;if(!motivo.trim()){alert('Escribe el motivo');return;}}
   if(decision==='reabrir'&&!confirm('El cobro vuelve a «por revisar» y deja de contar en el saldo. ¿Continuar?'))return;
   try{var r=await execSP('rpc_cobro_revisar',{id:id,decision:decision,motivo:motivo});
-    if(origen==='cb')cbCargar();else await svRecargarContrato(r);}
+    if(origen==='cb'){if(/^por_/.test(r.servicio.factura_estado||''))await alegraSync({servicio_id:r.servicio.id});cbCargar();}else await svRecargarContrato(r);}
   catch(e){alert('⚠️ '+e.message);}
 }
 async function svFacturar(id){
@@ -3624,7 +3644,7 @@ async function svFacturar(id){
 }
 async function svTimbrar(id,origen){
   if(!confirm('¿Ya revisaste la factura borrador en Alegra? Se manda timbrar y ya no se puede modificar.'))return;
-  try{var r=await execSP('rpc_servicio_timbrar',{id:id});if(origen==='cb')cbCargar();else await svRecargarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+  try{var r=await execSP('rpc_servicio_timbrar',{id:id});if(origen==='cb'){await alegraSync({servicio_id:id});cbCargar();}else await svRecargarContrato(r);}catch(e){alert('⚠️ '+e.message);}
 }
 
 // ── Cobranza ──
@@ -3679,8 +3699,9 @@ async function cbCortesMs(){
       r.cortes.map(function(c,i){return'<tr><td><a href="#" onclick="cbCorteDetalle('+i+');return false"><strong>'+cqEsc(c.folio)+'</strong></a><div class="cq-msg">'+cqEsc(c.factura_folio||'')+'</div></td><td>'+svF(c.semana_desde)+' → '+svF(c.semana_hasta)+'</td><td>'+c.contratos+'</td><td>'+Number(c.jornadas)+'</td><td>'+svM(c.total)+'</td><td>'+svChip(c.factura_estado,CORTE_ESTADO[c.factura_estado]||c.factura_estado)+(c.factura_error?'<div class="sev-alta" style="font-size:.66rem">'+cqEsc(c.factura_error)+'</div>':'')+'</td><td style="white-space:nowrap">'+
         (c.factura_estado==='borrador'?'<button class="btn btn-primary btn-sm solo-conta" onclick="cbCorteTimbrar(\''+c.id+'\')">✅ Timbrar</button> ':'')+
         (['por_timbrar','timbrada'].indexOf(c.factura_estado)<0?'<button class="btn btn-ghost btn-sm solo-conta" title="Recalcular con los contratos de hoy" onclick="cbCorteRecalcular(\''+c.id+'\')">↻ Recalcular</button>':'')+
+        (c.factura_error&&['por_timbrar','timbrada'].indexOf(c.factura_estado)<0?'<button class="btn btn-ghost btn-sm solo-conta" onclick="cbCorteReintentar(\''+c.id+'\')">↻ Alegra</button>':'')+
         (c.factura_url?'<a class="btn btn-ghost btn-sm" href="'+cqEsc(c.factura_url)+'" target="_blank" rel="noopener">📄</a>':'')+'</td></tr>';}).join('')+'</tbody></table>':'<div class="cq-vacio">Aún no se cierra ningún corte.</div>';
-    b.innerHTML=h+'<div id="cb-ms-detalle"></div>';
+    b.innerHTML=h+'<div id="cb-ms-detalle"></div><div id="cb-ms-fiscal"></div>';cbMsFiscal();
   }catch(e){svErr(b,e);}
 }
 var CB_CORTES=[],CB_EN_CURSO=null;
@@ -3691,13 +3712,35 @@ function cbCorteDetalle(i){
       c.lineas.map(function(l){return'<tr><td><a href="#" onclick="setMode(\'k\');ctAbrir(\''+l.contrato_id+'\');return false">'+cqEsc(l.folio)+'</a></td><td>'+cqEsc(l.paciente||'—')+'</td><td>'+svF(l.desde)+'</td><td>'+svF(l.hasta)+'</td><td>'+Number(l.jornadas)+'</td><td>'+(l.sin_precio?'<span class="sev-alta">sin precio</span>':svM(l.precio))+'</td><td>'+svM(l.importe)+'</td></tr>';}).join('')+'</tbody></table>':'<div class="cq-msg">Sin jornadas en la semana.</div>')+'</div>';
   d.scrollIntoView({behavior:'smooth',block:'center'});
 }
+async function cbCorteReintentar(id){var r=await alegraSync({corte_id:id,forzar:true});if(r&&r.ok===false)alert('⚠️ '+r.error);cbCortesMs();}
+// Datos fiscales de Médica Sur (receptor de la factura del corte): los captura Contabilidad
+async function cbMsFiscal(editar){
+  var b=document.getElementById('cb-ms-fiscal');if(!b)return;
+  try{
+    var r=await execSP('rpc_ms_fiscal',{}),d=r.datos||{};
+    if(!editar){b.innerHTML='<div class="cq-msg" style="margin-top:8px">Factura a: '+(d.rfc?'<strong>'+cqEsc(d.nombre)+'</strong> · '+cqEsc(d.rfc)+' · régimen '+cqEsc(d.regimen_fiscal)+' · C.P. '+cqEsc(d.cp_fiscal)+' · '+cqEsc(d.uso_cfdi):'<span class="sev-media">faltan los datos fiscales de Médica Sur</span>')+
+      ' <a href="#" class="solo-conta" onclick="cbMsFiscal(true);return false">✏️ '+(d.rfc?'Cambiar':'Capturar')+'</a></div>';return;}
+    b.innerHTML='<div class="cq-card"><div class="cq-title" style="font-size:.9rem">Datos fiscales de Médica Sur</div><div class="cq-sub">Con ellos se crea el cliente en Alegra y se le factura cada corte.</div>'+
+      '<div class="g3"><div class="fl"><label>Razón social *</label><input id="ms-f-nombre" value="'+cqEsc(d.nombre||'')+'" oninput="this.value=this.value.toUpperCase()"></div>'+
+      '<div class="fl"><label>RFC *</label><input id="ms-f-rfc" maxlength="13" value="'+cqEsc(d.rfc||'')+'" oninput="this.value=this.value.toUpperCase()"></div>'+
+      '<div class="fl"><label>Régimen fiscal *</label><select id="ms-f-regimen">'+svOpts(SAT_REGIMEN,d.regimen_fiscal||'601','—')+'</select></div></div>'+
+      '<div class="g3"><div class="fl"><label>C.P. fiscal *</label><input id="ms-f-cp" maxlength="5" value="'+cqEsc(d.cp_fiscal||'')+'"></div>'+
+      '<div class="fl"><label>Uso del CFDI *</label><select id="ms-f-uso">'+svOpts(SAT_USO,d.uso_cfdi||'G03','—')+'</select></div>'+
+      '<div class="fl"><label>Correo para la factura</label><input type="email" id="ms-f-correo" value="'+cqEsc(d.correo||'')+'"></div></div>'+
+      '<button class="btn btn-primary btn-sm" onclick="cbMsFiscalGuardar()">💾 Guardar</button> <button class="btn btn-ghost btn-sm" onclick="cbMsFiscal()">Cancelar</button><div class="aviso-regla" id="ms-f-msg" style="display:none"></div></div>';
+  }catch(e){b.innerHTML='';}
+}
+async function cbMsFiscalGuardar(){
+  try{await execSP('rpc_ms_fiscal_guardar',{nombre:gv('ms-f-nombre'),rfc:gv('ms-f-rfc'),regimen_fiscal:gv('ms-f-regimen'),cp_fiscal:gv('ms-f-cp'),uso_cfdi:gv('ms-f-uso'),correo:gv('ms-f-correo')});cbMsFiscal();}
+  catch(e){svAviso('ms-f-msg','⚠️ '+e.message);}
+}
 async function cbCorteTimbrar(id){
   if(!confirm('¿Ya revisaste la factura borrador del corte en Alegra? Se manda timbrar y ya no se puede modificar.'))return;
-  try{await execSP('rpc_corte_ms_timbrar',{id:id});cbCortesMs();}catch(e){alert('⚠️ '+e.message);}
+  try{await execSP('rpc_corte_ms_timbrar',{id:id});await alegraSync({corte_id:id});cbCortesMs();}catch(e){alert('⚠️ '+e.message);}
 }
 async function cbCorteRecalcular(id){
   if(!confirm('Se recalcula el corte con los contratos firmados de hoy (si ya hay factura borrador, se actualiza en Alegra). ¿Continuar?'))return;
-  try{await execSP('rpc_corte_ms_recalcular',{id:id});cbCortesMs();}catch(e){alert('⚠️ '+e.message);}
+  try{await execSP('rpc_corte_ms_recalcular',{id:id});await alegraSync({corte_id:id});cbCortesMs();}catch(e){alert('⚠️ '+e.message);}
 }
 
 // ── Enganches con el Perfilador existente (sin cambiar su lógica) ──
@@ -3707,7 +3750,10 @@ var _cqSetMode=setMode;setMode=function(m){
   if(m==='u'&&!authEsAdmin())m='p';
   ['q','k','s','b','u'].forEach(function(x){document.getElementById('mode-'+x).style.display=m===x?'block':'none';document.getElementById('mt-'+x).classList.toggle('active',m===x);});
   if(m==='q'||m==='k'||m==='s'||m==='b'||m==='u'){['p','c','h'].forEach(function(x){document.getElementById('mode-'+x).style.display='none';document.getElementById('mt-'+x).classList.remove('active');});
-    if(m==='q')cqListar();else if(m==='k'){ctLlenarCatalogos();ctListar();}else if(m==='s'){if(!SV.abriendo)svListar();}else if(m==='b')cbCargar();else usListar();return;}
+    if(m==='q')cqListar();else if(m==='k'){ctLlenarCatalogos();ctListar();}
+    else if(m==='s'){if(!SV.abriendo)svListar();alegraBarrer(function(){if(document.getElementById('mode-s').style.display==='block')svRefrescar();});}
+    else if(m==='b'){cbCargar();alegraBarrer(function(){if(document.getElementById('mode-b').style.display==='block')cbCargar();});}
+    else usListar();return;}
   _cqSetMode(m);
 };
 // Con BD, el chip del usuario abre "Mi cuenta" (cambiar contraseña / cerrar sesión).
