@@ -345,6 +345,22 @@ header{background:var(--teal-d);color:#fff;padding:12px 28px;display:flex;align-
 /* Coordinador Clínico: consulta cotizaciones y contratos; solo maneja la no reanimación */
 body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:none}body.solo-consulta .aviso-consulta{display:block}
 .cq-msg{font-size:.72rem;color:var(--muted)}
+/* Servicios y Cobranza (V0020) */
+body:not(.es-conta) .solo-conta{display:none!important}
+.sv-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:4px 0 18px}
+.sv-kpi{border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;background:#fff}
+.sv-kpi b{display:block;font-size:1.15rem;color:var(--teal-d);margin-top:3px}
+.sv-kpi span{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sv-kpi.alerta b{color:#B23B2B}.sv-kpi.media b{color:#B8780F}
+.sv-chip{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:20px;background:var(--tag-bg);color:var(--teal-d);white-space:nowrap}
+.sv-chip.pendiente,.sv-chip.por_revisar,.sv-chip.por_enviar,.sv-chip.por_facturar,.sv-chip.por_timbrar{background:#FFF3DC;color:#8A5300}
+.sv-chip.pagado,.sv-chip.validado,.sv-chip.timbrada{background:#E3F3EA;color:#22663D}
+.sv-chip.cancelado,.sv-chip.rechazado,.sv-chip.error{background:#FDE8E6;color:#A4161A}
+.sv-chip.borrador{background:#E7EEF8;color:#24518F}.sv-chip.no_aplica{background:#EEF1F2;color:#5F7477}
+.sv-sel td{background:#E8F4F6!important}
+.sv-dias{display:flex;gap:6px;flex-wrap:wrap}.sv-dias label{font-size:.74rem;display:flex;align-items:center;gap:3px}
+.sv-orig{font-size:.7rem;color:var(--muted);margin-top:3px}
+@media (max-width:900px){.sv-kpis{grid-template-columns:repeat(2,1fr)}}
 .cq-resultado{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
 .cq-resultado>div{border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:#fff;font-size:.74rem}
 .cq-resultado ul{margin:6px 0 0 16px;padding:0}.cq-resultado li{margin:2px 0}
@@ -416,6 +432,8 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
   <div class="mode-tab" id="mt-h" onclick="setMode('h')">🗂 Historial de Pacientes</div>
   <div class="mode-tab" id="mt-q" onclick="setMode('q')">🧾 Cotizaciones</div>
   <div class="mode-tab" id="mt-k" onclick="setMode('k')">📝 Contratos</div>
+  <div class="mode-tab" id="mt-s" onclick="setMode('s')">💳 Servicios</div>
+  <div class="mode-tab" id="mt-b" onclick="setMode('b')">📊 Cobranza</div>
   <div class="mode-tab" id="mt-u" onclick="setMode('u')" style="display:none">👥 Usuarios</div>
 </div>
 <div id="mode-p">
@@ -1117,6 +1135,23 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 </div>
 <div class="aviso-regla media" id="ct-precio-aviso" style="display:none"></div>
 </div>
+<!-- Facturación y cobro (V0020), solo Salus: al firmarse nace el primer servicio con estos datos; después se cambian en
+     Servicios. Médica Sur no lleva este flujo: sus jornadas entran al corte semanal que se factura a Médica Sur. -->
+<div class="ct-solo-salus">
+<div class="sec-lbl">Facturación y cobro</div>
+<div class="g4">
+<div class="fl"><label>Inicio del cobro</label><input type="date" id="ct-cobro-ini"><div class="cq-hint">Desde cuándo se cobra. Vacío: la fecha de inicio del servicio</div></div>
+<div class="fl"><label>Periodicidad del cobro</label><select id="ct-cobro-per"><option value="">Según la cotización</option><option value="unico">Pago único</option><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option><option value="mensual">Mensual</option></select><div class="cq-hint">Membresía: mensual. Por jornadas: pago único</div></div>
+<div class="fl"><label>Correo para la factura</label><input type="email" id="ct-fis-correo"><div class="cq-hint">Vacío: el correo del contratante</div></div>
+<div class="fl"><label>C.P. fiscal</label><input type="text" id="ct-fis-cp" maxlength="5" inputmode="numeric"><div class="cq-hint">El de la constancia de situación fiscal</div></div>
+</div>
+<div class="g3">
+<div class="fl"><label>Nombre o razón social (constancia fiscal)</label><input type="text" id="ct-fis-razon" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Vacío: el nombre del contratante. El RFC es el de arriba</div></div>
+<div class="fl"><label>Régimen fiscal</label><select id="ct-fis-regimen" class="sat-regimen"></select></div>
+<div class="fl"><label>Uso del CFDI</label><select id="ct-fis-uso" class="sat-uso"></select></div>
+</div>
+<div class="cq-hint" style="margin-top:-2px">Son los datos de quien firma. Si paga otra persona o una empresa, se agrega como pagador en 💳 Servicios después de la firma. No bloquean el envío a firma.</div>
+</div>
 <div class="sec-lbl">Aviso de privacidad y consentimiento</div>
 <div class="g4">
 <div class="fl"><label>Expediente (ID de cuenta) *</label><input type="text" id="ct-expediente" placeholder="ID de Acumatica"></div>
@@ -1198,6 +1233,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <button class="btn btn-ghost btn-sm solo-edita" id="ct-btn-enviar" onclick="ctEnviarFirma()" style="display:none">📤 Enviar a firma (Cincel)</button>
 <button class="btn btn-ghost btn-sm" id="ct-btn-firma" onclick="ctConsultarFirma()" style="display:none">🔄 Consultar firma</button>
 <button class="btn btn-ghost btn-sm solo-edita" id="ct-btn-borrar" onclick="ctEliminar()" style="display:none">🗑 Borrar borrador</button>
+<button class="btn btn-cyan btn-sm" id="ct-btn-servicios" onclick="svAbrirContrato(CT.id)" style="display:none">💳 Servicios y cobros</button>
 <button class="btn btn-ghost btn-sm" onclick="ctCerrar()">✖ Cerrar</button>
 <span class="cq-msg" id="ct-msg"></span>
 </div>
@@ -1264,6 +1300,44 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div id="ct-lista"><div class="cq-vacio">Cargando…</div></div>
 </div></div>
 </div>
+<div id="mode-s" style="display:none">
+<div class="cl-container"><div class="cl-panel">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+<div><h2 style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--teal-d)">Servicios</h2><p style="font-size:.75rem;color:var(--muted);margin-top:2px">Cada contrato firmado de Salus genera sus servicios (uno por periodo de cobro); Médica Sur se factura en su corte semanal (📊 Cobranza). Cada servicio es una cotización en Alegra; con el pago completo validado por Contabilidad pasa a factura en borrador, y Contabilidad la timbra.</p></div>
+<button class="btn btn-sm btn-cyan" onclick="svRefrescar()">↻ Actualizar</button>
+</div>
+<div id="sv-vista-lista">
+<div class="hst-toolbar fijo">
+<input class="hst-search" type="text" id="sv-buscar" placeholder="🔍 Folio, contrato, paciente, cliente, pagador, RFC…" oninput="svListarDiferido()">
+<select id="sv-f-estado" onchange="svListar()" style="width:160px"><option value="">Todos los cobros</option><option value="pendiente">Pendientes</option><option value="pagado">Pagados</option><option value="cancelado">Cancelados</option></select>
+<select id="sv-f-factura" onchange="svListar()" style="width:200px"><option value="">Todas las facturas</option></select>
+<label class="cq-check" style="margin:0"><input type="checkbox" id="sv-f-vencidos" onchange="svListar()"> Solo vencidos</label>
+</div>
+<div id="sv-sin-iniciar"></div>
+<div id="sv-lista"><div class="cq-vacio">Cargando…</div></div>
+</div>
+<div id="sv-vista-contrato" style="display:none"></div>
+</div></div>
+</div>
+<div id="mode-b" style="display:none">
+<div class="cl-container"><div class="cl-panel">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+<div><h2 style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--teal-d)">Cobranza</h2><p style="font-size:.75rem;color:var(--muted);margin-top:2px">Lo que se cobra en el mes, lo cobrado y lo que falta. Los cobros los registra el asesor; Contabilidad los valida o los rechaza y timbra las facturas.</p></div>
+<div style="display:flex;gap:8px;align-items:center"><label class="cq-msg">Mes</label><input type="month" id="cb-mes" onchange="cbCargar()" style="width:160px"><button class="btn btn-sm btn-cyan" onclick="cbCargar()">↻ Actualizar</button></div>
+</div>
+<div class="sv-kpis" id="cb-kpis"></div>
+<div id="cb-marcas"></div>
+<div class="sec-lbl" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><span>Cobros</span>
+<select id="cb-f-estado" onchange="cbBandeja()" style="width:170px;text-transform:none;letter-spacing:0"><option value="por_revisar">Por revisar</option><option value="validado">Validados</option><option value="rechazado">Rechazados</option><option value="todos">Todos</option></select></div>
+<div id="cb-cobros"><div class="cq-vacio">Cargando…</div></div>
+<div class="sec-lbl">Facturas en borrador · Contabilidad las revisa en Alegra y las timbra</div>
+<div id="cb-borradores"><div class="cq-vacio">Cargando…</div></div>
+<div id="cb-ms-box">
+<div class="sec-lbl">Médica Sur · corte semanal (viernes 1 pm) · una factura a Médica Sur por las jornadas de la semana</div>
+<div id="cb-ms"><div class="cq-vacio">Cargando…</div></div>
+</div>
+</div></div>
+</div>
 <div id="mode-u" style="display:none">
 <div class="cl-container"><div class="cl-panel">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px">
@@ -1274,7 +1348,7 @@ body.solo-consulta .solo-edita{display:none!important}.aviso-consulta{display:no
 <div class="g4">
 <div class="fl"><label>Correo (usuario) *</label><input type="email" id="us-correo" placeholder="nombre@salus.mx" autocomplete="off"></div>
 <div class="fl"><label>Nombre completo *</label><input type="text" id="us-nombre" autocomplete="off"></div>
-<div class="fl"><label>Rol</label><select id="us-rol"><option value="general:scs">General · Salus</option><option value="general:ms">General · Médica Sur</option><option value="general">General (Salus y Médica Sur)</option><option value="coordinador_clinico:scs">Coordinador Clínico · Salus</option><option value="coordinador_clinico:ms">Coordinador Clínico · Médica Sur</option><option value="coordinador_clinico">Coordinador Clínico (Salus y Médica Sur)</option><option value="admin">Admin</option></select></div>
+<div class="fl"><label>Rol</label><select id="us-rol"><option value="general:scs">General · Salus</option><option value="general:ms">General · Médica Sur</option><option value="general">General (Salus y Médica Sur)</option><option value="coordinador_clinico:scs">Coordinador Clínico · Salus</option><option value="coordinador_clinico:ms">Coordinador Clínico · Médica Sur</option><option value="coordinador_clinico">Coordinador Clínico (Salus y Médica Sur)</option><option value="contabilidad">Contabilidad (Salus y Médica Sur)</option><option value="admin">Admin</option></select></div>
 <div class="fl"><label>Contraseña temporal *</label><div style="display:flex;gap:6px"><input type="text" id="us-clave" autocomplete="new-password" placeholder="mín. 8, letras y números"><button class="btn btn-ghost btn-sm" type="button" onclick="usGenerarClave('us-clave')" title="Generar contraseña">🎲</button></div></div>
 </div>
 <div class="cq-acciones"><button class="btn btn-primary btn-sm" onclick="usCrear()">➕ Crear usuario</button><span class="cq-msg">Al entrar por primera vez se le pedirá cambiar la contraseña. Compártela por un canal seguro.</span></div>
@@ -1630,7 +1704,7 @@ function authEsAdmin(){return !!(AUTH.usuario&&AUTH.usuario.rol==='admin');}
 // Roles por marca: Admin y General (las dos), General · Salus y General · Médica Sur. La BD lo valida en cada función; aquí solo se oculta lo que no le toca.
 var ROLES_USUARIO=[{v:'general:scs',n:'General · Salus'},{v:'general:ms',n:'General · Médica Sur'},{v:'general',n:'General (Salus y Médica Sur)'},
   {v:'coordinador_clinico:scs',n:'Coordinador Clínico · Salus'},{v:'coordinador_clinico:ms',n:'Coordinador Clínico · Médica Sur'},
-  {v:'coordinador_clinico',n:'Coordinador Clínico (Salus y Médica Sur)'},{v:'admin',n:'Admin'}];
+  {v:'coordinador_clinico',n:'Coordinador Clínico (Salus y Médica Sur)'},{v:'contabilidad',n:'Contabilidad (Salus y Médica Sur)'},{v:'admin',n:'Admin'}];
 function usRolValor(u){return u.rol==='admin'?'admin':(u.rol||'general')+(u.marca?':'+u.marca:'');}
 function usRolNombre(u){var v=usRolValor(u),r=ROLES_USUARIO.filter(function(x){return x.v===v;})[0];return r?r.n:u.rol;}
 function usRolPartes(v){var x=String(v||'').split(':');return{rol:x[0],marca:x[1]||null};}
@@ -1694,6 +1768,7 @@ async function authAplicar(u){
   var ur=document.getElementById('uc-rol');if(ur)ur.textContent='· '+usRolNombre(u);
   document.getElementById('mt-u').style.display=u.rol==='admin'?'':'none';
   document.body.classList.toggle('solo-consulta',u.rol==='coordinador_clinico');
+  document.body.classList.toggle('es-conta',u.rol==='contabilidad'||u.rol==='admin');
   if(u.rol!=='admin'&&document.getElementById('mode-u').style.display==='block')setMode('p');
   document.getElementById('login-overlay').classList.add('hidden');
   await cqCargarCatalogos();
@@ -2881,7 +2956,7 @@ function ctLimpiar(){
   ctEdad();ctExtranjero('');telSet('ct-cli-tel','');ctRenderHorarios([]);cqSet('ct-marca',authMarcas()[0]||'scs');document.getElementById('ct-marca').disabled=false;
   cqSet('ct-lugar','Ciudad de México');cqSet('ct-femision',new Date().toISOString().slice(0,10));cqSet('ct-testigo',cqSesion()||'');
   cqSet('ct-testigo-correo',AUTH.usuario&&AUTH.usuario.correo||'');
-  ['ct-btn-pdf','ct-btn-enviar','ct-btn-firma','ct-btn-borrar','ct-firma'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
+  ['ct-btn-pdf','ct-btn-enviar','ct-btn-firma','ct-btn-borrar','ct-btn-servicios','ct-firma'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
   document.getElementById('ct-folio').textContent='Nuevo · sin guardar';document.getElementById('ct-estado').style.display='none';
   document.getElementById('ct-plantilla').textContent='—';document.getElementById('ct-cot').disabled=false;document.getElementById('ct-btn-cot').disabled=false;
   document.getElementById('ct-cot-info').textContent='Si no hay cotización, déjalo vacío y llena todo.';
@@ -2976,6 +3051,9 @@ function ctCargar(r){
   cqSet('ct-srv-calle',k.srv_calle);cqSet('ct-srv-numero',k.srv_numero);cqSet('ct-srv-colonia',k.srv_colonia);cqSet('ct-srv-alcaldia',k.srv_alcaldia_municipio);
   cqSet('ct-srv-edo',k.srv_estado);cqSet('ct-srv-cp',k.srv_cp);cqSet('ct-srv-ref',k.srv_referencias);cqSet('ct-otros',k.otros_conceptos);
   cqSet('ct-precio',k.precio_acordado);cqSet('ct-total',k.total);
+  cqSet('ct-cobro-ini',k.cobro_inicio);cqSet('ct-cobro-per',k.cobro_periodicidad);cqSet('ct-fis-razon',cl.fiscal_razon_social);cqSet('ct-fis-regimen',cl.fiscal_regimen);
+  cqSet('ct-fis-cp',cl.fiscal_cp);cqSet('ct-fis-uso',cl.fiscal_uso_cfdi);cqSet('ct-fis-correo',cl.fiscal_correo);
+  document.getElementById('ct-btn-servicios').style.display=k.estado==='firmado'&&k.marca!=='ms'?'':'none';
   cqSet('ct-expediente',k.cuenta_expediente);cqSet('ct-lugar',k.lugar_firma);cqSet('ct-femision',k.fecha_emision);cqSet('ct-testigo',k.testigo_nombre);cqSet('ct-testigo-correo',k.testigo_correo);
   [0,1,2].forEach(function(i){var a=(k.autorizados||[])[i]||{};cqSet('ct-aut-'+(i+1)+'-n',a.nombre_completo);cqSet('ct-aut-'+(i+1)+'-p',a.parentesco);});
   cqSet('ct-dec-n',k.decisor&&k.decisor.nombre_completo);cqSet('ct-dec-p',k.decisor&&k.decisor.parentesco);
@@ -3039,11 +3117,13 @@ function ctPayload(){
       jornadas_contratadas:ctNumONull('ct-jornadas'),texto_perfil:gv('ct-perfil'),servicio_solicitado:gv('ct-servicio'),
       srv_calle:gv('ct-srv-calle'),srv_numero:gv('ct-srv-numero'),srv_colonia:gv('ct-srv-colonia'),srv_alcaldia_municipio:gv('ct-srv-alcaldia'),
       srv_estado:gv('ct-srv-edo'),srv_cp:gv('ct-srv-cp'),srv_referencias:gv('ct-srv-ref'),otros_conceptos:gv('ct-otros'),
+      cobro_inicio:gv('ct-cobro-ini'),cobro_periodicidad:gv('ct-cobro-per'),
       precio_acordado:ctNumONull('ct-precio'),total:t,subtotal:t==null?null:cqR2(t/1.16),iva:t==null?null:cqR2(t-cqR2(t/1.16)),testigo_nombre:gv('ct-testigo'),testigo_correo:gv('ct-testigo-correo')},
     cliente:{nombres:gv('ct-cli-nombres'),segundo_nombre:gv('ct-cli-nombre2'),apellido_paterno:gv('ct-cli-ap'),apellido_materno:gv('ct-cli-am'),rfc:gv('ct-cli-rfc'),curp:gv('ct-cli-curp'),
       telefono:gv('ct-cli-tel'),correo:gv('ct-cli-correo'),calidad:gv('ct-cli-calidad'),parentesco:gv('ct-cli-calidad')==='paciente'?'':gv('ct-cli-parentesco'),
       dom_igual_servicio:document.getElementById('ct-cli-igual').checked,dom_calle:gv('ct-cli-calle'),dom_numero:gv('ct-cli-numero'),dom_colonia:gv('ct-cli-colonia'),
-      dom_alcaldia_municipio:gv('ct-cli-alcaldia'),dom_estado:gv('ct-cli-edo'),dom_cp:gv('ct-cli-cp')},
+      dom_alcaldia_municipio:gv('ct-cli-alcaldia'),dom_estado:gv('ct-cli-edo'),dom_cp:gv('ct-cli-cp'),
+      fiscal_razon_social:gv('ct-fis-razon'),fiscal_regimen:gv('ct-fis-regimen'),fiscal_cp:gv('ct-fis-cp'),fiscal_uso_cfdi:gv('ct-fis-uso'),fiscal_correo:gv('ct-fis-correo')},
     paciente:{nombres:null,apellidos:null,nombre_capturado:gv('ct-pac-nombre'),fecha_nacimiento:gv('ct-pac-fnac'),edad_capturada:gv('ct-pac-fnac')?null:(CT.edadCapturada==null?null:CT.edadCapturada),
       diagnostico:gv('ct-pac-dx'),estado_clinico:gv('ct-pac-ec'),capacidad_decidir:dec===''?null:dec==='true'},
     horarios:Array.from(document.querySelectorAll('#ct-horarios .ct-horario')).map(function(f){return{dias:f.querySelector('.ct-h-dias').value,hora_entrada:f.querySelector('.ct-h-ent').value,hora_salida:f.querySelector('.ct-h-sal').value};}),
@@ -3276,14 +3356,358 @@ document.addEventListener('input',function(ev){var e=ev.target;if(e&&(e.tagName=
 document.addEventListener('change',function(ev){var p=document.getElementById('ct-panel');if(!p||!p.contains(ev.target)||CT.cargando)return;
   if(ev.target.closest('#ct-nr-box')){NR.sucio=true;document.getElementById('ct-nr-msg').textContent='Cambios sin guardar';return;}CT.sucio=true;ctMedir();});
 
+// ══ Servicios y Cobranza (V0020 / R__0460) ══════════════════════════════════
+// La BD decide todo (permisos, montos, estados); aquí solo se pinta y se llama a los SP.
+// Contabilidad (y Admin) validan cobros, piden facturas sin cobro y timbran: body.es-conta muestra sus botones.
+var SAT_REGIMEN=[['601','General de Ley Personas Morales'],['603','Personas Morales con Fines no Lucrativos'],['605','Sueldos y Salarios e Ingresos Asimilados a Salarios'],
+  ['606','Arrendamiento'],['607','Enajenación o Adquisición de Bienes'],['608','Demás ingresos'],['610','Residentes en el Extranjero sin Establecimiento Permanente en México'],
+  ['611','Ingresos por Dividendos'],['612','Personas Físicas con Actividades Empresariales y Profesionales'],['614','Ingresos por intereses'],
+  ['615','Ingresos por obtención de premios'],['616','Sin obligaciones fiscales'],['620','Sociedades Cooperativas de Producción'],['621','Incorporación Fiscal'],
+  ['622','Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras'],['623','Opcional para Grupos de Sociedades'],['624','Coordinados'],
+  ['625','Actividades Empresariales con ingresos a través de Plataformas Tecnológicas'],['626','Régimen Simplificado de Confianza']];
+var SAT_USO=[['D01','Honorarios médicos, dentales y gastos hospitalarios'],['D02','Gastos médicos por incapacidad o discapacidad'],['D07','Primas por seguros de gastos médicos'],
+  ['G03','Gastos en general'],['G01','Adquisición de mercancías'],['S01','Sin efectos fiscales'],['CP01','Pagos']];
+var SAT_FORMA=[['03','Transferencia'],['01','Efectivo'],['02','Cheque'],['04','Tarjeta de crédito'],['28','Tarjeta de débito']];
+var SV_PERIODICIDAD=[['unico','Pago único'],['semanal','Semanal'],['quincenal','Quincenal'],['mensual','Mensual']];
+var SV_FACTURA={por_enviar:'Por enviar a Alegra',cotizacion:'Cotización en Alegra',por_facturar:'Factura en proceso',borrador:'Factura borrador',
+  por_timbrar:'Timbrando',timbrada:'Timbrada',no_aplica:'Corte Médica Sur',error:'Error en Alegra'};
+var SV_ESTADO={pendiente:'Pendiente',pagado:'Pagado',cancelado:'Cancelado'};
+var SV_COBRO={por_revisar:'Por revisar',validado:'Validado',rechazado:'Rechazado'};
+var SV_DIAS=[['lun','L'],['mar','M'],['mie','Mi'],['jue','J'],['vie','V'],['sab','S'],['dom','D']];
+var SV={contrato:null,servicio:null,abriendo:false,pagEdit:null,timer:null};
+function svOpts(lista,sel,vacio){return(vacio!=null?'<option value="">'+cqEsc(vacio)+'</option>':'')+lista.map(function(x){return'<option value="'+x[0]+'"'+(x[0]===sel?' selected':'')+'>'+cqEsc(x[0].length<=4&&/^[0-9A-Z]+$/.test(x[0])?x[0]+' · '+x[1]:x[1])+'</option>';}).join('');}
+function svNombre(lista,v){var x=lista.filter(function(y){return y[0]===v;})[0];return x?x[1]:(v||'—');}
+function svChip(clase,texto){return'<span class="sv-chip '+cqEsc(clase)+'">'+cqEsc(texto)+'</span>';}
+function svM(n){return n==null?'—':'$'+cqMoneda(Number(n));}
+function svF(iso){return iso?fechaCorta(String(iso).slice(0,10)):'—';}
+function svFH(ts){return ts?new Date(ts).toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'}):'';}
+function svHoy(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
+function svPeriodo(s){return svF(s.periodo_inicio)+(s.periodo_fin&&s.periodo_fin!==s.periodo_inicio?' → '+svF(s.periodo_fin):'');}
+function svFacturaChip(s){return svChip(s.factura_estado,SV_FACTURA[s.factura_estado]||s.factura_estado);}
+function svEsConta(){var u=AUTH.usuario;return !!u&&(u.rol==='contabilidad'||u.rol==='admin');}
+function svErr(box,e){var b=typeof box==='string'?document.getElementById(box):box;if(b)b.innerHTML='<div class="cq-vacio">⚠️ '+cqEsc(e.message||e)+'</div>';}
+function svAviso(id,t,ok){var e=document.getElementById(id);if(!e)return;e.className='aviso-regla'+(ok?' ok':'');e.style.display=t?'':'none';e.textContent=t||'';}
+// Selects del SAT en el contrato
+document.querySelectorAll('select.sat-regimen').forEach(function(e){e.innerHTML=svOpts(SAT_REGIMEN,null,'—');});
+document.querySelectorAll('select.sat-uso').forEach(function(e){e.innerHTML=svOpts(SAT_USO,null,'—');});
+(function(){var f=document.getElementById('sv-f-factura');if(f)f.innerHTML='<option value="">Todas las facturas</option>'+Object.keys(SV_FACTURA).map(function(k){return'<option value="'+k+'">'+SV_FACTURA[k]+'</option>';}).join('');})();
+
+// ── Lista de servicios ──
+function svListarDiferido(){clearTimeout(SV.timer);SV.timer=setTimeout(svListar,300);}
+function svRefrescar(){if(SV.contrato&&document.getElementById('sv-vista-contrato').style.display!=='none')svAbrirContrato(SV.contrato.contrato.id,SV.servicio&&SV.servicio.id);else svListar();}
+async function svListar(){
+  var box=document.getElementById('sv-lista');if(!box)return;
+  document.getElementById('sv-vista-lista').style.display='';document.getElementById('sv-vista-contrato').style.display='none';
+  if(!SP_URL){box.innerHTML='<div class="cq-vacio">🔌 Sin conexión a la base de datos.</div>';return;}
+  try{
+    var r=await execSP('rpc_servicio_listar',{q:gv('sv-buscar'),marca:'scs',estado:gv('sv-f-estado'),factura_estado:gv('sv-f-factura'),
+      vencidos:document.getElementById('sv-f-vencidos').checked,limite:500});
+    var si=document.getElementById('sv-sin-iniciar');
+    si.innerHTML=r.sin_iniciar.length?'<details class="aviso-regla media"><summary style="cursor:pointer"><strong>'+r.sin_iniciar.length+' contrato(s) firmado(s) sin servicio.</strong> Se firmaron antes de este módulo: inícialos para generar su primer servicio.</summary>'+
+      '<table class="cq-lista" style="margin-top:6px"><tbody>'+r.sin_iniciar.map(function(k){return'<tr><td><strong>'+cqEsc(k.folio)+'</strong></td><td>'+cqEsc(k.paciente||'—')+'</td><td>'+cqEsc(k.cliente||'—')+'</td><td>'+svM(k.total)+'</td><td class="cq-msg">Firmado '+svF(k.firmado_en)+'</td><td><button class="btn btn-sm btn-primary solo-edita" onclick="svIniciar(\''+k.id+'\')">▶ Iniciar servicio</button></td></tr>';}).join('')+'</tbody></table></details>':'';
+    if(!r.servicios.length){box.innerHTML='<div class="cq-vacio">No hay servicios con ese filtro. Nacen cuando se firma un contrato de Salus.</div>';return;}
+    box.innerHTML='<table class="cq-lista"><thead><tr><th>Servicio</th><th>Contrato</th><th>Paciente</th><th>Pagador</th><th>Periodo</th><th>Total</th><th>Cobrado</th><th>Saldo</th><th>Cobro</th><th>Factura</th></tr></thead><tbody>'+
+      r.servicios.map(function(s){return'<tr class="fila" onclick="svAbrirContrato(\''+s.contrato_id+'\',\''+s.id+'\')"><td><strong>'+cqEsc(s.folio)+'</strong><div class="cq-msg">#'+s.numero+' · '+cqEsc((s.marca||'').toUpperCase())+(s.origen==='manual'?' · manual':'')+'</div></td><td>'+cqEsc(s.contrato_folio)+'<div class="cq-msg">'+cqEsc(s.asesor||'')+'</div></td><td>'+cqEsc(s.paciente||'—')+'</td><td>'+cqEsc(s.pagador?s.pagador.nombre:'—')+(s.pagador&&s.pagador.faltantes.length?'<div class="sev-media" style="font-size:.66rem">Faltan datos fiscales</div>':'')+'</td><td>'+svPeriodo(s)+(s.periodo_parcial?'<div class="cq-msg">periodo parcial</div>':'')+'</td><td>'+svM(s.total)+'</td><td>'+svM(s.cobrado)+(Number(s.por_revisar)?'<div class="sev-media" style="font-size:.66rem">'+svM(s.por_revisar)+' por revisar</div>':'')+'</td><td>'+(s.estado==='cancelado'?'—':svM(s.saldo))+'</td><td>'+svChip(s.vencido?'cancelado':s.estado,s.vencido?'Vencido':SV_ESTADO[s.estado])+'</td><td>'+svFacturaChip(s)+'</td></tr>';}).join('')+'</tbody></table>';
+  }catch(e){svErr(box,e);}
+}
+async function svIniciar(id){
+  if(!confirm('Se crea el pagador (con los datos del contratante), la configuración del servicio y el primer servicio de este contrato. ¿Iniciar?'))return;
+  try{var r=await execSP('rpc_servicio_iniciar',{id:id});svMostrarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+}
+
+// ── Contrato: configuración, pagadores y servicios ──
+async function svAbrirContrato(id,servicioId){
+  if(!id)return;
+  SV.abriendo=true;setMode('s');SV.abriendo=false;
+  document.getElementById('sv-vista-lista').style.display='none';var v=document.getElementById('sv-vista-contrato');v.style.display='';
+  if(!SV.contrato||SV.contrato.contrato.id!==id)v.innerHTML='<div class="cq-vacio">Cargando…</div>';
+  try{var r=await execSP('rpc_servicio_contrato',{id:id});svMostrarContrato(r,servicioId);}catch(e){svErr(v,e);}
+}
+function svVolver(){SV.contrato=null;SV.servicio=null;svListar();}
+function svMostrarContrato(r,servicioId){
+  SV.contrato=r;SV.pagEdit=null;
+  document.getElementById('sv-vista-lista').style.display='none';var v=document.getElementById('sv-vista-contrato');v.style.display='';
+  var k=r.contrato,g=r.configuracion;
+  var h='<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="svVolver()">← Todos los servicios</button>'+
+    '<button class="btn btn-ghost btn-sm" onclick="setMode(\'k\');ctAbrir(\''+k.id+'\')">📝 Abrir contrato</button></div>'+
+    '<div class="cq-card" style="margin-top:0"><div class="cq-head"><div><div class="cq-title">💳 '+cqEsc(k.folio)+'</div><div class="cq-sub">'+cqEsc(k.paciente||'—')+' · contrató '+cqEsc(k.cliente||'—')+' · '+cqEsc((k.marca||'').toUpperCase())+(k.cotizacion_folio?' · '+cqEsc(k.cotizacion_folio):'')+'</div></div>'+
+    '<div class="cq-folio">'+svM(k.total)+'<span class="cq-msg">'+svF(k.fecha_inicio)+' → '+svF(k.fecha_termino)+(k.jornadas_contratadas?' · '+Number(k.jornadas_contratadas)+' jornadas':'')+'</span></div></div>';
+  if(!g){h+='<div class="aviso-regla media">Este contrato aún no tiene servicio. <button class="btn btn-sm btn-primary solo-edita" onclick="svIniciar(\''+k.id+'\')">▶ Iniciar servicio</button></div></div>';v.innerHTML=h;return;}
+  // Configuración
+  h+='<div class="sec-lbl">Configuración del servicio · con ella se generan los siguientes servicios (el contrato no se modifica)</div>'+
+    (g.activa?'':'<div class="aviso-regla">⏸ Detenido por '+cqEsc(g.detenida_por||'—')+' el '+svFH(g.detenida_en)+': «'+cqEsc(g.motivo_detenida||'')+'». No se generan servicios ni facturas.</div>')+
+    '<div class="fl"><label>Concepto (cotización y factura en Alegra)</label><textarea id="sv-g-concepto" rows="2">'+cqEsc(g.concepto)+'</textarea><div class="sv-orig">En el contrato: '+cqEsc(k.servicio_solicitado||'—')+'</div></div>'+
+    '<div class="g4"><div class="fl"><label>Perfil</label><select id="sv-g-perfil">'+svOpts([['c','Cuidadora'],['a','Auxiliar de Enfermería'],['e','Enfermera Titulada']],g.perfil,'—')+'</select><div class="sv-orig">En el contrato: '+cqEsc(k.texto_perfil||k.perfil||'—')+'</div></div>'+
+    '<div class="fl"><label>Horas por jornada</label><input type="number" id="sv-g-turno" min="1" max="24" value="'+cqEsc(g.turno_horas)+'"></div>'+
+    '<div class="fl"><label>Días de la semana</label><div class="sv-dias">'+SV_DIAS.map(function(d){return'<label><input type="checkbox" class="sv-g-dia" value="'+d[0]+'"'+((g.dias_semana_lista||[]).indexOf(d[0])>=0?' checked':'')+'>'+d[1]+'</label>';}).join('')+'</div><div class="cq-hint">Sin marcar: todos los días</div></div>'+
+    '<div class="fl"><label>Pagador por omisión</label><select id="sv-g-pagador">'+r.pagadores.map(function(p){return'<option value="'+p.id+'"'+(p.id===g.pagador_id?' selected':'')+'>'+cqEsc(p.nombre)+' · '+cqEsc(p.rfc)+'</option>';}).join('')+'</select><div class="cq-hint">Cambia solo con el último que pagó</div></div></div>'+
+    '<div class="g4"><div class="fl"><label>Periodicidad</label><select id="sv-g-per" onchange="svCalcVis()">'+svOpts(SV_PERIODICIDAD,g.periodicidad)+'</select></div>'+
+    '<div class="fl"><label>Cálculo</label><select id="sv-g-calc" onchange="svCalcVis()"><option value="fijo"'+(g.calculo==='fijo'?' selected':'')+'>Monto fijo por periodo</option><option value="por_jornada"'+(g.calculo==='por_jornada'?' selected':'')+'>Por jornada (precio × días del periodo)</option></select></div>'+
+    '<div class="fl" id="sv-g-monto-w"><label>Monto por periodo (IVA incluido)</label><input type="number" step="0.01" id="sv-g-monto" value="'+cqEsc(g.monto_periodo)+'"></div>'+
+    '<div class="fl" id="sv-g-pj-w"><label>Precio por jornada (IVA incluido)</label><input type="number" step="0.01" id="sv-g-pj" value="'+cqEsc(g.precio_jornada)+'"></div></div>'+
+    '<div class="g4"><div class="fl"><label>Inicio del siguiente servicio</label><input type="date" id="sv-g-prox" value="'+cqEsc(g.proximo_inicio||'')+'"><div class="cq-hint">'+(g.proximo_inicio?'Se genera unos días antes de esa fecha':'Ya no quedan periodos por generar')+'</div></div>'+
+    '<div class="fl"><label>Generar hasta</label><input type="date" id="sv-g-hasta" value="'+cqEsc(g.hasta||'')+'"><div class="cq-hint">Vacío: sin fecha de fin (hasta detenerlo)</div></div>'+
+    '<div class="fl" style="grid-column:span 2"><label>&nbsp;</label><div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    '<button class="btn btn-primary btn-sm solo-edita" onclick="svGuardarConfig()">💾 Guardar configuración</button>'+
+    (g.activa?'<button class="btn btn-ghost btn-sm solo-edita" onclick="svRecurrencia(false)">⏸ Detener servicios y facturas</button>':'<button class="btn btn-cyan btn-sm solo-edita" onclick="svRecurrencia(true)">▶ Reanudar</button>')+
+    '<button class="btn btn-ghost btn-sm solo-edita" onclick="svGenerar()">➕ Generar el siguiente servicio ya</button></div></div></div>'+
+    '<div class="cq-msg">Última modificación: '+cqEsc(g.actualizado_por||'—')+' · '+svFH(g.actualizado_en)+'</div><div class="aviso-regla" id="sv-g-msg" style="display:none"></div>';
+  // Pagadores
+  h+='<div class="sec-lbl">Pagadores · a quién se factura (puede no ser quien firmó)</div>'+
+    '<table class="cq-lista"><thead><tr><th>Nombre o razón social</th><th>RFC</th><th>Régimen</th><th>C.P.</th><th>Uso CFDI</th><th>Correo</th><th>Origen</th><th></th></tr></thead><tbody>'+
+    r.pagadores.map(function(p){return'<tr><td><strong>'+cqEsc(p.nombre)+'</strong>'+(p.faltantes.length?'<div class="sev-media" style="font-size:.66rem">Falta: '+cqEsc(p.faltantes.join(', '))+'</div>':'')+(p.id===g.pagador_id?' <span class="sv-chip">por omisión</span>':'')+'</td><td>'+cqEsc(p.rfc)+'</td><td>'+cqEsc(p.regimen_fiscal||'—')+'</td><td>'+cqEsc(p.cp_fiscal||'—')+'</td><td>'+cqEsc(p.uso_cfdi||'—')+'</td><td>'+cqEsc(p.correo||'—')+'</td><td class="cq-msg">'+(p.origen==='contrato'?'Contratante':'Agregado por '+cqEsc(p.creado_por||'—'))+'</td><td><button class="btn btn-ghost btn-sm solo-edita" onclick="svPagadorForm(\''+p.id+'\')">✏️ Editar</button></td></tr>';}).join('')+
+    '</tbody></table><div style="margin-top:8px"><button class="btn btn-ghost btn-sm solo-edita" onclick="svPagadorForm(null)">➕ Nuevo pagador</button></div><div id="sv-pag-form"></div>';
+  // Servicios
+  h+='<div class="sec-lbl">Servicios del contrato</div>'+(r.servicios.length?'<table class="cq-lista"><thead><tr><th>Servicio</th><th>Periodo</th><th>Concepto</th><th>Cant. × precio</th><th>Total</th><th>Cobrado</th><th>Saldo</th><th>Cobro</th><th>Factura</th></tr></thead><tbody>'+
+    r.servicios.map(function(s){return'<tr class="fila" id="sv-fila-'+s.id+'" onclick="svAbrirServicio(\''+s.id+'\')"><td><strong>'+cqEsc(s.folio)+'</strong><div class="cq-msg">#'+s.numero+(s.origen==='manual'?' · manual':'')+'</div></td><td>'+svPeriodo(s)+(s.periodo_parcial?'<div class="cq-msg">periodo parcial</div>':'')+'</td><td style="max-width:300px">'+cqEsc(s.concepto)+'<div class="cq-msg">'+cqEsc(s.pagador?s.pagador.nombre:'')+'</div></td><td>'+Number(s.cantidad)+' × '+svM(s.precio_unitario)+'</td><td>'+svM(s.total)+'</td><td>'+svM(s.cobrado)+(Number(s.por_revisar)?'<div class="sev-media" style="font-size:.66rem">'+svM(s.por_revisar)+' por revisar</div>':'')+'</td><td>'+(s.estado==='cancelado'?'—':svM(s.saldo))+'</td><td>'+svChip(s.vencido?'cancelado':s.estado,s.vencido?'Vencido':SV_ESTADO[s.estado])+'</td><td>'+svFacturaChip(s)+'</td></tr>';}).join('')+'</tbody></table>':'<div class="cq-vacio">Sin servicios todavía.</div>')+
+    '<div id="sv-detalle"></div></div>';
+  v.innerHTML=h;svCalcVis();soloConsulta('sv-vista-contrato');
+  var sid=servicioId||(SV.servicio&&r.servicios.some(function(s){return s.id===SV.servicio.id;})?SV.servicio.id:null);
+  if(sid)svAbrirServicio(sid,true);else SV.servicio=null;
+}
+function svCalcVis(){var c=gv('sv-g-calc');var a=document.getElementById('sv-g-monto-w'),b=document.getElementById('sv-g-pj-w');if(a)a.style.display=c==='fijo'?'':'none';if(b)b.style.display=c==='por_jornada'?'':'none';}
+async function svGuardarConfig(){
+  var k=SV.contrato.contrato;
+  var c={concepto:gv('sv-g-concepto'),perfil:gv('sv-g-perfil'),turno_horas:cqNum(gv('sv-g-turno')),
+    dias_semana_lista:Array.from(document.querySelectorAll('.sv-g-dia:checked')).map(function(e){return e.value;}),
+    calculo:gv('sv-g-calc'),monto_periodo:cqNum(gv('sv-g-monto')),precio_jornada:cqNum(gv('sv-g-pj')),periodicidad:gv('sv-g-per'),
+    proximo_inicio:gv('sv-g-prox'),hasta:gv('sv-g-hasta'),pagador_id:gv('sv-g-pagador')};
+  if(!c.dias_semana_lista.length)c.dias_semana_lista=null;
+  try{var r=await execSP('rpc_servicio_configuracion_guardar',{id:k.id,configuracion:c});svMostrarContrato(r);svAviso('sv-g-msg','✓ Configuración guardada: aplica a los siguientes servicios',true);}
+  catch(e){svAviso('sv-g-msg','⚠️ '+e.message);}
+}
+async function svRecurrencia(activa){
+  var motivo=null;
+  if(!activa){motivo=prompt('¿Por qué se detienen los servicios y las facturas de este contrato?');if(motivo==null)return;if(!motivo.trim()){alert('Escribe el motivo');return;}}
+  try{var r=await execSP('rpc_servicio_recurrencia',{id:SV.contrato.contrato.id,activa:activa,motivo:motivo});svMostrarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+}
+async function svGenerar(){
+  var g=SV.contrato.configuracion,p={id:SV.contrato.contrato.id};
+  var sinPeriodo=!g.proximo_inicio||(g.hasta&&g.proximo_inicio>g.hasta);
+  if(sinPeriodo){var f=prompt('Ya no quedan periodos con la configuración actual. Fecha de inicio del nuevo servicio (AAAA-MM-DD):',svHoy());if(!f)return;p.inicio=f.trim();}
+  else if(!confirm('Se genera ya el servicio que empieza el '+svF(g.proximo_inicio)+' con la configuración vigente. ¿Continuar?'))return;
+  try{var r=await execSP('rpc_servicio_generar',p);svMostrarContrato(r,r.servicio_id);}catch(e){alert('⚠️ '+e.message);}
+}
+
+// ── Pagadores ──
+function svPagadorForm(id,paraServicio){
+  var p=id?SV.contrato.pagadores.filter(function(x){return x.id===id;})[0]:{};
+  SV.pagEdit={id:id||null,para:paraServicio||null};
+  var f=document.getElementById('sv-pag-form');
+  f.innerHTML='<div class="cq-card" style="margin-top:10px"><div class="cq-title" style="font-size:.9rem">'+(id?'✏️ Editar pagador':'➕ Nuevo pagador')+(paraServicio?' · para el servicio '+cqEsc(SV.servicio&&SV.servicio.folio||''):'')+'</div>'+
+    '<div class="cq-sub">Con los datos de su constancia de situación fiscal: así se crea el cliente en Alegra.</div>'+
+    '<div class="g3"><div class="fl"><label>Nombre o razón social *</label><input id="sv-p-nombre" value="'+cqEsc(p.nombre||'')+'" oninput="this.value=this.value.toUpperCase()"></div>'+
+    '<div class="fl"><label>RFC *</label><input id="sv-p-rfc" maxlength="13" value="'+cqEsc(p.rfc||'')+'" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Público en general: XAXX010101000 · extranjero: XEXX010101000</div></div>'+
+    '<div class="fl"><label>Régimen fiscal *</label><select id="sv-p-regimen">'+svOpts(SAT_REGIMEN,p.regimen_fiscal,'—')+'</select></div></div>'+
+    '<div class="g4"><div class="fl"><label>C.P. fiscal *</label><input id="sv-p-cp" maxlength="5" value="'+cqEsc(p.cp_fiscal||'')+'"></div>'+
+    '<div class="fl"><label>Uso del CFDI *</label><select id="sv-p-uso">'+svOpts(SAT_USO,p.uso_cfdi,'—')+'</select></div>'+
+    '<div class="fl"><label>Correo para la factura</label><input type="email" id="sv-p-correo" value="'+cqEsc(p.correo||'')+'"></div>'+
+    '<div class="fl"><label>Teléfono</label><input id="sv-p-tel" value="'+cqEsc(p.telefono||'')+'"></div></div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px"><button class="btn btn-primary btn-sm" onclick="svPagadorGuardar()">💾 Guardar pagador</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'sv-pag-form\').innerHTML=\'\'">Cancelar</button></div>'+
+    '<div class="aviso-regla" id="sv-p-msg" style="display:none"></div></div>';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function svPagadorGuardar(){
+  var p={contrato_id:SV.contrato.contrato.id,id:SV.pagEdit&&SV.pagEdit.id,para_servicio:SV.pagEdit&&SV.pagEdit.para,nombre:gv('sv-p-nombre'),rfc:gv('sv-p-rfc'),
+    regimen_fiscal:gv('sv-p-regimen'),cp_fiscal:gv('sv-p-cp'),uso_cfdi:gv('sv-p-uso'),correo:gv('sv-p-correo'),telefono:gv('sv-p-tel')};
+  var e=rfcError(p.rfc.replace(/\s/g,''));if(e){svAviso('sv-p-msg','⚠️ '+e);return;}
+  try{var r=await execSP('rpc_pagador_guardar',p);svMostrarContrato(r,p.para_servicio||(SV.servicio&&SV.servicio.id));}catch(x){svAviso('sv-p-msg','⚠️ '+x.message);}
+}
+
+// ── Un servicio: datos, factura y cobros ──
+async function svAbrirServicio(id,sinScroll){
+  document.querySelectorAll('#sv-vista-contrato tr.sv-sel').forEach(function(t){t.classList.remove('sv-sel');});
+  var fila=document.getElementById('sv-fila-'+id);if(fila)fila.classList.add('sv-sel');
+  var d=document.getElementById('sv-detalle');d.innerHTML='<div class="cq-vacio">Cargando…</div>';
+  try{var r=await execSP('rpc_servicio_obtener',{id:id});svMostrarServicio(r);if(!sinScroll)d.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){svErr(d,e);}
+}
+function svMostrarServicio(r){
+  var s=r.servicio;SV.servicio=s;
+  var d=document.getElementById('sv-detalle');if(!d)return;
+  var editable=s.estado!=='cancelado'&&s.factura_estado!=='por_timbrar'&&s.factura_estado!=='timbrada';
+  var dis=editable?'':' disabled';
+  var pags=r.pagadores.map(function(p){return'<option value="'+p.id+'"'+(s.pagador&&p.id===s.pagador.id?' selected':'')+'>'+cqEsc(p.nombre)+' · '+cqEsc(p.rfc)+(p.faltantes.length?' (faltan datos)':'')+'</option>';}).join('');
+  var disponible=Math.max(0,Number(s.total)-Number(s.cobrado)-Number(s.por_revisar));
+  var h='<div class="cq-card"><div class="cq-head"><div><div class="cq-title">🧾 '+cqEsc(s.folio)+' · servicio #'+s.numero+'</div><div class="cq-sub">'+svPeriodo(s)+' · creado por '+cqEsc(s.creado_por||'—')+' '+svFH(s.creado_en)+'</div></div>'+
+    '<div class="cq-folio">'+svChip(s.estado,SV_ESTADO[s.estado])+' '+svFacturaChip(s)+'</div></div>'+
+    (s.estado==='cancelado'?'<div class="aviso-regla">Cancelado: «'+cqEsc(s.motivo_cancelacion||'')+'»</div>':'')+
+    (s.periodo_parcial?'<div class="aviso-regla media">Periodo parcial (termina antes del corte): el monto se prorrateó por días. Revísalo.</div>':'')+
+    '<div class="sec-lbl">Datos del servicio (cotización en Alegra)</div>'+
+    '<div class="fl"><label>Concepto</label><textarea id="sv-s-concepto" rows="2"'+dis+'>'+cqEsc(s.concepto)+'</textarea></div>'+
+    '<div class="g4"><div class="fl"><label>Cantidad (jornadas o periodos)</label><input type="number" step="0.5" min="0.5" id="sv-s-cant" value="'+Number(s.cantidad)+'" oninput="svTotal()"'+dis+'></div>'+
+    '<div class="fl"><label>Precio unitario (IVA incluido)</label><input type="number" step="0.01" id="sv-s-pu" value="'+Number(s.precio_unitario)+'" oninput="svTotal()"'+dis+'></div>'+
+    '<div class="fl"><label>Total</label><input id="sv-s-total" readonly value="'+svM(s.total)+'"><div class="cq-hint">Subtotal '+svM(s.subtotal)+' · IVA '+svM(s.iva)+'</div></div>'+
+    '<div class="fl"><label>Pagador (cliente en Alegra)</label><select id="sv-s-pag"'+dis+'>'+pags+'</select><div class="cq-hint"><a href="#" class="solo-edita" onclick="svPagadorForm(null,\''+s.id+'\');return false">➕ Otro pagador para este servicio</a></div></div></div>'+
+    '<div class="g4"><div class="fl"><label>Inicio del periodo</label><input type="date" id="sv-s-ini" value="'+cqEsc(s.periodo_inicio)+'"'+dis+'></div>'+
+    '<div class="fl"><label>Fin del periodo</label><input type="date" id="sv-s-fin" value="'+cqEsc(s.periodo_fin)+'"'+dis+'></div>'+
+    '<div class="fl" style="grid-column:span 2"><label>&nbsp;</label><div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    (editable?'<button class="btn btn-primary btn-sm solo-edita" onclick="svServicioGuardar()">💾 Guardar servicio</button><button class="btn btn-ghost btn-sm solo-edita" onclick="svServicioCancelar()">✖ Cancelar servicio</button>':'')+
+    '</div></div></div><div class="aviso-regla" id="sv-s-msg" style="display:none"></div>'+
+    // Factura
+    '<div class="sec-lbl">Factura</div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+svFacturaChip(s)+
+    '<span class="cq-msg">'+svFacturaTexto(s)+'</span>'+
+    (s.factura_url?'<a class="btn btn-ghost btn-sm" href="'+cqEsc(s.factura_url)+'" target="_blank" rel="noopener">📄 Ver factura</a>':'')+
+    (['por_enviar','cotizacion','error'].indexOf(s.factura_estado)>=0&&s.estado!=='cancelado'?'<button class="btn btn-ghost btn-sm solo-conta" onclick="svFacturar(\''+s.id+'\')">🧾 '+(s.estado==='pagado'?'Facturar':'Facturar sin cobro')+'</button>':'')+
+    (s.factura_estado==='borrador'?'<button class="btn btn-primary btn-sm solo-conta" onclick="svTimbrar(\''+s.id+'\')">✅ Revisada: timbrar</button>':'')+
+    '</div>'+(s.factura_error?'<div class="aviso-regla">'+cqEsc(s.factura_error)+'</div>':'')+
+    // Cobros
+    '<div class="sec-lbl">Cobros · cobrado '+svM(s.cobrado)+(Number(s.por_revisar)?' · por revisar '+svM(s.por_revisar):'')+' · saldo '+svM(s.saldo)+'</div>'+
+    (s.cobros.length?'<table class="cq-lista"><thead><tr><th>Cobro</th><th>Fecha de pago</th><th>Forma</th><th>Monto</th><th>Pagó</th><th>Referencia · comprobante</th><th>Estado</th><th>Registró · revisó</th><th></th></tr></thead><tbody>'+
+      s.cobros.map(function(c){return svFilaCobro(c,s.id);}).join('')+'</tbody></table>':'<div class="cq-msg">Sin cobros registrados.</div>');
+  if(s.estado!=='cancelado'&&disponible>0)h+='<div class="cq-card solo-edita" style="background:#fff"><div class="cq-title" style="font-size:.88rem">➕ Registrar cobro</div><div class="cq-sub">Queda «por revisar» hasta que Contabilidad lo valide; solo entonces baja el saldo.</div>'+
+    '<div class="g4"><div class="fl"><label>Monto *</label><input type="number" step="0.01" id="sv-c-monto" value="'+cqR2(disponible)+'"><div class="cq-hint">Disponible: '+svM(disponible)+'</div></div>'+
+    '<div class="fl"><label>Fecha del pago *</label><input type="date" id="sv-c-fecha" value="'+svHoy()+'" max="'+svHoy()+'"></div>'+
+    '<div class="fl"><label>Forma de pago *</label><select id="sv-c-forma">'+svOpts(SAT_FORMA,'03')+'</select></div>'+
+    '<div class="fl"><label>Quién pagó</label><select id="sv-c-pag">'+pags+'</select></div></div>'+
+    '<div class="g3"><div class="fl"><label>Referencia</label><input id="sv-c-ref" placeholder="Folio SPEI, núm. de cheque, autorización…"></div>'+
+    '<div class="fl"><label>Liga al comprobante</label><input id="sv-c-evid" placeholder="https://… (OneDrive, correo, banco)"></div>'+
+    '<div class="fl"><label>Notas</label><input id="sv-c-notas"></div></div>'+
+    '<button class="btn btn-primary btn-sm" onclick="svCobroRegistrar()">💾 Registrar cobro</button><div class="aviso-regla" id="sv-c-msg" style="display:none"></div></div>';
+  d.innerHTML=h+'</div>';soloConsulta('sv-detalle');
+}
+function svFacturaTexto(s){
+  switch(s.factura_estado){
+    case'por_enviar':return'Se crea (o actualiza) como cotización en Alegra.';
+    case'cotizacion':return'Cotización en Alegra'+(s.alegra_cotizacion_id?' #'+cqEsc(s.alegra_cotizacion_id):'')+'. Pasa a factura borrador con el pago completo validado.';
+    case'por_facturar':return(s.factura_motivo==='sin_cobro'?'Contabilidad pidió la factura sin cobro':'Pago completo validado')+': se convierte en factura borrador en Alegra.';
+    case'borrador':return'Factura borrador'+(s.factura_folio?' '+cqEsc(s.factura_folio):'')+'. Contabilidad la revisa en Alegra (puede ajustarla) y la timbra.';
+    case'por_timbrar':return'Contabilidad la mandó timbrar ('+cqEsc(s.timbrada_por||'')+').';
+    case'timbrada':return'Timbrada'+(s.factura_folio?' · '+cqEsc(s.factura_folio):'')+(s.timbrada_en?' · '+svFH(s.timbrada_en):'')+'.';
+    case'no_aplica':return'Médica Sur: se factura en su corte (por definir), no servicio por servicio.';
+    case'error':return'Falló el envío a Alegra.';
+  }return'';
+}
+function svFilaCobro(c,servicioId,conServicio){
+  var ev=(c.evidencia||[]).map(function(e){return e.url?'<a href="'+cqEsc(e.url)+'" target="_blank" rel="noopener">📎 '+cqEsc(e.nombre||'comprobante')+'</a>':cqEsc(e.nombre||'');}).join(' ');
+  var acc=c.estado==='por_revisar'?'<button class="btn btn-primary btn-sm solo-conta" onclick="svCobroRevisar(\''+c.id+'\',\'validar\',\''+(conServicio?'cb':'sv')+'\')">✓ Validar</button> <button class="btn btn-ghost btn-sm solo-conta" onclick="svCobroRevisar(\''+c.id+'\',\'rechazar\',\''+(conServicio?'cb':'sv')+'\')">✖ Rechazar</button>'
+    :'<button class="btn btn-ghost btn-sm solo-conta" title="Volver a «por revisar»" onclick="svCobroRevisar(\''+c.id+'\',\'reabrir\',\''+(conServicio?'cb':'sv')+'\')">↺</button>';
+  return'<tr>'+(conServicio?'<td><a href="#" onclick="svAbrirContrato(\''+c.contrato_id+'\',\''+c.servicio_id+'\');return false"><strong>'+cqEsc(c.servicio_folio)+'</strong></a><div class="cq-msg">'+cqEsc(c.contrato_folio)+' · '+cqEsc(c.paciente||'')+'</div></td>':'')+
+    '<td><strong>'+cqEsc(c.folio)+'</strong></td><td>'+svF(c.fecha_pago)+'</td><td>'+cqEsc(svNombre(SAT_FORMA,c.forma_pago))+'</td><td>'+svM(c.monto)+'</td><td>'+cqEsc(c.pagador||'—')+'</td>'+
+    '<td>'+cqEsc(c.referencia||'')+(ev?'<div>'+ev+'</div>':'')+(c.notas?'<div class="cq-msg">'+cqEsc(c.notas)+'</div>':'')+'</td>'+
+    '<td>'+svChip(c.estado,SV_COBRO[c.estado])+(c.motivo_rechazo?'<div class="sev-alta" style="font-size:.66rem">'+cqEsc(c.motivo_rechazo)+'</div>':'')+'</td>'+
+    '<td class="cq-msg">'+cqEsc(c.registrado_por||'')+' '+svFH(c.registrado_en)+(c.revisado_por?'<br>'+cqEsc(c.revisado_por)+' '+svFH(c.revisado_en):'')+'</td><td style="white-space:nowrap">'+acc+'</td></tr>';
+}
+function svTotal(){var t=cqR2((cqNum(gv('sv-s-cant'))||0)*(cqNum(gv('sv-s-pu'))||0));cqSet('sv-s-total',svM(t));}
+async function svServicioGuardar(){
+  var s=SV.servicio;
+  try{var r=await execSP('rpc_servicio_guardar',{id:s.id,concepto:gv('sv-s-concepto'),cantidad:cqNum(gv('sv-s-cant')),precio_unitario:cqNum(gv('sv-s-pu')),
+      periodo_inicio:gv('sv-s-ini'),periodo_fin:gv('sv-s-fin'),pagador_id:gv('sv-s-pag')});
+    await svRecargarContrato(r);svAviso('sv-s-msg','✓ Servicio guardado'+(r.servicio.alegra_cotizacion_id||r.servicio.alegra_factura_id?': se actualiza en Alegra':''),true);}
+  catch(e){svAviso('sv-s-msg','⚠️ '+e.message);}
+}
+async function svServicioCancelar(){
+  var m=prompt('¿Por qué se cancela el servicio '+SV.servicio.folio+'?');if(m==null)return;if(!m.trim()){alert('Escribe el motivo');return;}
+  try{var r=await execSP('rpc_servicio_cancelar',{id:SV.servicio.id,motivo:m});await svRecargarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+}
+async function svRecargarContrato(r){
+  var c=await execSP('rpc_servicio_contrato',{id:r.servicio.contrato_id});svMostrarContrato(c,r.servicio.id);
+}
+async function svCobroRegistrar(){
+  var s=SV.servicio,url=gv('sv-c-evid');
+  try{var r=await execSP('rpc_cobro_registrar',{servicio_id:s.id,monto:cqNum(gv('sv-c-monto')),fecha_pago:gv('sv-c-fecha'),forma_pago:gv('sv-c-forma'),
+      pagador_id:gv('sv-c-pag'),referencia:gv('sv-c-ref'),notas:gv('sv-c-notas'),evidencia:url?[{nombre:'comprobante',url:url}]:[]});
+    await svRecargarContrato(r);}
+  catch(e){svAviso('sv-c-msg','⚠️ '+e.message);}
+}
+async function svCobroRevisar(id,decision,origen){
+  var motivo=null;
+  if(decision==='rechazar'){motivo=prompt('Motivo del rechazo (lo ve el asesor):');if(motivo==null)return;if(!motivo.trim()){alert('Escribe el motivo');return;}}
+  if(decision==='reabrir'&&!confirm('El cobro vuelve a «por revisar» y deja de contar en el saldo. ¿Continuar?'))return;
+  try{var r=await execSP('rpc_cobro_revisar',{id:id,decision:decision,motivo:motivo});
+    if(origen==='cb')cbCargar();else await svRecargarContrato(r);}
+  catch(e){alert('⚠️ '+e.message);}
+}
+async function svFacturar(id){
+  var s=SV.servicio&&SV.servicio.id===id?SV.servicio:null;
+  if(!confirm(s&&s.estado!=='pagado'?'El servicio no está pagado. ¿Generar la factura en borrador de todos modos?':'Se genera la factura en borrador en Alegra. ¿Continuar?'))return;
+  try{var r=await execSP('rpc_servicio_facturar',{id:id});await svRecargarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+}
+async function svTimbrar(id,origen){
+  if(!confirm('¿Ya revisaste la factura borrador en Alegra? Se manda timbrar y ya no se puede modificar.'))return;
+  try{var r=await execSP('rpc_servicio_timbrar',{id:id});if(origen==='cb')cbCargar();else await svRecargarContrato(r);}catch(e){alert('⚠️ '+e.message);}
+}
+
+// ── Cobranza ──
+async function cbCargar(){
+  var m=document.getElementById('cb-mes');if(!m.value)m.value=svHoy().slice(0,7);
+  var k=document.getElementById('cb-kpis');
+  if(!SP_URL){k.innerHTML='<div class="cq-vacio">🔌 Sin conexión a la base de datos.</div>';return;}
+  try{
+    var r=await execSP('rpc_cobranza_resumen',{mes:m.value}),t=r.totales;
+    k.innerHTML='<div class="sv-kpi"><span>Por cobrar en el mes</span><b>'+svM(t.por_cobrar)+'</b><div class="cq-msg">'+t.servicios+' servicio(s)</div></div>'+
+      '<div class="sv-kpi"><span>Cobrado (validado)</span><b>'+svM(t.cobrado)+'</b></div>'+
+      '<div class="sv-kpi media"><span>Por revisar</span><b>'+svM(r.cobros_por_revisar.monto)+'</b><div class="cq-msg">'+r.cobros_por_revisar.cobros+' cobro(s), de cualquier mes</div></div>'+
+      '<div class="sv-kpi"><span>Saldo del mes</span><b>'+svM(t.saldo)+'</b></div>'+
+      '<div class="sv-kpi alerta"><span>Vencido</span><b>'+svM(r.vencidos.saldo)+'</b><div class="cq-msg">'+r.vencidos.servicios+' servicio(s) · <a href="#" onclick="cbVerVencidos();return false">ver</a></div></div>';
+    var f=r.facturas||{};
+    document.getElementById('cb-marcas').innerHTML=(r.por_marca.length?'<table class="cq-lista" style="margin-bottom:6px"><thead><tr><th>Marca</th><th>Servicios</th><th>Por cobrar</th><th>Cobrado</th><th>Saldo</th></tr></thead><tbody>'+
+      r.por_marca.map(function(x){return'<tr><td>'+cqEsc((x.marca||'').toUpperCase())+'</td><td>'+x.servicios+'</td><td>'+svM(x.por_cobrar)+'</td><td>'+svM(x.cobrado)+'</td><td>'+svM(x.saldo)+'</td></tr>';}).join('')+'</tbody></table>':'')+
+      '<div class="cq-msg">Facturas: '+Object.keys(SV_FACTURA).filter(function(x){return f[x];}).map(function(x){return SV_FACTURA[x]+' '+f[x];}).join(' · ')+'</div>';
+    cbBandeja();cbBorradores();cbCortesMs();
+  }catch(e){svErr(k,e);}
+}
+function cbVerVencidos(){setMode('s');document.getElementById('sv-f-vencidos').checked=true;svListar();}
+async function cbBandeja(){
+  var b=document.getElementById('cb-cobros');
+  try{
+    var r=await execSP('rpc_cobro_listar',{estado:gv('cb-f-estado')});
+    b.innerHTML=r.cobros.length?'<table class="cq-lista"><thead><tr><th>Servicio</th><th>Cobro</th><th>Fecha de pago</th><th>Forma</th><th>Monto</th><th>Pagó</th><th>Referencia · comprobante</th><th>Estado</th><th>Registró · revisó</th><th></th></tr></thead><tbody>'+
+      r.cobros.map(function(c){return svFilaCobro(c,c.servicio_id,true);}).join('')+'</tbody></table>':'<div class="cq-vacio">'+(gv('cb-f-estado')==='por_revisar'?'✓ No hay cobros por revisar.':'Sin cobros.')+'</div>';
+  }catch(e){svErr(b,e);}
+}
+async function cbBorradores(){
+  var b=document.getElementById('cb-borradores');
+  try{
+    var r=await execSP('rpc_servicio_listar',{factura_estado:'borrador',limite:200});
+    b.innerHTML=r.servicios.length?'<table class="cq-lista"><thead><tr><th>Servicio</th><th>Paciente</th><th>Pagador</th><th>Periodo</th><th>Total</th><th>Cobro</th><th></th></tr></thead><tbody>'+
+      r.servicios.map(function(s){return'<tr><td><a href="#" onclick="svAbrirContrato(\''+s.contrato_id+'\',\''+s.id+'\');return false"><strong>'+cqEsc(s.folio)+'</strong></a><div class="cq-msg">'+cqEsc(s.factura_folio||'')+'</div></td><td>'+cqEsc(s.paciente||'—')+'</td><td>'+cqEsc(s.pagador?s.pagador.nombre+' · '+s.pagador.rfc:'—')+'</td><td>'+svPeriodo(s)+'</td><td>'+svM(s.total)+'</td><td>'+svChip(s.estado,SV_ESTADO[s.estado])+(s.factura_motivo==='sin_cobro'?'<div class="cq-msg">sin cobro</div>':'')+'</td><td><button class="btn btn-primary btn-sm solo-conta" onclick="svTimbrar(\''+s.id+'\',\'cb\')">✅ Timbrar</button></td></tr>';}).join('')+'</tbody></table>':'<div class="cq-vacio">No hay facturas en borrador.</div>';
+  }catch(e){svErr(b,e);}
+}
+
+// ── Médica Sur: corte semanal (una factura a Médica Sur; sus contratos no siguen el flujo de servicios y cobros) ──
+var CORTE_ESTADO={por_facturar:'Factura en proceso',borrador:'Factura borrador',por_timbrar:'Timbrando',timbrada:'Timbrada',sin_servicios:'Sin jornadas',error:'Error en Alegra'};
+async function cbCortesMs(){
+  var b=document.getElementById('cb-ms'),w=document.getElementById('cb-ms-box');
+  try{
+    var r=await execSP('rpc_corte_ms_listar',{});
+    if(r.sin_acceso){w.style.display='none';return;}w.style.display='';
+    var ec=r.en_curso,tc=ec.lineas.reduce(function(a,l){return a+Number(l.importe);},0);
+    var h='<div class="cq-msg" style="margin-bottom:6px">Semana en curso '+svF(ec.semana_desde)+' → '+svF(ec.semana_hasta)+' (cierra el '+svF(ec.cierre)+' a la 1 pm): '+
+      ec.lineas.length+' contrato(s), '+ec.lineas.reduce(function(a,l){return a+Number(l.jornadas);},0)+' jornada(s), '+svM(tc)+' en la semana. <a href="#" onclick="cbCorteDetalle(-1);return false">ver</a></div>';
+    CB_CORTES=r.cortes;CB_EN_CURSO=ec;
+    h+=r.cortes.length?'<table class="cq-lista"><thead><tr><th>Corte</th><th>Semana</th><th>Contratos</th><th>Jornadas</th><th>Total</th><th>Factura</th><th></th></tr></thead><tbody>'+
+      r.cortes.map(function(c,i){return'<tr><td><a href="#" onclick="cbCorteDetalle('+i+');return false"><strong>'+cqEsc(c.folio)+'</strong></a><div class="cq-msg">'+cqEsc(c.factura_folio||'')+'</div></td><td>'+svF(c.semana_desde)+' → '+svF(c.semana_hasta)+'</td><td>'+c.contratos+'</td><td>'+Number(c.jornadas)+'</td><td>'+svM(c.total)+'</td><td>'+svChip(c.factura_estado,CORTE_ESTADO[c.factura_estado]||c.factura_estado)+(c.factura_error?'<div class="sev-alta" style="font-size:.66rem">'+cqEsc(c.factura_error)+'</div>':'')+'</td><td style="white-space:nowrap">'+
+        (c.factura_estado==='borrador'?'<button class="btn btn-primary btn-sm solo-conta" onclick="cbCorteTimbrar(\''+c.id+'\')">✅ Timbrar</button> ':'')+
+        (['por_timbrar','timbrada'].indexOf(c.factura_estado)<0?'<button class="btn btn-ghost btn-sm solo-conta" title="Recalcular con los contratos de hoy" onclick="cbCorteRecalcular(\''+c.id+'\')">↻ Recalcular</button>':'')+
+        (c.factura_url?'<a class="btn btn-ghost btn-sm" href="'+cqEsc(c.factura_url)+'" target="_blank" rel="noopener">📄</a>':'')+'</td></tr>';}).join('')+'</tbody></table>':'<div class="cq-vacio">Aún no se cierra ningún corte.</div>';
+    b.innerHTML=h+'<div id="cb-ms-detalle"></div>';
+  }catch(e){svErr(b,e);}
+}
+var CB_CORTES=[],CB_EN_CURSO=null;
+function cbCorteDetalle(i){
+  var c=i<0?CB_EN_CURSO:CB_CORTES[i],d=document.getElementById('cb-ms-detalle');
+  d.innerHTML='<div class="cq-card"><div class="cq-title" style="font-size:.9rem">'+(i<0?'Semana en curso':cqEsc(c.folio))+' · '+svF(c.semana_desde)+' → '+svF(c.semana_hasta)+'</div>'+
+    (c.lineas.length?'<table class="cq-lista"><thead><tr><th>Contrato</th><th>Paciente</th><th>Del</th><th>Al</th><th>Jornadas</th><th>Precio</th><th>Importe</th></tr></thead><tbody>'+
+      c.lineas.map(function(l){return'<tr><td><a href="#" onclick="setMode(\'k\');ctAbrir(\''+l.contrato_id+'\');return false">'+cqEsc(l.folio)+'</a></td><td>'+cqEsc(l.paciente||'—')+'</td><td>'+svF(l.desde)+'</td><td>'+svF(l.hasta)+'</td><td>'+Number(l.jornadas)+'</td><td>'+(l.sin_precio?'<span class="sev-alta">sin precio</span>':svM(l.precio))+'</td><td>'+svM(l.importe)+'</td></tr>';}).join('')+'</tbody></table>':'<div class="cq-msg">Sin jornadas en la semana.</div>')+'</div>';
+  d.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function cbCorteTimbrar(id){
+  if(!confirm('¿Ya revisaste la factura borrador del corte en Alegra? Se manda timbrar y ya no se puede modificar.'))return;
+  try{await execSP('rpc_corte_ms_timbrar',{id:id});cbCortesMs();}catch(e){alert('⚠️ '+e.message);}
+}
+async function cbCorteRecalcular(id){
+  if(!confirm('Se recalcula el corte con los contratos firmados de hoy (si ya hay factura borrador, se actualiza en Alegra). ¿Continuar?'))return;
+  try{await execSP('rpc_corte_ms_recalcular',{id:id});cbCortesMs();}catch(e){alert('⚠️ '+e.message);}
+}
+
 // ── Enganches con el Perfilador existente (sin cambiar su lógica) ──
 var _cqRenderCotiz=renderCotiz;renderCotiz=function(){_cqRenderCotiz();cqAlRenderizar();};
 var _cqResetAll=resetAll;resetAll=function(){cqLimpiar();_cqResetAll();};
 var _cqSetMode=setMode;setMode=function(m){
   if(m==='u'&&!authEsAdmin())m='p';
-  ['q','k','u'].forEach(function(x){document.getElementById('mode-'+x).style.display=m===x?'block':'none';document.getElementById('mt-'+x).classList.toggle('active',m===x);});
-  if(m==='q'||m==='k'||m==='u'){['p','c','h'].forEach(function(x){document.getElementById('mode-'+x).style.display='none';document.getElementById('mt-'+x).classList.remove('active');});
-    if(m==='q')cqListar();else if(m==='k'){ctLlenarCatalogos();ctListar();}else usListar();return;}
+  ['q','k','s','b','u'].forEach(function(x){document.getElementById('mode-'+x).style.display=m===x?'block':'none';document.getElementById('mt-'+x).classList.toggle('active',m===x);});
+  if(m==='q'||m==='k'||m==='s'||m==='b'||m==='u'){['p','c','h'].forEach(function(x){document.getElementById('mode-'+x).style.display='none';document.getElementById('mt-'+x).classList.remove('active');});
+    if(m==='q')cqListar();else if(m==='k'){ctLlenarCatalogos();ctListar();}else if(m==='s'){if(!SV.abriendo)svListar();}else if(m==='b')cbCargar();else usListar();return;}
   _cqSetMode(m);
 };
 // Con BD, el chip del usuario abre "Mi cuenta" (cambiar contraseña / cerrar sesión).
