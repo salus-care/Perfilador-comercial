@@ -686,7 +686,7 @@ body:not(.es-conta) .solo-conta{display:none!important}
 <div class="g3" style="max-width:780px">
 <div class="fl"><label>Número de jornadas *</label><input type="number" id="jorn-num" min="1" step="1" placeholder="Ej. 10" oninput="setJornadas(this.value)"></div>
 <div class="fl"><label>Fecha de inicio *</label><input type="date" id="jorn-fini" onchange="setCanalFecha(this.value)"></div>
-<div class="fl"><label>Fecha final</label><input type="date" id="jorn-ffin" readonly tabindex="-1" class="ct-calculado"><div class="cq-hint">Se calcula: inicio + jornadas</div></div>
+<div class="fl"><label>Fecha final</label><input type="date" id="jorn-ffin" readonly tabindex="-1" class="ct-calculado"><div class="cq-hint">Último día de servicio</div></div>
 </div>
 <div class="cq-hint" id="jorn-hint">Días a partir de la fecha de inicio. Cada jornada se cobra con la lista de urgencia.</div>
 <div class="aviso-regla" id="jorn-festivos" style="display:none;margin-top:8px"></div>
@@ -1450,10 +1450,10 @@ function recargoFestivo(pk,h){var t=RECARGO_FESTIVO[marca+(esGuardiaCorta()&&REC
 var FEST={clave:null,lista:[],estado:''};
 function isoDia(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function sumarDias(iso,n){var d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoDia(d);}
-// Por jornadas: las jornadas son días seguidos desde el inicio; la fecha final es inicio + jornadas (20 desde el 10 = el 30;
-// canalización: el mismo día). Los festivos se buscan en los días de servicio: del inicio a inicio + jornadas − 1.
+// Por jornadas: las jornadas son días seguidos desde el inicio; la fecha final es el último día de servicio, inicio + jornadas − 1
+// (2 desde el 20 = el 21; 20 desde el 10 = el 29; canalización: el mismo día). Los festivos se buscan en esos mismos días.
 function jornRango(){var f=gv('fi-inicio-top');if(contrato!=='jornadas'||!f||!(jornadas>=1))return null;
-  return{desde:f,hasta:sumarDias(f,jornadas-1),fin:esCanal()?f:sumarDias(f,jornadas)};}
+  var h=sumarDias(f,Math.ceil(jornadas)-1);return{desde:f,hasta:h,fin:esCanal()?f:h};}
 function festivosDelRango(){var r=jornRango();return r&&FEST.clave===r.desde+'|'+r.hasta&&FEST.estado==='ok'?FEST.lista:[];}
 // Estado de los festivos del rango actual: 'na' (no es por jornadas), 'pendiente' (cambió el rango y aún no se consulta),
 // 'cargando', 'ok' o 'error'. Con 'pendiente' el precio aún no lleva el recargo: no se debe mostrar «sin festivos» ni guardar.
@@ -3245,7 +3245,8 @@ function ctLimpiar(){
   ctVisibilidad();ctDesglose();ctMsg('');ctHintsFechas();
 }
 // Jornadas y fecha de término del contrato con el turno de la cotización (5-nov-2026):
-// - por jornadas: término = inicio + jornadas (canalización: el mismo día), igual que en el cotizador; los dos fijos;
+// - por jornadas: término = último día de servicio, inicio + jornadas − 1 (canalización: el mismo día), igual que en el
+//   cotizador; los dos fijos;
 // - membresía: el término lo pone el asesor (solo él sabe cuándo termina) y las jornadas se calculan: días de la semana
 //   marcados en la cotización (p. ej. lun y mié) del inicio al término, ambos incluidos (_jornadas_membresia en la BD).
 // Sin cotización (o cotizaciones viejas sin turno) se capturan como antes.
@@ -3258,14 +3259,14 @@ function ctJornadasMembresia(ini,fin,lista){
 function ctTurnoJornadas(t){return !!t&&t.contratacion==='jornadas'&&Number(t.dias_periodo)>=1;}
 function ctTurnoMembresia(t){return !!t&&t.contratacion==='membresia'&&!!(t.dias_semana_lista&&t.dias_semana_lista.length);}
 // Por jornadas (6-nov-2026): las jornadas del contrato se pueden cambiar (de inicio salen las de la cotización); el término es
-// inicio + jornadas. Canalización: una visita, el mismo día. Cada cambio de inicio, jornadas o término rehace el precio.
+// el último día de servicio: inicio + jornadas − 1 (19-nov-2026; antes era el día siguiente). Canalización: una visita, el mismo día. Cada cambio de inicio, jornadas o término rehace el precio.
 function ctAutoFechas(origen){
   var t=CT.turno;if(CT.cargando||!t)return;
   var ini=gv('ct-fini');
   if(ctTurnoJornadas(t)){
     var canal=t.tipo_servicio==='canalizacion',n=cqNum(gv('ct-jornadas'));
     if(canal||!(n>=1)){n=Number(t.dias_periodo);cqSet('ct-jornadas',n);}
-    if(ini)cqSet('ct-ffin',sumarDias(ini,canal?0:Math.ceil(n)));
+    if(ini)cqSet('ct-ffin',sumarDias(ini,canal?0:Math.ceil(n)-1));
   }else if(ctTurnoMembresia(t)){
     var m=ctJornadasMembresia(ini,gv('ct-ffin'),t.dias_semana_lista);cqSet('ct-jornadas',m==null?'':m);
   }
@@ -3303,7 +3304,7 @@ function ctHintsFechas(){
   document.getElementById('ct-jornadas').readOnly=mem||canal;document.getElementById('ct-ffin').readOnly=jor;
   document.getElementById('ct-jornadas').classList.toggle('ct-calculado',mem||canal);document.getElementById('ct-ffin').classList.toggle('ct-calculado',jor);
   if(jor){
-    hf.textContent=canal?'Canalización: el mismo día del inicio. No se imprime.':'Inicio + jornadas. No se imprime.';
+    hf.textContent=canal?'Canalización: el mismo día del inicio. No se imprime.':'Último día de servicio. No se imprime.';
     hj.textContent=canal?'De la cotización: 1 visita':'La cotización trae '+Number(t.dias_periodo)+' jornadas. Si cambias las jornadas o el inicio, el precio se recalcula.';
   }else if(mem){
     var ini=gv('ct-fini'),fin=gv('ct-ffin');
