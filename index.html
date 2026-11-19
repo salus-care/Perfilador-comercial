@@ -666,7 +666,7 @@ body:not(.es-conta) .solo-conta{display:none!important}
 <div class="sec-lbl">🧾 Forma de contratación</div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px">
 <div class="tcard" id="ct-memb" onclick="setContrato('membresia')"><div class="tn">📆 Membresía</div><div class="th">Días de la semana · precio de lista</div></div>
-<div class="tcard" id="ct-jorn" onclick="setContrato('jornadas')"><div class="tn">🔢 Por jornadas</div><div class="th">Número de jornadas · precio de urgencia</div></div>
+<div class="tcard" id="ct-jorn" onclick="setContrato('jornadas')"><div class="tn">🔢 Por jornadas</div><div class="th">Número de jornadas · días seguidos</div></div>
 </div>
 </div>
 <div style="margin-top:18px;display:none" id="dsem-wrap">
@@ -688,7 +688,7 @@ body:not(.es-conta) .solo-conta{display:none!important}
 <div class="fl"><label>Fecha de inicio *</label><input type="date" id="jorn-fini" onchange="setCanalFecha(this.value)"></div>
 <div class="fl"><label>Fecha final</label><input type="date" id="jorn-ffin" readonly tabindex="-1" class="ct-calculado"><div class="cq-hint">Último día de servicio</div></div>
 </div>
-<div class="cq-hint" id="jorn-hint">Días a partir de la fecha de inicio. Cada jornada se cobra con la lista de urgencia.</div>
+<div class="cq-hint" id="jorn-hint">Días a partir de la fecha de inicio.</div>
 <div class="aviso-regla" id="jorn-festivos" style="display:none;margin-top:8px"></div>
 </div>
 <div style="margin-top:6px;display:none" id="canal-wrap">
@@ -1493,7 +1493,8 @@ function pintarFestivos(){
 const COL_DIAS_MES=[4.3,8.7,21.7,26.1,30.4];const COL_LABEL=['4.3 días/mes','8.7 días/mes','21.7 días/mes','26.1 días/mes','30.4 días/mes'];
 const sel={};let marca=null,producto=null,variante=null,memb=null,turno=null,dias=null,step=0,tipoSvc=null;
 // Forma de contratación (pestaña Turno, 4-nov-2026): «membresia» = días de la semana marcados (dias = cuántos) con la lista
-// normal; «jornadas» = número fijo de jornadas seguidas desde la fecha de inicio, con la lista de urgencia (+15 % en Salus).
+// normal; «jornadas» = número fijo de jornadas seguidas desde la fecha de inicio: hasta 4 con la lista de urgencia (+15 % en
+// Salus) y desde 5 con la lista estándar, sea cual sea el servicio (JORNADAS_LISTA_ESTANDAR, 19-nov-2026).
 // Urgencia / Guardia Hospitalaria solo se contrata por jornadas.
 let contrato=null,jornadas=null,diasSel=[];
 const DIAS_SEMANA=['lun','mar','mie','jue','vie','sab','dom'];
@@ -1550,8 +1551,11 @@ function setVariant(v){variante=v;document.getElementById('vb-basico').classList
 function setMemb(m){memb=m;['trim','sem','anual'].forEach(x=>document.getElementById('mb-'+x).classList.toggle('on',x===m));updateBtns();}
 // Turno de 24 h: Salus y las marcas con precio de 24 h en ESTANDAR. Salus y Médica Sur: 2 × el de 12 h; Médica Sur,
 // como en las cotizaciones que envía desde su cuenta de PandaDoc (revisadas el 21-oct-2026).
-// Lista de urgencia: la guardia y cualquier servicio contratado por jornadas.
-function esGuardiaCorta(){return(tipoSvc==='guardia'||contrato==='jornadas')&&!!GUARDIA_CORTA[marca];}
+// Lista de urgencia: la guardia y cualquier servicio contratado por jornadas, hasta 4 jornadas. Desde 5 jornadas va la lista
+// estándar, sea cual sea el servicio (19-nov-2026). La BD aplica la misma regla al recalcular el contrato
+// (_contrato_precio_calculado, con calculo.precios_jornada).
+const JORNADAS_LISTA_ESTANDAR=5;
+function esGuardiaCorta(){return(tipoSvc==='guardia'||contrato==='jornadas')&&!!GUARDIA_CORTA[marca]&&!(contrato==='jornadas'&&jornadas>=JORNADAS_LISTA_ESTANDAR);}
 // Precio por servicio c/IVA: la lista de guardias cortas si el servicio es Urgencia / Guardia Hospitalaria (solo Salus), si no la base
 function precioServicio(pk,h){var t=esGuardiaCorta()?GUARDIA_CORTA:ESTANDAR;return t[marca]&&t[marca][pk]?t[marca][pk][h]:null;}
 function con24(){return isSCS()||Object.values(ESTANDAR[marca]||{}).some(p=>p[24]!=null);}
@@ -1573,7 +1577,7 @@ function pintarContrato(){
   DIAS_SEMANA.forEach(function(d){document.getElementById('dw-'+d).classList.toggle('on',diasSel.indexOf(d)>=0);});
   var n=diasSel.length;document.getElementById('dsem-cuenta').textContent=n?'· '+n+' día'+(n>1?'s':'')+' por semana':'';
   var ji=document.getElementById('jorn-num');if(ji&&String(jornadas||'')!==ji.value)ji.value=jornadas||'';
-  var h=document.getElementById('jorn-hint');if(h)h.textContent=(g?'Urgencia / Guardia se contrata solo por jornadas. ':'')+'Días a partir de la fecha de inicio. Cada jornada se cobra con la lista de urgencia'+(GUARDIA_CORTA[marca]?' (+15 %)':'')+'; las que caen en día festivo llevan su recargo.';
+  var h=document.getElementById('jorn-hint');if(h)h.textContent=(g?'Urgencia / Guardia se contrata solo por jornadas. ':'')+'Días a partir de la fecha de inicio. '+(GUARDIA_CORTA[marca]?'Hasta 4 jornadas: lista de urgencia (+15 %); desde 5: lista estándar. ':'')+'Las que caen en día festivo llevan su recargo.';
   if(contrato==='jornadas')cargarFestivos();else pintarFestivos();}
 function togDia(d){var i=diasSel.indexOf(d);if(i>=0)diasSel.splice(i,1);else diasSel.push(d);diasSel.sort(function(a,b){return DIAS_SEMANA.indexOf(a)-DIAS_SEMANA.indexOf(b);});
   dias=diasSel.length||null;pintarContrato();updateBtns();}
@@ -2014,7 +2018,11 @@ function cqCalculo(){
   if(x1){r.mensual_sin_dto=x1.sd;r.mensual_con_dto=x1.cd;r.dias_mes=x1.dias_mes;r.mensual_x_1dia=dias;}
   // Por jornadas: días festivos que caen en las jornadas y su recargo (RECARGO_FESTIVO).
   if(porJ){var rg=jornRango();r.fecha_final=rg?rg.fin:null;r.festivos=festivosDelRango().map(function(x){return{fecha:x.fecha,nombre:x.nombre};});
-    r.recargo_festivo=recargoFestivo(pk,turno);r.recargo_festivos_total=r.recargo_festivo!=null?cqR2(r.recargo_festivo*r.festivos.length):0;}
+    r.recargo_festivo=recargoFestivo(pk,turno);r.recargo_festivos_total=r.recargo_festivo!=null?cqR2(r.recargo_festivo*r.festivos.length):0;
+    // Las dos listas por jornada (urgencia hasta 4, estándar desde 5): con ellas la BD recalcula el contrato si cambian las jornadas.
+    if(GUARDIA_CORTA[marca]&&!esCanal()){var gc=GUARDIA_CORTA[marca][pk],es=ESTANDAR[marca][pk],ru=RECARGO_FESTIVO[marca+'_urgencia'],re=RECARGO_FESTIVO[marca];
+      r.precios_jornada={min_estandar:JORNADAS_LISTA_ESTANDAR,urgencia:{precio_servicio:gc?gc[turno]:null,recargo_festivo:ru&&ru[pk]?ru[pk][turno]:null},
+        estandar:{precio_servicio:es?es[turno]:null,recargo_festivo:re&&re[pk]?re[pk][turno]:null}};}}
   if(r.mensual_sin_dto!=null&&r.mensual_con_dto!=null&&r.mensual_con_dto!==r.mensual_sin_dto)r.dto_frecuencia_pct=Math.round((1-r.mensual_con_dto/r.mensual_sin_dto)*100);
   if(r.producto==='match'){r.match={reclutamiento:MATCH_PRICES[pk],valoracion_plan:CQ_PLAN_MATCH,total:MATCH_PRICES[pk]+CQ_PLAN_MATCH};}
   if(r.producto==='select'&&memb){var isB=variante==='basico';var up=isB?SELECT_BASICO:MATCH_PRICES[pk];var mMD=MEMB_MENSUAL[pk][memb];var meses=MEMB_MES[memb];
@@ -2025,7 +2033,7 @@ function cqModalidadSugerida(c){if(!c)return'';if(c.producto==='match')return'pa
   // Por jornadas: el total de las jornadas (Médica Sur lo expresa como precio por día × días del periodo).
   // (Médica Sur iba con «por jornada» × días; desde el 4-nov-2026 también paquete, para sumar el recargo por festivos.)
   if(c.contratacion==='jornadas')return'paquete_jornadas';
-  // La guardia es un servicio corto: se cobra por jornada (en Salus, con la lista +15 %).
+  // La guardia es un servicio corto: se cobra por jornada (en Salus, con la lista +15 % hasta 4 jornadas).
   if(tipoSvc==='guardia'||c.lista_servicio==='GUARDIA_CORTA')return'por_jornada';
   // Con mensualidad en la lista para esos días (las dos marcas, lista 2026), se sugiere la mensualidad; si no, por jornada.
   // (Antes, en Médica Sur siempre por jornada, como sus cotizaciones de PandaDoc; cambió el 29-oct-2026.)
