@@ -1115,7 +1115,7 @@ body:not(.es-conta) .solo-conta{display:none!important}
 </div>
 <div class="g4">
 <div class="fl"><label>R.F.C.</label><input type="text" id="ct-cli-rfc" maxlength="13" oninput="this.value=this.value.toUpperCase()">
-<label class="cq-check" style="margin:5px 0 0"><input type="checkbox" id="ct-cli-ext" onchange="ctExtranjero()"> Cliente extranjero (RFC genérico)</label></div>
+<label class="cq-check" style="margin:5px 0 0"><input type="checkbox" id="ct-cli-ext" onchange="ctExtranjero()"> Cliente extranjero (público en general)</label></div>
 <div class="fl"><label>C.U.R.P.</label><input type="text" id="ct-cli-curp" maxlength="18" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Basta con uno de los dos.</div></div>
 <div class="fl"><label>Teléfono *</label><div class="tel-dos" data-tel="ct-cli-tel"></div></div>
 <div class="fl"><label>Correo (para la firma) *</label><input type="email" id="ct-cli-correo"></div>
@@ -3108,14 +3108,15 @@ function curpError(v){
   if(curpDigito(v)!==v[17])return'El último dígito de la CURP no corresponde (debería ser '+curpDigito(v)+'): revisa que esté bien escrita.';
   return'';
 }
-// Cliente extranjero (sin RFC ni CURP): va el RFC genérico del SAT para residentes en el extranjero. No se guarda aparte:
-// la casilla está marcada cuando el RFC es el genérico.
-const RFC_EXTRANJERO='XEXX010101000';
+// Cliente extranjero (sin RFC ni CURP): se le factura a público en general con el RFC genérico XAXX010101000 (regla de
+// Juan del 25-nov-2026; antes iba el genérico de extranjeros XEXX010101000, que Alegra no acepta para un cliente nacional).
+// No se guarda aparte: la casilla está marcada cuando el RFC es un genérico (también XEXX, de contratos anteriores).
+const RFC_PUBLICO='XAXX010101000',RFC_EXTRANJERO_ANTES='XEXX010101000';
 function ctExtranjero(cargado){
   var c=document.getElementById('ct-cli-ext'),r=document.getElementById('ct-cli-rfc');
-  if(cargado!==undefined)c.checked=cargado===RFC_EXTRANJERO;
-  else if(c.checked)r.value=RFC_EXTRANJERO;
-  else if(r.value===RFC_EXTRANJERO)r.value='';
+  if(cargado!==undefined)c.checked=cargado===RFC_PUBLICO||cargado===RFC_EXTRANJERO_ANTES;
+  else if(c.checked)r.value=RFC_PUBLICO;
+  else if(r.value===RFC_PUBLICO||r.value===RFC_EXTRANJERO_ANTES)r.value='';
   r.readOnly=c.checked;ctValidarIds();
 }
 function ctValidarIds(){
@@ -3810,7 +3811,7 @@ function svPagadorForm(id,paraServicio){
   f.innerHTML='<div class="cq-card" style="margin-top:10px"><div class="cq-title" style="font-size:.9rem">'+(id?'✏️ Modificar pagador':'➕ Nuevo pagador')+(paraServicio?' · para el servicio '+cqEsc(SV.servicio&&SV.servicio.folio||''):'')+'</div>'+
     '<div class="cq-sub">Con los datos de su constancia de situación fiscal: así se crea el cliente en Alegra.</div>'+
     '<div class="g3"><div class="fl"><label>Nombre o razón social *</label><input id="sv-p-nombre" value="'+cqEsc(p.nombre||'')+'" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Sin el régimen societario (CFDI 4.0): «EMPRESA», no «EMPRESA SA DE CV»</div></div>'+
-    '<div class="fl"><label>RFC *</label><input id="sv-p-rfc" maxlength="13" value="'+cqEsc(p.rfc||'')+'" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Público en general: XAXX010101000 · extranjero: XEXX010101000</div></div>'+
+    '<div class="fl"><label>RFC *</label><input id="sv-p-rfc" maxlength="13" value="'+cqEsc(p.rfc||'')+'" oninput="this.value=this.value.toUpperCase()"><div class="cq-hint">Público en general (también un cliente extranjero): XAXX010101000</div></div>'+
     '<div class="fl"><label>Régimen fiscal *</label><select id="sv-p-regimen">'+svOpts(SAT_REGIMEN,p.regimen_fiscal,'—')+'</select></div></div>'+
     '<div class="g4"><div class="fl"><label>C.P. fiscal *</label><input id="sv-p-cp" maxlength="5" value="'+cqEsc(p.cp_fiscal||'')+'"></div>'+
     '<div class="fl"><label>Uso del CFDI *</label><select id="sv-p-uso">'+svOpts(SAT_USO,p.uso_cfdi,'—')+'</select></div>'+
